@@ -1,0 +1,441 @@
+/*
+ * Penyesuaian antarmuka Aplikasi Tagihan Sekolah.
+ * Layout utama tetap menggunakan struktur dan aset Adminto.
+ */
+
+:root,
+[data-bs-theme="light"],
+[data-bs-theme="dark"] {
+    --ct-font-sans-serif: "Public Sans", "Segoe UI", Arial, sans-serif;
+}
+
+body,
+button,
+input,
+select,
+textarea,
+.table {
+    font-family: var(--ct-font-sans-serif);
+}
+
+/* Menjaga area konten tetap rapi dan tidak saling menimpa. */
+.page-content .page-container {
+    min-width: 0;
+}
+
+.page-content .row {
+    min-width: 0;
+}
+
+.card {
+    min-width: 0;
+}
+
+.card > .card-header {
+    min-height: 72px;
+    border-bottom-style: dashed;
+    display: flex;
+    align-items: center;
+}
+
+.card-header.app-card-header,
+.card-header.justify-content-between {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+.card-header .header-title,
+.card-header h4,
+.card-header h5 {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+.app-topbar .topbar-menu {
+    justify-content: space-between;
+}
+
+.app-topbar .page-title {
+    max-width: min(56vw, 620px);
+}
+
+.min-w-0 {
+    min-width: 0;
+}
+
+/* Filter wireframe: semua kontrol berada pada satu blok dan selalu di atas data. */
+.filter-toolbar,
+.wf-filter-grid {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 1.5rem;
+}
+
+.filter-toolbar .form-control,
+.filter-toolbar .form-select,
+.filter-toolbar .input-group,
+.wf-filter-grid .form-control,
+.wf-filter-grid .form-select,
+.wf-filter-grid .input-group {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+}
+
+.wf-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: .75rem;
+    align-items: end;
+}
+
+.wf-col-2 { grid-column: span 2; }
+.wf-col-3 { grid-column: span 3; }
+.wf-col-4 { grid-column: span 4; }
+.wf-col-5 { grid-column: span 5; }
+.wf-col-6 { grid-column: span 6; }
+.wf-col-8 { grid-column: span 8; }
+.wf-col-12 { grid-column: span 12; }
+
+.wf-filter-label {
+    display: block;
+    margin-bottom: .4rem;
+    font-weight: 500;
+}
+
+.wf-toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+}
+
+.toolbar-search {
+    width: 100%;
+    max-width: 280px;
+}
+
+/* Daftar CRUD mengikuti acuan card/list. */
+.crud-list {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    clear: both;
+}
+
+.crud-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    min-height: 118px;
+    padding: 1rem;
+    border: 1px solid var(--ct-border-color);
+    border-radius: var(--ct-border-radius-lg);
+    background: var(--ct-tertiary-bg);
+    overflow: hidden;
+}
+
+.crud-content {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.crud-title {
+    margin: .35rem 0 .15rem;
+    color: var(--ct-heading-color);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.crud-status,
+.crud-meta,
+.crud-note {
+    font-size: .8125rem;
+    line-height: 1.5;
+}
+
+.crud-meta,
+.crud-note {
+    color: var(--ct-secondary-color);
+}
+
+.crud-actions,
+.action-buttons {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .65rem;
+}
+
+.crud-actions .btn-icon,
+.action-buttons .btn-icon {
+    width: 52px;
+    min-width: 52px;
+    height: 42px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+#data .card.border {
+    border-color: var(--ct-border-color) !important;
+    background: var(--ct-tertiary-bg);
+}
+
+/* Dashboard. */
+.dashboard-metric-card {
+    height: 100%;
+    transition: border-color .15s ease, transform .15s ease;
+}
+
+.dashboard-metric-card.is-link {
+    cursor: pointer;
+}
+
+.dashboard-metric-card.is-link:hover {
+    border-color: rgba(var(--ct-primary-rgb), .45);
+    transform: translateY(-1px);
+}
+
+.dashboard-metric-card .card-body {
+    min-height: 132px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.dashboard-metric-icon {
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 50%;
+}
+
+.summary-value {
+    margin-bottom: .25rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.dashboard-chart-wrap {
+    min-height: 320px;
+    position: relative;
+}
+
+.dashboard-chart-empty {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .9rem 0;
+    border-bottom: 1px dashed var(--ct-border-color);
+}
+
+.dashboard-list-row:last-child {
+    border-bottom: 0;
+}
+
+.dashboard-status-bar {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--ct-light);
+}
+
+.dashboard-status-bar > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+}
+
+/* Tabel dan keadaan kosong. */
+.table-responsive {
+    min-width: 0;
+}
+
+.table th {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table .table-actions {
+    white-space: nowrap;
+}
+
+.empty-state {
+    padding: 2.5rem 1rem;
+    color: var(--ct-secondary-color);
+    text-align: center;
+}
+
+.empty-state .empty-icon {
+    display: block;
+    margin-bottom: .5rem;
+    font-size: 2rem;
+}
+
+.empty-state-title {
+    margin-bottom: .25rem;
+    color: var(--ct-heading-color);
+    font-weight: 600;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.money-input {
+    text-align: right;
+}
+
+.sticky-summary {
+    position: sticky;
+    top: calc(var(--ct-topbar-height) + 16px);
+}
+
+.wf-section {
+    border: 1px solid var(--ct-border-color);
+    border-radius: var(--ct-border-radius-lg);
+    padding: 1rem;
+    background: var(--ct-secondary-bg);
+}
+
+.wf-section-title {
+    margin-bottom: 1rem;
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+.wf-selected-student {
+    border-left: 3px solid var(--ct-primary);
+    background: var(--ct-primary-bg-subtle);
+}
+
+.wf-step-badge {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--ct-primary);
+    font-weight: 600;
+}
+
+/* Modal CRUD. */
+.modal-dialog.modal-lg {
+    max-width: 800px;
+}
+
+.modal-dialog.modal-xl {
+    max-width: 1100px;
+}
+
+.modal-footer .btn {
+    min-width: 76px;
+}
+
+@media (max-width: 991.98px) {
+    .wf-col-2,
+    .wf-col-3,
+    .wf-col-4,
+    .wf-col-5,
+    .wf-col-6,
+    .wf-col-8 {
+        grid-column: span 6;
+    }
+
+    .dashboard-metric-card .card-body {
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .app-topbar .page-title {
+        max-width: 48vw;
+        font-size: 1rem !important;
+    }
+
+    .wf-col-2,
+    .wf-col-3,
+    .wf-col-4,
+    .wf-col-5,
+    .wf-col-6,
+    .wf-col-8,
+    .wf-col-12 {
+        grid-column: span 12;
+    }
+
+    .sticky-summary {
+        position: static;
+    }
+
+    .toolbar-search {
+        max-width: none;
+    }
+
+    .crud-list-item {
+        min-height: 0;
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .crud-actions,
+    .action-buttons {
+        justify-content: flex-start;
+    }
+
+    .card > .card-header {
+        min-height: 64px;
+    }
+}
+
+@media print {
+    .sidenav-menu,
+    .app-topbar,
+    .footer,
+    .no-print {
+        display: none !important;
+    }
+
+    .page-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .page-content .page-container {
+        max-width: none !important;
+        padding: 0 !important;
+    }
+
+    .card {
+        break-inside: avoid;
+        box-shadow: none !important;
+    }
+}

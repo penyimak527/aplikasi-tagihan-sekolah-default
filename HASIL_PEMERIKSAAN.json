@@ -1,0 +1,17 @@
+{
+  "php_files_linted": 133,
+  "inline_js_blocks_render_checked": 36,
+  "template_files": [
+    "footer.php",
+    "header.php"
+  ],
+  "schema_tables": 31,
+  "controllers": 38,
+  "models": 24,
+  "views": 52,
+  "controller_grouping": true,
+  "model_grouping": true,
+  "extra_database_tables_added": false,
+  "base_url_mode": "dynamic_user_provided",
+  "integration_test": "Belum dijalankan karena lingkungan kerja tidak menyediakan MySQL/mysqli."
+}
