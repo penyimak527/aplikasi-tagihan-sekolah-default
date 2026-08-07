@@ -1,15 +1,12 @@
 <div class="card">
-    <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <div>
-            <h4 class="header-title mb-0">Hak Akses</h4>
-            <small class="text-muted">Pilih level terlebih dahulu untuk mengatur menu yang dapat diakses.</small>
-        </div>
+    <div class="card-header app-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <h4 class="header-title mb-0">Data Hak Akses</h4>
         <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary" id="btn-tambah">
+                <i class="ri-add-line me-1"></i>Tambah
+            </button>
             <button type="button" class="btn btn-outline-danger" id="btn-hapus">
                 <i class="ri-delete-bin-line me-1"></i>Hapus
-            </button>
-            <button type="button" class="btn btn-primary" id="btn-tambah">
-                <i class="ri-add-line me-1"></i>Tambah
             </button>
         </div>
     </div>
@@ -26,7 +23,7 @@
             </div>
             <div class="col-md-6">
                 <label for="cari" class="form-label">Cari Hak Akses</label>
-                <input type="text" class="form-control" id="cari" placeholder="Nama menu, path, atau group">
+                <input type="text" class="form-control" id="cari" placeholder="Cari nama menu atau group ...">
             </div>
             <div class="col-md-2 d-grid">
                 <button type="button" class="btn btn-primary" id="btn-cari">
@@ -35,7 +32,7 @@
             </div>
         </div>
 
-        <div id="data_hak_akses" class="mt-3"></div>
+        <div id="data_hak_akses" class="crud-list mt-3"></div>
 
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center flex-wrap gap-2 mt-2">
             <ul class="pagination pagination-sm pagination-boxed mb-0" id="pagination"></ul>
@@ -67,7 +64,7 @@
                 <div class="row g-2 align-items-end">
                     <div class="col-md-10">
                         <label for="cari_menu" class="form-label">Cari Menu</label>
-                        <input type="text" class="form-control" id="cari_menu" placeholder="Nama menu, path, atau group">
+                        <input type="text" class="form-control" id="cari_menu" placeholder="Cari nama menu atau group ...">
                     </div>
                     <div class="col-md-2 d-grid">
                         <button type="button" class="btn btn-primary" id="btn-cari-menu">
@@ -78,7 +75,7 @@
 
                 <form id="form-tambah">
                     <input type="hidden" name="id_level" id="id_level_tambah">
-                    <div id="data_menu" class="mt-3"></div>
+                    <div id="data_menu" class="crud-list mt-3"></div>
                 </form>
 
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center flex-wrap gap-2 mt-2">
@@ -161,12 +158,12 @@ $(document).ready(function () {
 
     $('#dt-length-0').on('change', function () {
         const jumlah = parseInt($(this).val());
-        paging($('#data_hak_akses .card-mapel'), jumlah);
+        paging($('#data_hak_akses .crud-list-item'), jumlah);
     });
 
     $('#dt-length-menu').on('change', function () {
         const jumlah = parseInt($(this).val());
-        paging($('#data_menu .card-mapel'), jumlah, '#pagination-menu');
+        paging($('#data_menu .crud-list-item'), jumlah, '#pagination-menu');
     });
 });
 
@@ -176,14 +173,16 @@ function hak_akses() {
 
     if (id_level == '') {
         $('#data_hak_akses').html(`
-            <div class="card-mapel">
-                <div class="keterangan-mapel">
-                    <div class="keterangan-mapel-kiri">
-                        <h5 class="judul-mapel mb-0">Pilih level terlebih dahulu.</h5>
-                    </div>
+            <div class="crud-list-item">
+                <div class="crud-content">
+                    <div class="crud-title">Pilih level terlebih dahulu.</div>
                 </div>
             </div>`);
-        paging($('#data_hak_akses .card-mapel'), parseInt($('#dt-length-0').val()));
+
+        paging(
+            $('#data_hak_akses .crud-list-item'),
+            parseInt($('#dt-length-0').val())
+        );
         return;
     }
 
@@ -201,30 +200,26 @@ function hak_akses() {
 
             if (data.length == 0) {
                 table += `
-                    <div class="card-mapel">
-                        <div class="keterangan-mapel">
-                            <div class="keterangan-mapel-kiri">
-                                <h5 class="judul-mapel mb-0">Tidak ada data</h5>
-                            </div>
+                    <div class="crud-list-item">
+                        <div class="crud-content">
+                            <div class="crud-title">Tidak ada data</div>
                         </div>
                     </div>`;
             } else {
                 data.forEach(function (item) {
                     table += `
-                        <div class="card-mapel">
-                            <p class="keterangan-hari">
-                                <span>Group: <b>${escapeHtml(item.group || '-')}</b></span>
-                            </p>
-                            <div class="keterangan-mapel">
-                                <div class="keterangan-mapel-kiri d-flex align-items-start gap-2">
-                                    <input class="form-check-input pilih-hak-akses mt-1" type="checkbox" value="${item.id}">
-                                    <div>
-                                        <h5 class="judul-mapel" style="margin:0; margin-top:4px;">${no++}. ${escapeHtml(item.name)}</h5>
-                                        <p style="margin:0; padding:0; font-size:12px; margin-bottom:8px;">
-                                            <b>Path:</b> ${escapeHtml(item.path)}
-                                        </p>
-                                    </div>
-                                </div>
+                        <div class="crud-list-item">
+                            <div class="crud-content">
+                                <div class="crud-status">Group: ${escapeHtml(item.group || '-')}</div>
+                                <div class="crud-title">${no++}. ${escapeHtml(item.name)}</div>
+                            </div>
+                            <div class="crud-actions">
+                                <input
+                                    class="form-check-input pilih-hak-akses"
+                                    type="checkbox"
+                                    value="${item.id}"
+                                    title="Pilih hak akses"
+                                >
                             </div>
                         </div>`;
                 });
@@ -232,7 +227,7 @@ function hak_akses() {
 
             $('#data_hak_akses').html(table);
             let jumlah_awal = parseInt($('#dt-length-0').val());
-            paging($('#data_hak_akses .card-mapel'), jumlah_awal);
+            paging($('#data_hak_akses .crud-list-item'), jumlah_awal);
         },
         error: function (xhr, status, error) {
             ajaxError(xhr);
@@ -276,30 +271,27 @@ function menu_result() {
 
             if (data.length == 0) {
                 table += `
-                    <div class="card-mapel">
-                        <div class="keterangan-mapel">
-                            <div class="keterangan-mapel-kiri">
-                                <h5 class="judul-mapel mb-0">Tidak ada menu yang dapat ditambahkan.</h5>
-                            </div>
+                    <div class="crud-list-item">
+                        <div class="crud-content">
+                            <div class="crud-title">Tidak ada menu yang dapat ditambahkan.</div>
                         </div>
                     </div>`;
             } else {
                 data.forEach(function (item) {
                     table += `
-                        <div class="card-mapel">
-                            <p class="keterangan-hari">
-                                <span>Group: <b>${escapeHtml(item.group || '-')}</b></span>
-                            </p>
-                            <div class="keterangan-mapel">
-                                <div class="keterangan-mapel-kiri d-flex align-items-start gap-2">
-                                    <input class="form-check-input mt-1" type="checkbox" name="id_menu[]" value="${item.id}">
-                                    <div>
-                                        <h5 class="judul-mapel" style="margin:0; margin-top:4px;">${no++}. ${escapeHtml(item.name)}</h5>
-                                        <p style="margin:0; padding:0; font-size:12px; margin-bottom:8px;">
-                                            <b>Path:</b> ${escapeHtml(item.path)}
-                                        </p>
-                                    </div>
-                                </div>
+                        <div class="crud-list-item">
+                            <div class="crud-content">
+                                <div class="crud-status">Group: ${escapeHtml(item.group || '-')}</div>
+                                <div class="crud-title">${no++}. ${escapeHtml(item.name)}</div>
+                            </div>
+                            <div class="crud-actions">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="id_menu[]"
+                                    value="${item.id}"
+                                    title="Pilih menu"
+                                >
                             </div>
                         </div>`;
                 });
@@ -307,7 +299,7 @@ function menu_result() {
 
             $('#data_menu').html(table);
             let jumlah_awal = parseInt($('#dt-length-menu').val());
-            paging($('#data_menu .card-mapel'), jumlah_awal, '#pagination-menu');
+            paging($('#data_menu .crud-list-item'), jumlah_awal, '#pagination-menu');
         },
         error: function (xhr, status, error) {
             ajaxError(xhr);

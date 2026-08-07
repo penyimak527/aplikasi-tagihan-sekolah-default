@@ -1,15 +1,14 @@
 <div class="card">
-    <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div class="card-header app-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
         <h4 class="header-title mb-0">Data Level</h4>
-        <button type="button" class="btn btn-primary" onclick="tambah()">
+        <button type="button" class="btn btn-outline-primary" onclick="tambah()">
             <i class="ri-add-line me-1"></i>Tambah
         </button>
     </div>
     <div class="card-body">
-        <div class="row g-2 align-items-end">
+        <div class="row g-2 align-items-end mb-3">
             <div class="col-md-10">
-                <label for="cari" class="form-label">Cari Level</label>
-                <input type="text" class="form-control" id="cari" placeholder="Cari level">
+                <input type="text" class="form-control" id="cari" placeholder="Cari level ...">
             </div>
             <div class="col-md-2 d-grid">
                 <button type="button" class="btn btn-primary" id="btn-cari">
@@ -18,18 +17,7 @@
             </div>
         </div>
 
-        <div class="table-responsive mt-3">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th width="70">No</th>
-                        <th>Level</th>
-                        <th width="150" class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="data_level"></tbody>
-            </table>
-        </div>
+        <div id="data_level" class="crud-list"></div>
 
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center flex-wrap gap-2 mt-2">
             <ul class="pagination pagination-sm pagination-boxed mb-0" id="pagination"></ul>
@@ -107,7 +95,7 @@ $(document).ready(function () {
 
     $('#dt-length-0').on('change', function () {
         const jumlah = parseInt($(this).val());
-        paging($('#data_level .data-level'), jumlah);
+        paging($('#data_level .crud-list-item'), jumlah);
     });
 });
 
@@ -126,31 +114,36 @@ function level() {
             var table = '';
 
             if (data.length == 0) {
-                table = '<tr class="data-level"><td colspan="3"><div class="empty-state">Tidak ada data</div></td></tr>';
+                table = `
+                    <div class="crud-list-item">
+                        <div class="crud-content">
+                            <div class="crud-title">Tidak ada data</div>
+                        </div>
+                    </div>`;
             } else {
                 data.forEach(function (item) {
                     let detail = btoa(JSON.stringify(item));
+
                     table += `
-                        <tr class="data-level">
-                            <td>${no++}</td>
-                            <td>${escapeHtml(item.level)}</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="edit('${detail}')">
-                                        <i class="ri-edit-line"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="hapus('${item.id}')">
-                                        <i class="ri-delete-bin-line"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>`;
+                        <div class="crud-list-item">
+                            <div class="crud-content">
+                                <div class="crud-title">${no++}. ${escapeHtml(item.level)}</div>
+                            </div>
+                            <div class="crud-actions">
+                                <button type="button" class="btn btn-outline-warning btn-icon" title="Edit" onclick="edit('${detail}')">
+                                    <i class="ri-edit-line"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-icon" title="Hapus" onclick="hapus('${item.id}')">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </div>
+                        </div>`;
                 });
             }
 
             $('#data_level').html(table);
             let jumlah_awal = parseInt($('#dt-length-0').val());
-            paging($('#data_level .data-level'), jumlah_awal);
+            paging($('#data_level .crud-list-item'), jumlah_awal);
         },
         error: function (xhr, status, error) {
             ajaxError(xhr);

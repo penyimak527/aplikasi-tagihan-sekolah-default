@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class M_user extends CI_Model
 {
@@ -75,17 +75,28 @@ class M_user extends CI_Model
             ->row_array();
     }
 
+    private function get_pegawai($id_pegawai)
+    {
+        return $this->db
+            ->select('id, nama_pegawai')
+            ->where('id', (int) $id_pegawai)
+            ->get('pegawai')
+            ->row_array();
+    }
+
     public function tambah()
     {
-        $nama_user = trim((string) $this->input->post('nama_user', true));
         $username = trim((string) $this->input->post('username', true));
         $password = (string) $this->input->post('password');
         $konfirmasi = (string) $this->input->post('konfirmasi_password');
         $id_level = (int) $this->input->post('id_level');
         $id_pegawai = (int) $this->input->post('id_pegawai');
 
-        if ($nama_user === '' || $username === '' || $password === '' || $id_level <= 0) {
-            return array('result' => 'false', 'message' => 'Nama user, username, password, dan level wajib diisi.');
+        if ($id_pegawai <= 0 || $username === '' || $password === '' || $id_level <= 0) {
+            return array(
+                'result' => 'false',
+                'message' => 'Pegawai, username, password, dan level wajib diisi.'
+            );
         }
 
         if ($password !== $konfirmasi) {
@@ -96,19 +107,24 @@ class M_user extends CI_Model
             return array('result' => 'false', 'message' => 'Username sudah digunakan.');
         }
 
+        $pegawai = $this->get_pegawai($id_pegawai);
+        if (!$pegawai) {
+            return array('result' => 'false', 'message' => 'Pegawai tidak ditemukan.');
+        }
+
         $level = $this->get_level($id_level);
         if (!$level) {
             return array('result' => 'false', 'message' => 'Level tidak ditemukan.');
         }
 
         $data = array(
-            'nama_user' => $nama_user,
+            'nama_user' => trim((string) $pegawai['nama_pegawai']),
             'username' => $username,
             'password' => password_hash($password, PASSWORD_DEFAULT),
-            'password_text' => null,
+            'password_text' => $password,
             'id_level' => $id_level,
             'level' => $level['level'],
-            'id_pegawai' => $id_pegawai > 0 ? $id_pegawai : null
+            'id_pegawai' => $id_pegawai
         );
 
         $this->db->insert('users', $data);
@@ -122,23 +138,31 @@ class M_user extends CI_Model
     {
         $id = (int) $id;
         $row = $this->detail($id);
+
         if (!$row) {
             return array('result' => 'false', 'message' => 'Data user tidak ditemukan.');
         }
 
-        $nama_user = trim((string) $this->input->post('nama_user', true));
         $username = trim((string) $this->input->post('username', true));
         $password = (string) $this->input->post('password');
         $konfirmasi = (string) $this->input->post('konfirmasi_password');
         $id_level = (int) $this->input->post('id_level');
         $id_pegawai = (int) $this->input->post('id_pegawai');
 
-        if ($nama_user === '' || $username === '' || $id_level <= 0) {
-            return array('result' => 'false', 'message' => 'Nama user, username, dan level wajib diisi.');
+        if ($id_pegawai <= 0 || $username === '' || $id_level <= 0) {
+            return array(
+                'result' => 'false',
+                'message' => 'Pegawai, username, dan level wajib diisi.'
+            );
         }
 
         if ($this->username_exists($username, $id)) {
             return array('result' => 'false', 'message' => 'Username sudah digunakan.');
+        }
+
+        $pegawai = $this->get_pegawai($id_pegawai);
+        if (!$pegawai) {
+            return array('result' => 'false', 'message' => 'Pegawai tidak ditemukan.');
         }
 
         $level = $this->get_level($id_level);
@@ -147,19 +171,20 @@ class M_user extends CI_Model
         }
 
         $data = array(
-            'nama_user' => $nama_user,
+            'nama_user' => trim((string) $pegawai['nama_pegawai']),
             'username' => $username,
             'id_level' => $id_level,
             'level' => $level['level'],
-            'id_pegawai' => $id_pegawai > 0 ? $id_pegawai : null
+            'id_pegawai' => $id_pegawai
         );
 
         if ($password !== '') {
             if ($password !== $konfirmasi) {
                 return array('result' => 'false', 'message' => 'Konfirmasi password baru tidak sama.');
             }
+
             $data['password'] = password_hash($password, PASSWORD_DEFAULT);
-            $data['password_text'] = null;
+            $data['password_text'] = $password;
         }
 
         $this->db->where('id', $id)->update('users', $data);
