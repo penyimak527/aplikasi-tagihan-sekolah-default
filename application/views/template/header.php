@@ -79,7 +79,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Aplikasi Tagihan Sekolah">
 
-    <link rel="shortcut icon" href="<?= base_url('assets/images/favicon.ico') ?>">
+    <link rel="shortcut icon" href="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>">
 
     <!-- Konfigurasi dan asset resmi Adminto. -->
     <script src="<?= base_url('assets/js/config.js') ?>"></script>
@@ -116,12 +116,12 @@ $pengaturan_open = $is_group_active($menuPengaturan);
         <div class="sidenav-menu">
             <a href="<?= base_url('dashboard') ?>" class="logo">
                 <span class="logo-light">
-                    <span class="logo-lg"><img src="<?= base_url('assets/images/logo.png') ?>" alt="Adminto"></span>
-                    <span class="logo-sm"><img src="<?= base_url('assets/images/logo-sm.png') ?>" alt="Adminto"></span>
+                    <span class="logo-lg"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>" alt="Adminto"></span>
+                    <span class="logo-sm"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>" alt="Adminto"></span>
                 </span>
                 <span class="logo-dark">
-                    <span class="logo-lg"><img src="<?= base_url('assets/images/logo-dark.png') ?>" alt="Adminto"></span>
-                    <span class="logo-sm"><img src="<?= base_url('assets/images/logo-sm.png') ?>" alt="Adminto"></span>
+                    <span class="logo-lg"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>" alt="Adminto"></span>
+                    <span class="logo-sm"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>" alt="Adminto"></span>
                 </span>
             </a>
 
@@ -350,12 +350,12 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                     <!-- Logo ini hanya tampil pada mode mobile sesuai perilaku bawaan Adminto. -->
                     <a href="<?= base_url('dashboard') ?>" class="logo">
                         <span class="logo-light">
-                            <span class="logo-lg"><img src="<?= base_url('assets/images/logo.png') ?>" alt="Adminto"></span>
-                            <span class="logo-sm"><img src="<?= base_url('assets/images/logo-sm.png') ?>" alt="Adminto"></span>
+                            <span class="logo-lg"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>" alt="Adminto"></span>
+                            <span class="logo-sm"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>" alt="Adminto"></span>
                         </span>
                         <span class="logo-dark">
-                            <span class="logo-lg"><img src="<?= base_url('assets/images/logo-dark.png') ?>" alt="Adminto"></span>
-                            <span class="logo-sm"><img src="<?= base_url('assets/images/logo-sm.png') ?>" alt="Adminto"></span>
+                            <span class="logo-lg"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>" alt="Adminto"></span>
+                            <span class="logo-sm"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>" alt="Adminto"></span>
                         </span>
                     </a>
 

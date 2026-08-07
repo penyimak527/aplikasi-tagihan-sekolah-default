@@ -9,9 +9,7 @@
         <div class="row g-2 align-items-end">
             <div class="col-md-10">
                 <label class="form-label" for="cari_siswa">Nama / NIS / NISN / Scan Kode</label>
-                <input
-                    type="text"
-                    id="cari_siswa"
+                <input type="text" id="cari_siswa"
                     class="form-control"
                     placeholder="Masukkan nama, NIS, NISN, atau scan kode siswa"
                     autocomplete="off"
@@ -43,7 +41,7 @@
 
 <div id="area_transaksi" class="d-none">
     <div class="row g-3 align-items-start">
-        <div class="col-xl-8">
+        <div class="col-xl-7">
             <div class="card" id="card_tagihan">
                 <div class="card-header app-card-header">
                     <div>
@@ -104,7 +102,7 @@
             </div>
         </div>
 
-        <div class="col-xl-4">
+        <div class="col-xl-5">
             <div class="card" id="keranjang-pembayaran">
                 <div class="card-header app-card-header">
                     <div>
@@ -435,10 +433,6 @@ $(function () {
 
     $('#daftar_tagihan').on('change', '.check-bill', function () {
         updateAddButton();
-    });
-
-    $('#daftar_tagihan').on('change', '.bill-page-size', function () {
-        refreshBillPagination($(this).data('key'));
     });
 
     $('#keranjang').on('input', '.cart-amount', function () {
@@ -850,8 +844,6 @@ function drawBills() {
 
     $('#daftar_tagihan').html(table);
 
-    refreshBillPagination('current');
-    refreshBillPagination('previous');
     updateAddButton();
 }
 
@@ -868,7 +860,7 @@ function buildBillSection(title, rows, tone, key, emptyMessage) {
 
     if (rows.length == 0) {
         table += `
-            <div class="empty-state bill-page-row-${key}">
+            <div class="empty-state">
                 <i class="ri-file-search-line empty-icon"></i>
                 ${escapeHtml(emptyMessage || 'Tidak ada data.')}
             </div>
@@ -885,7 +877,7 @@ function buildBillSection(title, rows, tone, key, emptyMessage) {
                 : 'secondary';
 
             table += `
-                <div class="bill-item bill-page-row-${key}">
+                <div class="bill-item">
                     <div class="d-flex align-items-start gap-3">
                         <input
                             type="checkbox"
@@ -949,34 +941,9 @@ function buildBillSection(title, rows, tone, key, emptyMessage) {
         });
     }
 
-    table += buildBillPagination(key);
     table += '</div>';
 
     return table;
-}
-
-function buildBillPagination(key) {
-    return '<div class="d-flex flex-column flex-md-row justify-content-between align-items-center flex-wrap gap-2 mt-3">' +
-        '<ul class="pagination pagination-sm pagination-boxed mb-0" id="pagination-bills-' + key + '"></ul>' +
-        '<div class="d-flex align-items-center gap-2">' +
-            '<label for="dt-length-bills-' + key + '" class="mb-0">Tampilkan</label>' +
-            '<select class="form-select form-select-sm bill-page-size" id="dt-length-bills-' + key + '" data-key="' + key + '">' +
-                '<option value="10" selected>10</option>' +
-                '<option value="25">25</option>' +
-                '<option value="50">50</option>' +
-                '<option value="100">100</option>' +
-            '</select>' +
-            '<span>entri</span>' +
-        '</div>' +
-    '</div>';
-}
-
-function refreshBillPagination(key) {
-    paging(
-        $('#daftar_tagihan .bill-page-row-' + key),
-        parseInt($('#dt-length-bills-' + key).val(), 10) || 10,
-        '#pagination-bills-' + key
-    );
 }
 
 function updateAddButton() {
