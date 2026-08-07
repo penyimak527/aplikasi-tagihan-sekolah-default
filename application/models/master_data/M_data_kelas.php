@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class M_data_kelas extends MY_Model
+class M_data_kelas extends CI_Model
 {
     public function result(){
         $search=trim((string)$this->input->post('search',true));$status=trim((string)$this->input->post('status',true));
@@ -11,21 +11,21 @@ class M_data_kelas extends MY_Model
     public function detail(){
         $id=(int)$this->input->post('id');
         $row=$this->db->where('id',$id)->get('kelas')->row_array();
-        if(!$row)return $this->response(false,'Kelas tidak ditemukan.');
+        if(!$row)return model_response(false,'Kelas tidak ditemukan.');
         $setting=$this->db->query("SELECT ks.*,ta.periode,COUNT(kss.id) jumlah_siswa FROM kelas_setting ks LEFT JOIN master_tahun_ajaran ta ON ta.id=CAST(ks.id_periode AS UNSIGNED) LEFT JOIN kelas_siswa kss ON CAST(kss.id_kelas_setting AS UNSIGNED)=ks.id AND kss.status_aktif='1' WHERE CAST(ks.id_kelas AS UNSIGNED)=? GROUP BY ks.id ORDER BY ta.id DESC,ks.semester",array($id))->result_array();
         return array('result'=>'true','data'=>$row,'setting'=>$setting);
     }
     public function simpan(){
         $id=(int)$this->input->post('id');$nama=trim((string)$this->input->post('nama_kelas',true));$jurusan=trim((string)$this->input->post('jurusan',true));$status=trim((string)$this->input->post('status',true));
-        if($nama==='')return $this->response(false,'Nama kelas wajib diisi.');if($status==='')$status='REGULER';
+        if($nama==='')return model_response(false,'Nama kelas wajib diisi.');if($status==='')$status='REGULER';
         $before=$id?$this->db->where('id',$id)->get('kelas')->row_array():null;$data=array('nama_kelas'=>$nama,'jurusan'=>$jurusan,'status'=>$status);
         $this->db->trans_begin();if($id){$this->db->where('id',$id)->update('kelas',$data);}else{$data['id_jurusan']=0;$this->db->insert('kelas',$data);$id=$this->db->insert_id();}
-        $this->log_activity($before?'Ubah Kelas':'Tambah Kelas','Master Data',$before?'Ubah':'Tambah','kelas',$id,$nama,'Pengelolaan master kelas',$before,$data);
-        return $this->transaction_result('Data kelas berhasil disimpan.');
+        tagihan_log_activity($before?'Ubah Kelas':'Tambah Kelas','Master Data',$before?'Ubah':'Tambah','kelas',$id,$nama,'Pengelolaan master kelas',$before,$data);
+        return tagihan_transaction_result('Data kelas berhasil disimpan.');
     }
     public function hapus(){
-        $id=(int)$this->input->post('id');$row=$this->db->where('id',$id)->get('kelas')->row_array();if(!$row)return $this->response(false,'Data tidak ditemukan.');
-        if($this->db->where('id_kelas',(string)$id)->count_all_results('kelas_setting'))return $this->response(false,'Kelas sudah digunakan pada pengaturan kelas dan tidak dapat dihapus.');
-        $this->db->trans_begin();$this->db->where('id',$id)->delete('kelas');$this->log_activity('Hapus Kelas','Master Data','Batal','kelas',$id,$row['nama_kelas'],'Menghapus kelas yang belum digunakan',$row,null);return $this->transaction_result('Kelas berhasil dihapus.');
+        $id=(int)$this->input->post('id');$row=$this->db->where('id',$id)->get('kelas')->row_array();if(!$row)return model_response(false,'Data tidak ditemukan.');
+        if($this->db->where('id_kelas',(string)$id)->count_all_results('kelas_setting'))return model_response(false,'Kelas sudah digunakan pada pengaturan kelas dan tidak dapat dihapus.');
+        $this->db->trans_begin();$this->db->where('id',$id)->delete('kelas');tagihan_log_activity('Hapus Kelas','Master Data','Batal','kelas',$id,$row['nama_kelas'],'Menghapus kelas yang belum digunakan',$row,null);return tagihan_transaction_result('Kelas berhasil dihapus.');
     }
 }

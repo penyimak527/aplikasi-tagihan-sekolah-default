@@ -1,10 +1,13 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-class Daftar_tagihan extends MY_Controller
+class Daftar_tagihan extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('tagihan/M_daftar_tagihan', 'model');
     }
     public function index()
@@ -16,18 +19,18 @@ class Daftar_tagihan extends MY_Controller
     }
     public function result()
     {
-        $this->json($this->model->result());
+        json_response($this->model->result());
     }
     public function detail()
     {
-        $this->json($this->model->detail());
+        json_response($this->model->detail());
     }
     public function terbitkan()
     {
-        $this->json($this->model->terbitkan());
+        json_response($this->model->terbitkan());
     }
     public function batalkan_sisa()
     {
-        $this->json($this->model->batalkan_sisa());
+        json_response($this->model->batalkan_sisa());
     }
 }

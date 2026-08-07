@@ -1,10 +1,13 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-class Kenaikan_kelas extends MY_Controller
+class Kenaikan_kelas extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('kesiswaan/M_kenaikan_kelas', 'model');
     }
     public function index()
@@ -16,14 +19,14 @@ class Kenaikan_kelas extends MY_Controller
     }
     public function siswa()
     {
-        $this->json($this->model->siswa());
+        json_response($this->model->siswa());
     }
     public function preview()
     {
-        $this->json($this->model->preview('Naik Kelas'));
+        json_response($this->model->preview('Naik Kelas'));
     }
     public function proses()
     {
-        $this->json($this->model->proses('Naik Kelas'));
+        json_response($this->model->proses('Naik Kelas'));
     }
 }

@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class M_laporan extends MY_Model
+class M_laporan extends CI_Model
 {
     private $allowed=array('harian','bulanan','tahunan','per_kelas','per_jenis','tunggakan','pembatalan');
     public function periode_list(){return $this->db->order_by('id','DESC')->get('master_tahun_ajaran')->result_array();}

@@ -1,11 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Tarif_per_kelas extends MY_Controller
+class Tarif_per_kelas extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('tagihan/M_tarif_tagihan', 'model');
     }
 
@@ -23,11 +26,11 @@ class Tarif_per_kelas extends MY_Controller
 
     public function result()
     {
-        $this->json($this->model->result());
+        json_response($this->model->result());
     }
 
     public function simpan()
     {
-        $this->json($this->model->simpan_kelas());
+        json_response($this->model->simpan_kelas());
     }
 }

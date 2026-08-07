@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class M_riwayat_kelas extends MY_Model
+class M_riwayat_kelas extends CI_Model
 {
     public function kelas_list()
     {
@@ -89,7 +89,7 @@ class M_riwayat_kelas extends MY_Model
         $alasan = trim((string) $this->input->post('alasan', true));
 
         if (!$idSiswa || !$idTujuan || $alasan === '') {
-            return $this->response(false, 'Siswa, kelas koreksi, dan alasan wajib diisi.');
+            return model_response(false, 'Siswa, kelas koreksi, dan alasan wajib diisi.');
         }
 
         $siswa = $this->db->where('id', $idSiswa)->get('siswa')->row_array();
@@ -105,10 +105,10 @@ class M_riwayat_kelas extends MY_Model
         )->row_array();
 
         if (!$siswa || !$tujuan || !$asal) {
-            return $this->response(false, 'Data siswa atau penempatan aktif tidak ditemukan.');
+            return model_response(false, 'Data siswa atau penempatan aktif tidak ditemukan.');
         }
         if ((int) $asal['id'] === $idTujuan) {
-            return $this->response(false, 'Kelas koreksi sama dengan kelas aktif saat ini.');
+            return model_response(false, 'Kelas koreksi sama dengan kelas aktif saat ini.');
         }
 
         $periodeTujuan = $this->db->where('id', (int) $tujuan['id_periode'])->get('master_tahun_ajaran')->row_array();
@@ -158,7 +158,7 @@ class M_riwayat_kelas extends MY_Model
         );
         $this->db->insert('tagihan_riwayat_kelas_siswa', $history);
 
-        $this->log_activity(
+        tagihan_log_activity(
             'Koreksi Penempatan Siswa',
             'Kesiswaan',
             'Ubah',
@@ -170,7 +170,7 @@ class M_riwayat_kelas extends MY_Model
             array('kelas' => $tujuan, 'alasan' => $alasan)
         );
 
-        $result = $this->transaction_result('Penempatan terakhir berhasil dikoreksi.');
+        $result = tagihan_transaction_result('Penempatan terakhir berhasil dikoreksi.');
         if ($result['result'] === 'true' && $tagihanTerkait > 0) {
             $result['message'] .= ' Tagihan lama tetap menggunakan kelas saat tagihan diterbitkan.';
             $result['warning'] = true;

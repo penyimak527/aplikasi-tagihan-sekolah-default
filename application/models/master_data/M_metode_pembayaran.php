@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class M_metode_pembayaran extends MY_Model
+class M_metode_pembayaran extends CI_Model
 {
     public function result()
     {
@@ -71,14 +71,14 @@ class M_metode_pembayaran extends MY_Model
         $keterangan = trim((string) $this->input->post('keterangan', true));
 
         if ($nama === '') {
-            return $this->response(false, 'Nama metode pembayaran wajib diisi.');
+            return model_response(false, 'Nama metode pembayaran wajib diisi.');
         }
 
       if (
     $status === 'Aktif'
     && $this->nama_aktif_sudah_digunakan($nama, $id)
 ) {
-    return $this->response(
+    return model_response(
         false,
         'Nama metode pembayaran aktif sudah digunakan.'
     );
@@ -104,7 +104,7 @@ class M_metode_pembayaran extends MY_Model
             'status' => $status,
             'urutan' => $urutan,
             'keterangan' => $keterangan
-        ), $this->audit_fields());
+        ), tagihan_audit_fields());
 
         $this->db->trans_begin();
         if ($id > 0) {
@@ -114,7 +114,7 @@ class M_metode_pembayaran extends MY_Model
             $id = $this->db->insert_id();
         }
 
-        $this->log_activity(
+        tagihan_log_activity(
             $before ? 'Ubah Metode Pembayaran' : 'Tambah Metode Pembayaran',
             'Master Data',
             $before ? 'Ubah' : 'Tambah',
@@ -126,7 +126,7 @@ class M_metode_pembayaran extends MY_Model
             $data
         );
 
-        return $this->transaction_result('Metode pembayaran berhasil disimpan.');
+        return tagihan_transaction_result('Metode pembayaran berhasil disimpan.');
     }
 
     public function ubah_status()
@@ -134,7 +134,7 @@ class M_metode_pembayaran extends MY_Model
         $id = (int) $this->input->post('id');
         $row = $this->db->where('id', $id)->get('tagihan_metode_pembayaran')->row_array();
         if (!$row) {
-            return $this->response(false, 'Data metode pembayaran tidak ditemukan.');
+            return model_response(false, 'Data metode pembayaran tidak ditemukan.');
         }
 
         $status = $row['status'] === 'Aktif' ? 'Nonaktif' : 'Aktif';
@@ -142,7 +142,7 @@ class M_metode_pembayaran extends MY_Model
     $status === 'Aktif'
     && $this->nama_aktif_sudah_digunakan($row['nama_metode'], $id)
 ) {
-    return $this->response(
+    return model_response(
         false,
         'Tidak dapat diaktifkan karena nama metode aktif sudah tersedia.'
     );
@@ -157,7 +157,7 @@ class M_metode_pembayaran extends MY_Model
             'nama_user' => app_user_name()
         ));
 
-        $this->log_activity(
+        tagihan_log_activity(
             'Ubah Status Metode',
             'Master Data',
             'Ubah',
@@ -169,6 +169,6 @@ class M_metode_pembayaran extends MY_Model
             array('status' => $status)
         );
 
-        return $this->transaction_result('Status metode pembayaran berhasil diubah.');
+        return tagihan_transaction_result('Status metode pembayaran berhasil diubah.');
     }
 }

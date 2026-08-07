@@ -32,14 +32,16 @@ class Login extends CI_Controller
         $user = $this->model->get_by_username($username);
 
         if ($user && password_verify($password, (string) $user['password'])) {
+            $level = trim((string) ($user['nama_level'] ?? ''));
+
             $this->session->set_userdata('admin', array(
                 'id'         => (int) $user['id'],
                 'id_pegawai' => (int) $user['id_pegawai'],
                 'id_level'   => (int) $user['id_level'],
                 'username'   => $user['username'],
                 'nama'       => $user['nama_user'],
-                'level'      => $user['level'],
-                'role'       => $user['level']
+                'level'      => $level,
+                'role'       => $level
             ));
 
             redirect('dashboard');

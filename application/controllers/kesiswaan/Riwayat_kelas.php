@@ -1,11 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Riwayat_kelas extends MY_Controller
+class Riwayat_kelas extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('kesiswaan/M_riwayat_kelas', 'model');
     }
 
@@ -23,16 +26,16 @@ class Riwayat_kelas extends MY_Controller
 
     public function cari()
     {
-        $this->json($this->model->cari());
+        json_response($this->model->cari());
     }
 
     public function result()
     {
-        $this->json($this->model->result());
+        json_response($this->model->result());
     }
 
     public function koreksi()
     {
-        $this->json($this->model->koreksi());
+        json_response($this->model->koreksi());
     }
 }

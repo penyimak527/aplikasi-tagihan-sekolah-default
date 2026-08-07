@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class M_dashboard extends MY_Model
+class M_dashboard extends CI_Model
 {
     public function periode_list()
     {
@@ -10,7 +10,7 @@ class M_dashboard extends MY_Model
 
     public function periode_aktif()
     {
-        return $this->active_period();
+        return tagihan_active_period();
     }
 
     public function kelas_list()
@@ -28,7 +28,7 @@ class M_dashboard extends MY_Model
 
     public function dashboard_result()
     {
-        $periodeAktif = $this->active_period();
+        $periodeAktif = tagihan_active_period();
         $idPeriode = (int) $this->input->post('id_periode');
         if ($idPeriode <= 0) {
             $idPeriode = (int) $periodeAktif['id'];

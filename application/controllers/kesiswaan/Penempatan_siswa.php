@@ -1,10 +1,13 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-class Penempatan_siswa extends MY_Controller
+class Penempatan_siswa extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('kesiswaan/M_penempatan_siswa', 'model');
     }
     public function index()
@@ -16,14 +19,14 @@ class Penempatan_siswa extends MY_Controller
     }
     public function result()
     {
-        $this->json($this->model->result());
+        json_response($this->model->result());
     }
     public function proses()
     {
-        $this->json($this->model->proses());
+        json_response($this->model->proses());
     }
     public function keluarkan()
     {
-        $this->json($this->model->keluarkan());
+        json_response($this->model->keluarkan());
     }
 }

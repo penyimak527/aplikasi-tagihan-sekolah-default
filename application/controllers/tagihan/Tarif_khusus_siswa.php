@@ -1,11 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Tarif_khusus_siswa extends MY_Controller
+class Tarif_khusus_siswa extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('tagihan/M_tarif_tagihan', 'model');
     }
 
@@ -23,26 +26,26 @@ class Tarif_khusus_siswa extends MY_Controller
 
     public function result()
     {
-        $this->json($this->model->result());
+        json_response($this->model->result());
     }
 
     public function cari_siswa()
     {
-        $this->json($this->model->cari_siswa());
+        json_response($this->model->cari_siswa());
     }
 
     public function simpan()
     {
-        $this->json($this->model->simpan_siswa());
+        json_response($this->model->simpan_siswa());
     }
 
     public function kembalikan_normal()
     {
-        $this->json($this->model->kembalikan_normal());
+        json_response($this->model->kembalikan_normal());
     }
 
     public function riwayat()
     {
-        $this->json($this->model->riwayat_siswa());
+        json_response($this->model->riwayat_siswa());
     }
 }

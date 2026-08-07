@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-class M_import_siswa extends MY_Model
+class M_import_siswa extends CI_Model
 {
     public function periode_list(){return $this->db->order_by('id','DESC')->get('master_tahun_ajaran')->result_array();}
     public function kelas_list(){return $this->db->select('ks.*,ta.periode')->from('kelas_setting ks')->join('master_tahun_ajaran ta','ta.id=CAST(ks.id_periode AS UNSIGNED)','left')->order_by('ta.id','DESC')->order_by('ks.nama_kelas')->get()->result_array();}
@@ -9,15 +9,15 @@ class M_import_siswa extends MY_Model
     public function preview(){
         $id_periode=(int)$this->input->post('id_periode');$id_kelas_setting=(int)$this->input->post('id_kelas_setting');
         $periode=$this->db->where('id',$id_periode)->get('master_tahun_ajaran')->row_array();$kelas=$this->db->where('id',$id_kelas_setting)->get('kelas_setting')->row_array();
-        if(!$periode||!$kelas||((int)$kelas['id_periode']!==$id_periode))return $this->response(false,'Tahun ajaran dan kelas penempatan tidak sesuai.');
-        if(empty($_FILES['file_excel']['name']))return $this->response(false,'Pilih file XLSX terlebih dahulu.');
-        $ext=strtolower(pathinfo($_FILES['file_excel']['name'],PATHINFO_EXTENSION));if($ext!=='xlsx')return $this->response(false,'File yang diterima hanya format .xlsx.');
+        if(!$periode||!$kelas||((int)$kelas['id_periode']!==$id_periode))return model_response(false,'Tahun ajaran dan kelas penempatan tidak sesuai.');
+        if(empty($_FILES['file_excel']['name']))return model_response(false,'Pilih file XLSX terlebih dahulu.');
+        $ext=strtolower(pathinfo($_FILES['file_excel']['name'],PATHINFO_EXTENSION));if($ext!=='xlsx')return model_response(false,'File yang diterima hanya format .xlsx.');
         $dir=FCPATH.'uploads/import_siswa/';if(!is_dir($dir))mkdir($dir,0755,true);$filename='preview_'.date('YmdHis').'_'.preg_replace('/[^A-Za-z0-9._-]/','_',$_FILES['file_excel']['name']);$path=$dir.$filename;
-        if(!move_uploaded_file($_FILES['file_excel']['tmp_name'],$path))return $this->response(false,'File gagal diunggah.');
-        try{$this->load->library('Simple_xlsx_reader');$rows=$this->simple_xlsx_reader->read($path);}catch(Exception $e){@unlink($path);return $this->response(false,$e->getMessage());}
-        if(count($rows)<2){@unlink($path);return $this->response(false,'File tidak memiliki data siswa.');}
+        if(!move_uploaded_file($_FILES['file_excel']['tmp_name'],$path))return model_response(false,'File gagal diunggah.');
+        try{$this->load->library('Simple_xlsx_reader');$rows=$this->simple_xlsx_reader->read($path);}catch(Exception $e){@unlink($path);return model_response(false,$e->getMessage());}
+        if(count($rows)<2){@unlink($path);return model_response(false,'File tidak memiliki data siswa.');}
         $headers=array_map(function($v){return strtoupper(trim(preg_replace('/\s+/','_',str_replace(array('/','-'),'_',$v))));},$rows[0]);
-        $required=array('NIS','NISN','NAMA_LENGKAP','JENIS_KELAMIN');foreach($required as $h)if(!in_array($h,$headers,true)){@unlink($path);return $this->response(false,'Kolom wajib '.$h.' tidak ditemukan.');}
+        $required=array('NIS','NISN','NAMA_LENGKAP','JENIS_KELAMIN');foreach($required as $h)if(!in_array($h,$headers,true)){@unlink($path);return model_response(false,'Kolom wajib '.$h.' tidak ditemukan.');}
         $seenNis=array();$seenNisn=array();$preview=array();$valid=0;$invalid=0;
         for($i=1;$i<count($rows);$i++){
             if(!array_filter($rows[$i],function($v){return trim((string)$v)!=='';}))continue;$item=array();foreach($headers as $idx=>$h)$item[$h]=isset($rows[$i][$idx])?trim((string)$rows[$i][$idx]):'';
@@ -30,13 +30,13 @@ class M_import_siswa extends MY_Model
             $preview[]=array('baris'=>$i+1,'nis'=>$nis,'nisn'=>$nisn,'nama'=>$nama,'jk'=>$jk,'kelas'=>$item['NAMA_KELAS']?:$kelas['nama_kelas'],'status'=>$status,'pesan'=>implode('; ',$errors),'data'=>$item);
         }
         $token=bin2hex(random_bytes(16));$this->session->set_userdata('import_preview_'.$token,array('path'=>$path,'filename'=>$filename,'id_periode'=>$id_periode,'periode'=>$periode['periode'],'id_kelas_setting'=>$id_kelas_setting,'kelas'=>$kelas,'rows'=>$preview));
-        return $this->response(true,'Preview berhasil dibuat.',array('token'=>$token,'rows'=>$preview,'total'=>count($preview),'valid'=>$valid,'gagal'=>$invalid));
+        return model_response(true,'Preview berhasil dibuat.',array('token'=>$token,'rows'=>$preview,'total'=>count($preview),'valid'=>$valid,'gagal'=>$invalid));
     }
 
     public function proses(){
-        $token=trim((string)$this->input->post('token',true));$session=$this->session->userdata('import_preview_'.$token);if(!$session)return $this->response(false,'Data preview tidak ditemukan atau sudah kedaluwarsa.');
-        $validRows=array_values(array_filter($session['rows'],function($r){return $r['status']==='Valid';}));if(!$validRows)return $this->response(false,'Tidak ada data valid yang dapat diimport.');
-        $kode='IMP/'.date('Ym').'/'.str_pad(((int)$this->db->count_all('tagihan_import_siswa'))+1,5,'0',STR_PAD_LEFT);$audit=$this->audit_fields();
+        $token=trim((string)$this->input->post('token',true));$session=$this->session->userdata('import_preview_'.$token);if(!$session)return model_response(false,'Data preview tidak ditemukan atau sudah kedaluwarsa.');
+        $validRows=array_values(array_filter($session['rows'],function($r){return $r['status']==='Valid';}));if(!$validRows)return model_response(false,'Tidak ada data valid yang dapat diimport.');
+        $kode='IMP/'.date('Ym').'/'.str_pad(((int)$this->db->count_all('tagihan_import_siswa'))+1,5,'0',STR_PAD_LEFT);$audit=tagihan_audit_fields();
         $header=array_merge(array('kode_import'=>$kode,'nama_file'=>$session['filename'],'lokasi_file'=>str_replace(FCPATH,'',$session['path']),'id_periode'=>$session['id_periode'],'periode'=>$session['periode'],'id_kelas_setting'=>$session['id_kelas_setting'],'nama_kelas'=>$session['kelas']['nama_kelas'],'jumlah_data'=>count($session['rows']),'jumlah_berhasil'=>0,'jumlah_gagal'=>count($session['rows'])-count($validRows),'status_import'=>'Diproses','keterangan'=>'Import siswa dari template XLSX'),$audit);
         $this->db->trans_begin();$this->db->insert('tagihan_import_siswa',$header);$idImport=$this->db->insert_id();$success=0;
         foreach($session['rows'] as $row){
@@ -49,7 +49,7 @@ class M_import_siswa extends MY_Model
             $this->db->insert('tagihan_import_siswa_detail',array('id_import'=>$idImport,'nomor_baris'=>$row['baris'],'nis'=>$row['nis'],'nisn'=>$row['nisn'],'nama_siswa'=>$row['nama'],'jenis_kelamin'=>$row['jk'],'nama_kelas_excel'=>$row['kelas'],'id_siswa_hasil'=>$idSiswa,'status_data'=>$status,'pesan_validasi'=>$message,'data_json'=>json_encode($row['data'],JSON_UNESCAPED_UNICODE)));
         }
         $this->db->where('id',$idImport)->update('tagihan_import_siswa',array('jumlah_berhasil'=>$success,'status_import'=>'Selesai'));
-        $this->log_activity('Import Siswa','Master Data','Import','tagihan_import_siswa',$idImport,$kode,'Import '.$success.' siswa ke kelas '.$session['kelas']['nama_kelas'],null,$header);
-        $result=$this->transaction_result('Import selesai. '.$success.' siswa berhasil disimpan.');if($result['result']==='true'){$this->session->unset_userdata('import_preview_'.$token);}return $result;
+        tagihan_log_activity('Import Siswa','Master Data','Import','tagihan_import_siswa',$idImport,$kode,'Import '.$success.' siswa ke kelas '.$session['kelas']['nama_kelas'],null,$header);
+        $result=tagihan_transaction_result('Import selesai. '.$success.' siswa berhasil disimpan.');if($result['result']==='true'){$this->session->unset_userdata('import_preview_'.$token);}return $result;
     }
 }

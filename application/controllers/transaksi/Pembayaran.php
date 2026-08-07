@@ -1,11 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Pembayaran extends MY_Controller
+class Pembayaran extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('transaksi/M_pembayaran', 'model');
     }
 
@@ -27,7 +30,7 @@ class Pembayaran extends MY_Controller
 
     public function cari_siswa()
     {
-        $this->json($this->model->cari_siswa());
+        json_response($this->model->cari_siswa());
     }
 
     public function siswa($id = 0)
@@ -36,22 +39,22 @@ class Pembayaran extends MY_Controller
             $id = (int) $this->input->post('id');
         }
 
-        $this->json($this->model->siswa_by_id((int) $id));
+        json_response($this->model->siswa_by_id((int) $id));
     }
 
     public function tagihan_siswa()
     {
-        $this->json($this->model->tagihan_siswa());
+        json_response($this->model->tagihan_siswa());
     }
 
     public function simpan()
     {
-        $this->json($this->model->simpan());
+        json_response($this->model->simpan());
     }
 
     public function detail()
     {
-        $this->json(
+        json_response(
             $this->model->detail(
                 (int) $this->input->post('id')
             )
@@ -71,7 +74,7 @@ class Pembayaran extends MY_Controller
 
     public function siapkan_whatsapp()
     {
-        $this->json($this->model->siapkan_whatsapp());
+        json_response($this->model->siapkan_whatsapp());
     }
 
     public function cetak_kartu($id = 0)
@@ -88,6 +91,6 @@ class Pembayaran extends MY_Controller
 
     public function catat_cetak_kartu()
     {
-        $this->json($this->model->catat_cetak_kartu());
+        json_response($this->model->catat_cetak_kartu());
     }
 }

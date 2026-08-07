@@ -1,10 +1,13 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-class Tagihan_bulanan extends MY_Controller
+class Tagihan_bulanan extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('tagihan/M_buat_tagihan', 'model');
     }
     public function index()
@@ -16,14 +19,14 @@ class Tagihan_bulanan extends MY_Controller
     }
     public function preview()
     {
-        $this->json($this->model->preview('Bulanan'));
+        json_response($this->model->preview('Bulanan'));
     }
     public function simpan()
     {
-        $this->json($this->model->simpan('Bulanan'));
+        json_response($this->model->simpan('Bulanan'));
     }
     public function cari_siswa()
     {
-        $this->json($this->model->cari_siswa());
+        json_response($this->model->cari_siswa());
     }
 }

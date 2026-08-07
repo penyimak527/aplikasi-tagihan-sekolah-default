@@ -2,19 +2,74 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 $user = app_user();
-$current_controller = strtolower($this->router->fetch_class());
-$current_method = strtolower($this->router->fetch_method());
 $user_name = isset($user['nama']) && $user['nama'] !== '' ? $user['nama'] : 'Administrator';
 $user_role = isset($user['role']) && $user['role'] !== '' ? $user['role'] : 'Admin';
 $page_title = isset($title) && $title !== '' ? $title : 'Aplikasi Tagihan Sekolah';
 
-$master_open = menu_is_active(array('tahun_ajaran', 'data_kelas', 'siswa', 'import_siswa', 'jenis_tagihan', 'metode_pembayaran'));
-$kesiswaan_open = menu_is_active(array('penempatan_siswa', 'kenaikan_kelas', 'pindah_kelas', 'tinggal_kelas', 'kelulusan', 'status_siswa', 'riwayat_kelas'));
-$tagihan_open = menu_is_active(array('tagihan_bulanan', 'tagihan_langsung', 'tagihan_tahunan', 'daftar_tagihan', 'siswa_pembayar', 'tarif_tagihan', 'tarif_per_kelas', 'tarif_khusus_siswa', 'keringanan'));
-$transaksi_open = menu_is_active(array('pembayaran', 'riwayat_pembayaran', 'pembatalan_transaksi'));
-$tunggakan_open = menu_is_active(array('tagihan_per_siswa', 'tagihan_per_kelas', 'tagihan_per_jenis', 'tunggakan_lama', 'surat_tunggakan'));
-$laporan_open = menu_is_active('laporan');
-$pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'template_whatsapp', 'log_aktivitas'));
+$id_level = (int) $this->session->userdata('admin')['id_level'];
+
+// Menu sidebar mengikuti contoh CMV: diambil langsung dari list_menu sesuai level login.
+$menuDashboard = $this->db->query(
+    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Dashboard' ORDER BY b.urut ASC",
+    array($id_level)
+)->row_array();
+
+$menuMaster = $this->db->query(
+    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Master Data' ORDER BY b.urut ASC",
+    array($id_level)
+)->result_array();
+
+$menuKesiswaan = $this->db->query(
+    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Kesiswaan' ORDER BY b.urut ASC",
+    array($id_level)
+)->result_array();
+
+$menuTagihan = $this->db->query(
+    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Tagihan' ORDER BY b.urut ASC",
+    array($id_level)
+)->result_array();
+
+$menuTransaksi = $this->db->query(
+    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Transaksi' ORDER BY b.urut ASC",
+    array($id_level)
+)->result_array();
+
+$menuTunggakan = $this->db->query(
+    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Tagihan & Tunggakan' ORDER BY b.urut ASC",
+    array($id_level)
+)->result_array();
+
+$menuLaporan = $this->db->query(
+    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Laporan' ORDER BY b.urut ASC",
+    array($id_level)
+)->result_array();
+
+$menuPengaturan = $this->db->query(
+    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Pengaturan' ORDER BY b.urut ASC",
+    array($id_level)
+)->result_array();
+
+$current_uri = trim((string) $this->uri->uri_string(), '/');
+$is_menu_active = function ($path) use ($current_uri) {
+    $path = trim((string) $path, '/');
+    return $current_uri === $path || strpos($current_uri, $path . '/') === 0;
+};
+$is_group_active = function ($menus) use ($is_menu_active) {
+    foreach ($menus as $menu) {
+        if (!empty($menu['path']) && $is_menu_active($menu['path'])) {
+            return true;
+        }
+    }
+    return false;
+};
+
+$master_open = $is_group_active($menuMaster);
+$kesiswaan_open = $is_group_active($menuKesiswaan);
+$tagihan_open = $is_group_active($menuTagihan);
+$transaksi_open = $is_group_active($menuTransaksi);
+$tunggakan_open = $is_group_active($menuTunggakan);
+$laporan_open = $is_group_active($menuLaporan);
+$pengaturan_open = $is_group_active($menuPengaturan);
 ?>
 <!DOCTYPE html>
 <html lang="id" data-bs-theme="light" data-menu-color="light" data-topbar-color="light" data-sidenav-size="default">
@@ -97,11 +152,14 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                             <div class="dropdown-header noti-title">
                                 <h6 class="text-overflow m-0">Aplikasi Tagihan Sekolah</h6>
                             </div>
+                            <?php $log_menu = array_filter($menuPengaturan, function ($m) { return isset($m['path']) && $m['path'] === 'pengaturan/log_aktivitas'; }); ?>
+                            <?php if (!empty($log_menu)): ?>
                             <a href="<?= base_url('pengaturan/log_aktivitas') ?>" class="dropdown-item">
                                 <i class="ri-history-line me-1 fs-16 align-middle"></i>
                                 <span class="align-middle">Log Aktivitas</span>
                             </a>
                             <div class="dropdown-divider"></div>
+                            <?php endif; ?>
                             <a href="<?= base_url('login/logout') ?>" class="dropdown-item active fw-semibold text-danger">
                                 <i class="ri-logout-box-line me-1 fs-16 align-middle"></i>
                                 <span class="align-middle">Keluar</span>
@@ -111,139 +169,173 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                 </div>
 
                 <ul class="side-nav">
-                    <li class="side-nav-item">
-                        <a href="<?= base_url('dashboard') ?>" class="side-nav-link <?= menu_is_active('dashboard') ? 'active' : '' ?>">
-                            <span class="menu-icon"><i class="ti ti-dashboard"></i></span>
-                            <span class="menu-text">Dashboard</span>
-                        </a>
-                    </li>
+                    <?php if ($menuDashboard): ?>
+                        <li class="side-nav-item">
+                            <a href="<?= base_url($menuDashboard['path']) ?>" class="side-nav-link <?= $is_menu_active($menuDashboard['path']) ? 'active' : '' ?>">
+                                <span class="menu-icon"><i class="ti ti-dashboard"></i></span>
+                                <span class="menu-text"><?= html_escape($menuDashboard['name']) ?></span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
-                    <li class="side-nav-title mt-2">Data dan Akademik</li>
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#menuMaster" aria-expanded="<?= $master_open ? 'true' : 'false' ?>" aria-controls="menuMaster" class="side-nav-link <?= $master_open ? 'active' : '' ?>">
-                            <span class="menu-icon"><i class="ti ti-database"></i></span>
-                            <span class="menu-text">Master Data</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse <?= $master_open ? 'show' : '' ?>" id="menuMaster">
-                            <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('master_data/tahun_ajaran') ?>" class="side-nav-link <?= menu_is_active('tahun_ajaran') ? 'active' : '' ?>"><span class="menu-text">Tahun Ajaran</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('master_data/data_kelas') ?>" class="side-nav-link <?= menu_is_active('data_kelas') ? 'active' : '' ?>"><span class="menu-text">Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('master_data/siswa') ?>" class="side-nav-link <?= menu_is_active('siswa') ? 'active' : '' ?>"><span class="menu-text">Siswa</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('master_data/import_siswa') ?>" class="side-nav-link <?= menu_is_active('import_siswa') ? 'active' : '' ?>"><span class="menu-text">Import Siswa</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('master_data/jenis_tagihan') ?>" class="side-nav-link <?= menu_is_active('jenis_tagihan') ? 'active' : '' ?>"><span class="menu-text">Jenis Tagihan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('master_data/metode_pembayaran') ?>" class="side-nav-link <?= menu_is_active('metode_pembayaran') ? 'active' : '' ?>"><span class="menu-text">Metode Pembayaran</span></a></li>
-                            </ul>
-                        </div>
-                    </li>
+                    <?php if ($menuMaster || $menuKesiswaan): ?>
+                        <li class="side-nav-title mt-2">Data dan Akademik</li>
+                    <?php endif; ?>
 
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#menuKesiswaan" aria-expanded="<?= $kesiswaan_open ? 'true' : 'false' ?>" aria-controls="menuKesiswaan" class="side-nav-link <?= $kesiswaan_open ? 'active' : '' ?>">
-                            <span class="menu-icon"><i class="ti ti-users-group"></i></span>
-                            <span class="menu-text">Kesiswaan</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse <?= $kesiswaan_open ? 'show' : '' ?>" id="menuKesiswaan">
-                            <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/penempatan_siswa') ?>" class="side-nav-link <?= menu_is_active('penempatan_siswa') ? 'active' : '' ?>"><span class="menu-text">Penempatan Siswa</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/kenaikan_kelas') ?>" class="side-nav-link <?= menu_is_active('kenaikan_kelas') ? 'active' : '' ?>"><span class="menu-text">Kenaikan Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/pindah_kelas') ?>" class="side-nav-link <?= menu_is_active('pindah_kelas') ? 'active' : '' ?>"><span class="menu-text">Pindah Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/tinggal_kelas') ?>" class="side-nav-link <?= menu_is_active('tinggal_kelas') ? 'active' : '' ?>"><span class="menu-text">Tinggal Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/kelulusan') ?>" class="side-nav-link <?= menu_is_active('kelulusan') ? 'active' : '' ?>"><span class="menu-text">Kelulusan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/status_siswa') ?>" class="side-nav-link <?= menu_is_active('status_siswa') ? 'active' : '' ?>"><span class="menu-text">Berhenti/Pindah Sekolah</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/riwayat_kelas') ?>" class="side-nav-link <?= menu_is_active('riwayat_kelas') ? 'active' : '' ?>"><span class="menu-text">Riwayat Kelas</span></a></li>
-                            </ul>
-                        </div>
-                    </li>
+                    <?php if ($menuMaster): ?>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#menuMaster" aria-expanded="<?= $master_open ? 'true' : 'false' ?>" aria-controls="menuMaster" class="side-nav-link <?= $master_open ? 'active' : '' ?>">
+                                <span class="menu-icon"><i class="ti ti-database"></i></span>
+                                <span class="menu-text">Master Data</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse <?= $master_open ? 'show' : '' ?>" id="menuMaster">
+                                <ul class="sub-menu">
+                                    <?php foreach ($menuMaster as $menu): ?>
+                                        <li class="side-nav-item">
+                                            <a href="<?= base_url($menu['path']) ?>" class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </li>
+                    <?php endif; ?>
 
-                    <li class="side-nav-title mt-2">Tagihan dan Pembayaran</li>
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#menuTagihan" aria-expanded="<?= $tagihan_open ? 'true' : 'false' ?>" aria-controls="menuTagihan" class="side-nav-link <?= $tagihan_open ? 'active' : '' ?>">
-                            <span class="menu-icon"><i class="ti ti-file-invoice"></i></span>
-                            <span class="menu-text">Tagihan</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse <?= $tagihan_open ? 'show' : '' ?>" id="menuTagihan">
-                            <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan/tagihan_bulanan') ?>" class="side-nav-link <?= menu_is_active('tagihan_bulanan') ? 'active' : '' ?>"><span class="menu-text">Buat Tagihan Bulanan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan/tagihan_langsung') ?>" class="side-nav-link <?= menu_is_active('tagihan_langsung') ? 'active' : '' ?>"><span class="menu-text">Buat Tagihan Langsung</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan/tagihan_tahunan') ?>" class="side-nav-link <?= menu_is_active('tagihan_tahunan') ? 'active' : '' ?>"><span class="menu-text">Buat Tagihan Tahunan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan/daftar_tagihan') ?>" class="side-nav-link <?= menu_is_active('daftar_tagihan') ? 'active' : '' ?>"><span class="menu-text">Daftar Tagihan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan/siswa_pembayar') ?>" class="side-nav-link <?= menu_is_active('siswa_pembayar') ? 'active' : '' ?>"><span class="menu-text">Siswa Pembayar</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan/tarif_per_kelas') ?>" class="side-nav-link <?= menu_is_active('tarif_per_kelas') ? 'active' : '' ?>"><span class="menu-text">Tarif Per Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan/tarif_khusus_siswa') ?>" class="side-nav-link <?= menu_is_active('tarif_khusus_siswa') ? 'active' : '' ?>"><span class="menu-text">Tarif Khusus Siswa</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan/keringanan') ?>" class="side-nav-link <?= menu_is_active('keringanan') ? 'active' : '' ?>"><span class="menu-text">Potongan/Pembebasan</span></a></li>
-                            </ul>
-                        </div>
-                    </li>
+                    <?php if ($menuKesiswaan): ?>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#menuKesiswaan" aria-expanded="<?= $kesiswaan_open ? 'true' : 'false' ?>" aria-controls="menuKesiswaan" class="side-nav-link <?= $kesiswaan_open ? 'active' : '' ?>">
+                                <span class="menu-icon"><i class="ti ti-users-group"></i></span>
+                                <span class="menu-text">Kesiswaan</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse <?= $kesiswaan_open ? 'show' : '' ?>" id="menuKesiswaan">
+                                <ul class="sub-menu">
+                                    <?php foreach ($menuKesiswaan as $menu): ?>
+                                        <li class="side-nav-item">
+                                            <a href="<?= base_url($menu['path']) ?>" class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </li>
+                    <?php endif; ?>
 
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#menuTransaksi" aria-expanded="<?= $transaksi_open ? 'true' : 'false' ?>" aria-controls="menuTransaksi" class="side-nav-link <?= $transaksi_open ? 'active' : '' ?>">
-                            <span class="menu-icon"><i class="ti ti-cash"></i></span>
-                            <span class="menu-text">Transaksi</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse <?= $transaksi_open ? 'show' : '' ?>" id="menuTransaksi">
-                            <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('transaksi/pembayaran') ?>" class="side-nav-link <?= menu_is_active('pembayaran') ? 'active' : '' ?>"><span class="menu-text">Pembayaran Tagihan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('transaksi/riwayat_pembayaran') ?>" class="side-nav-link <?= menu_is_active('riwayat_pembayaran') ? 'active' : '' ?>"><span class="menu-text">Riwayat Pembayaran</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('transaksi/pembatalan_transaksi') ?>" class="side-nav-link <?= menu_is_active('pembatalan_transaksi') ? 'active' : '' ?>"><span class="menu-text">Pembatalan Transaksi</span></a></li>
-                            </ul>
-                        </div>
-                    </li>
+                    <?php if ($menuTagihan || $menuTransaksi || $menuTunggakan): ?>
+                        <li class="side-nav-title mt-2">Tagihan dan Pembayaran</li>
+                    <?php endif; ?>
 
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#menuTunggakan" aria-expanded="<?= $tunggakan_open ? 'true' : 'false' ?>" aria-controls="menuTunggakan" class="side-nav-link <?= $tunggakan_open ? 'active' : '' ?>">
-                            <span class="menu-icon"><i class="ti ti-alert-circle"></i></span>
-                            <span class="menu-text">Tagihan &amp; Tunggakan</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse <?= $tunggakan_open ? 'show' : '' ?>" id="menuTunggakan">
-                            <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('tunggakan/tagihan_per_siswa') ?>" class="side-nav-link <?= menu_is_active('tagihan_per_siswa') ? 'active' : '' ?>"><span class="menu-text">Tagihan Per Siswa</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tunggakan/tagihan_per_kelas') ?>" class="side-nav-link <?= menu_is_active('tagihan_per_kelas') ? 'active' : '' ?>"><span class="menu-text">Tagihan Per Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tunggakan/tagihan_per_jenis') ?>" class="side-nav-link <?= menu_is_active('tagihan_per_jenis') ? 'active' : '' ?>"><span class="menu-text">Tagihan Per Jenis</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tunggakan/tunggakan_lama') ?>" class="side-nav-link <?= menu_is_active('tunggakan_lama') ? 'active' : '' ?>"><span class="menu-text">Tunggakan Tahun Sebelumnya</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tunggakan/surat_tunggakan') ?>" class="side-nav-link <?= menu_is_active('surat_tunggakan') ? 'active' : '' ?>"><span class="menu-text">Surat Tunggakan</span></a></li>
-                            </ul>
-                        </div>
-                    </li>
+                    <?php if ($menuTagihan): ?>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#menuTagihan" aria-expanded="<?= $tagihan_open ? 'true' : 'false' ?>" aria-controls="menuTagihan" class="side-nav-link <?= $tagihan_open ? 'active' : '' ?>">
+                                <span class="menu-icon"><i class="ti ti-file-invoice"></i></span>
+                                <span class="menu-text">Tagihan</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse <?= $tagihan_open ? 'show' : '' ?>" id="menuTagihan">
+                                <ul class="sub-menu">
+                                    <?php foreach ($menuTagihan as $menu): ?>
+                                        <li class="side-nav-item">
+                                            <a href="<?= base_url($menu['path']) ?>" class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </li>
+                    <?php endif; ?>
 
-                    <li class="side-nav-title mt-2">Monitoring</li>
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#menuLaporan" aria-expanded="<?= $laporan_open ? 'true' : 'false' ?>" aria-controls="menuLaporan" class="side-nav-link <?= $laporan_open ? 'active' : '' ?>">
-                            <span class="menu-icon"><i class="ti ti-report-analytics"></i></span>
-                            <span class="menu-text">Laporan</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse <?= $laporan_open ? 'show' : '' ?>" id="menuLaporan">
-                            <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/harian') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'harian' ? 'active' : '' ?>"><span class="menu-text">Pembayaran Harian</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/bulanan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'bulanan' ? 'active' : '' ?>"><span class="menu-text">Pembayaran Bulanan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/tahunan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'tahunan' ? 'active' : '' ?>"><span class="menu-text">Pembayaran Tahunan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/per_kelas') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'per_kelas' ? 'active' : '' ?>"><span class="menu-text">Rekap Per Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/per_jenis') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'per_jenis' ? 'active' : '' ?>"><span class="menu-text">Rekap Per Jenis</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/tunggakan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'tunggakan' ? 'active' : '' ?>"><span class="menu-text">Laporan Tunggakan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/pembatalan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'pembatalan' ? 'active' : '' ?>"><span class="menu-text">Riwayat Pembatalan</span></a></li>
-                            </ul>
-                        </div>
-                    </li>
+                    <?php if ($menuTransaksi): ?>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#menuTransaksi" aria-expanded="<?= $transaksi_open ? 'true' : 'false' ?>" aria-controls="menuTransaksi" class="side-nav-link <?= $transaksi_open ? 'active' : '' ?>">
+                                <span class="menu-icon"><i class="ti ti-cash"></i></span>
+                                <span class="menu-text">Transaksi</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse <?= $transaksi_open ? 'show' : '' ?>" id="menuTransaksi">
+                                <ul class="sub-menu">
+                                    <?php foreach ($menuTransaksi as $menu): ?>
+                                        <li class="side-nav-item">
+                                            <a href="<?= base_url($menu['path']) ?>" class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </li>
+                    <?php endif; ?>
 
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#menuPengaturan" aria-expanded="<?= $pengaturan_open ? 'true' : 'false' ?>" aria-controls="menuPengaturan" class="side-nav-link <?= $pengaturan_open ? 'active' : '' ?>">
-                            <span class="menu-icon"><i class="ti ti-settings"></i></span>
-                            <span class="menu-text">Pengaturan</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse <?= $pengaturan_open ? 'show' : '' ?>" id="menuPengaturan">
-                            <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('pengaturan/format_bukti') ?>" class="side-nav-link <?= menu_is_active('format_bukti') ? 'active' : '' ?>"><span class="menu-text">Format Bukti</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('pengaturan/format_kartu') ?>" class="side-nav-link <?= menu_is_active('format_kartu') ? 'active' : '' ?>"><span class="menu-text">Format Kartu</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('pengaturan/template_whatsapp') ?>" class="side-nav-link <?= menu_is_active('template_whatsapp') ? 'active' : '' ?>"><span class="menu-text">Template WhatsApp</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('pengaturan/log_aktivitas') ?>" class="side-nav-link <?= menu_is_active('log_aktivitas') ? 'active' : '' ?>"><span class="menu-text">Log Aktivitas</span></a></li>
-                            </ul>
-                        </div>
-                    </li>
+                    <?php if ($menuTunggakan): ?>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#menuTunggakan" aria-expanded="<?= $tunggakan_open ? 'true' : 'false' ?>" aria-controls="menuTunggakan" class="side-nav-link <?= $tunggakan_open ? 'active' : '' ?>">
+                                <span class="menu-icon"><i class="ti ti-alert-circle"></i></span>
+                                <span class="menu-text">Tagihan &amp; Tunggakan</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse <?= $tunggakan_open ? 'show' : '' ?>" id="menuTunggakan">
+                                <ul class="sub-menu">
+                                    <?php foreach ($menuTunggakan as $menu): ?>
+                                        <li class="side-nav-item">
+                                            <a href="<?= base_url($menu['path']) ?>" class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </li>
+                    <?php endif; ?>
+
+                    <?php if ($menuLaporan || $menuPengaturan): ?>
+                        <li class="side-nav-title mt-2">Monitoring</li>
+                    <?php endif; ?>
+
+                    <?php if ($menuLaporan): ?>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#menuLaporan" aria-expanded="<?= $laporan_open ? 'true' : 'false' ?>" aria-controls="menuLaporan" class="side-nav-link <?= $laporan_open ? 'active' : '' ?>">
+                                <span class="menu-icon"><i class="ti ti-report-analytics"></i></span>
+                                <span class="menu-text">Laporan</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse <?= $laporan_open ? 'show' : '' ?>" id="menuLaporan">
+                                <ul class="sub-menu">
+                                    <?php foreach ($menuLaporan as $menu): ?>
+                                        <li class="side-nav-item">
+                                            <a href="<?= base_url($menu['path']) ?>" class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </li>
+                    <?php endif; ?>
+
+                    <?php if ($menuPengaturan): ?>
+                        <li class="side-nav-item">
+                            <a data-bs-toggle="collapse" href="#menuPengaturan" aria-expanded="<?= $pengaturan_open ? 'true' : 'false' ?>" aria-controls="menuPengaturan" class="side-nav-link <?= $pengaturan_open ? 'active' : '' ?>">
+                                <span class="menu-icon"><i class="ti ti-settings"></i></span>
+                                <span class="menu-text">Pengaturan</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <div class="collapse <?= $pengaturan_open ? 'show' : '' ?>" id="menuPengaturan">
+                                <ul class="sub-menu">
+                                    <?php foreach ($menuPengaturan as $menu): ?>
+                                        <li class="side-nav-item">
+                                            <a href="<?= base_url($menu['path']) ?>" class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </li>
+                    <?php endif; ?>
                 </ul>
 
                 <div class="clearfix"></div>
@@ -298,11 +390,14 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                                 <div class="dropdown-header noti-title">
                                     <h6 class="text-overflow m-0"><?= html_escape($user_role) ?></h6>
                                 </div>
+                                <?php $log_menu = array_filter($menuPengaturan, function ($m) { return isset($m['path']) && $m['path'] === 'pengaturan/log_aktivitas'; }); ?>
+                            <?php if (!empty($log_menu)): ?>
                                 <a href="<?= base_url('pengaturan/log_aktivitas') ?>" class="dropdown-item">
                                     <i class="ri-history-line me-1 fs-16 align-middle"></i>
                                     <span class="align-middle">Log Aktivitas</span>
                                 </a>
                                 <div class="dropdown-divider"></div>
+                                <?php endif; ?>
                                 <a href="<?= base_url('login/logout') ?>" class="dropdown-item fw-semibold text-danger">
                                     <i class="ri-logout-box-line me-1 fs-16 align-middle"></i>
                                     <span class="align-middle">Keluar</span>

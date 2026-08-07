@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-class M_siswa extends MY_Model
+class M_siswa extends CI_Model
 {
     public function periode_list()
     {
@@ -62,9 +62,9 @@ class M_siswa extends MY_Model
         $nisn = trim((string)$this->input->post('nisn', true));
         $nama = trim((string)$this->input->post('nama_lengkap', true));
         $jk = trim((string)$this->input->post('jk', true));
-        if ($nis === '' || $nisn === '' || $nama === '' || $jk === '') return $this->response(false, 'NIS, NISN, nama, dan jenis kelamin wajib diisi.');
-        if ($this->db->where('nis', $nis)->where('id !=', $id)->count_all_results('siswa')) return $this->response(false, 'NIS sudah digunakan.');
-        if ($this->db->where('nisn', $nisn)->where('id !=', $id)->count_all_results('siswa')) return $this->response(false, 'NISN sudah digunakan.');
+        if ($nis === '' || $nisn === '' || $nama === '' || $jk === '') return model_response(false, 'NIS, NISN, nama, dan jenis kelamin wajib diisi.');
+        if ($this->db->where('nis', $nis)->where('id !=', $id)->count_all_results('siswa')) return model_response(false, 'NIS sudah digunakan.');
+        if ($this->db->where('nisn', $nisn)->where('id !=', $id)->count_all_results('siswa')) return model_response(false, 'NISN sudah digunakan.');
         $fields = array('nis', 'nisn', 'nama_lengkap', 'jk', 'tempat_lahir', 'tanggal_lahir', 'tanggal_awal_masuk', 'alamat_siswa', 'nama_ayah', 'pekerjaan_ayah', 'telepon_ayah', 'alamat_ayah', 'nama_ibu', 'pekerjaan_ibu', 'telepon_ibu', 'alamat_ibu', 'status_pendaftaran');
         $data = array();
         foreach ($fields as $f) $data[$f] = trim((string)$this->input->post($f, true));
@@ -80,8 +80,8 @@ class M_siswa extends MY_Model
             $this->db->insert('siswa', $data);
             $id = $this->db->insert_id();
         }
-        $this->log_activity($before ? 'Ubah Siswa' : 'Tambah Siswa', 'Master Data', $before ? 'Ubah' : 'Tambah', 'siswa', $id, $nis, 'Pengelolaan identitas siswa', $before, $data);
-        return $this->transaction_result('Data siswa berhasil disimpan.');
+        tagihan_log_activity($before ? 'Ubah Siswa' : 'Tambah Siswa', 'Master Data', $before ? 'Ubah' : 'Tambah', 'siswa', $id, $nis, 'Pengelolaan identitas siswa', $before, $data);
+        return tagihan_transaction_result('Data siswa berhasil disimpan.');
     }
     public function nonaktifkan()
     {
@@ -89,10 +89,10 @@ class M_siswa extends MY_Model
         $status = trim((string)$this->input->post('status', true));
         if (!in_array($status, array('Aktif', 'Lulus', 'Pindah Sekolah', 'Berhenti', 'Nonaktif'), true)) $status = 'Nonaktif';
         $row = $this->db->where('id', $id)->get('siswa')->row_array();
-        if (!$row) return $this->response(false, 'Siswa tidak ditemukan.');
+        if (!$row) return model_response(false, 'Siswa tidak ditemukan.');
         $this->db->trans_begin();
         $this->db->where('id', $id)->update('siswa', array('status_pendaftaran' => $status));
-        $this->log_activity('Ubah Status Siswa', 'Kesiswaan', 'Ubah', 'siswa', $id, $row['nis'], 'Status siswa menjadi ' . $status, $row, array('status_pendaftaran' => $status));
-        return $this->transaction_result('Status siswa berhasil diubah.');
+        tagihan_log_activity('Ubah Status Siswa', 'Kesiswaan', 'Ubah', 'siswa', $id, $row['nis'], 'Status siswa menjadi ' . $status, $row, array('status_pendaftaran' => $status));
+        return tagihan_transaction_result('Status siswa berhasil diubah.');
     }
 }

@@ -1,11 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Dashboard extends MY_Controller
+class Dashboard extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('dashboard/M_dashboard', 'model');
     }
 
@@ -22,6 +25,6 @@ class Dashboard extends MY_Controller
 
     public function result()
     {
-        $this->json($this->model->dashboard_result());
+        json_response($this->model->dashboard_result());
     }
 }

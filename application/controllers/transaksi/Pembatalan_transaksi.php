@@ -1,11 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Pembatalan_transaksi extends MY_Controller
+class Pembatalan_transaksi extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('transaksi/M_riwayat_pembayaran', 'model');
     }
 
@@ -22,16 +25,16 @@ class Pembatalan_transaksi extends MY_Controller
 
     public function result()
     {
-        $this->json($this->model->result_aktif());
+        json_response($this->model->result_aktif());
     }
 
     public function detail()
     {
-        $this->json($this->model->detail((int) $this->input->post('id')));
+        json_response($this->model->detail((int) $this->input->post('id')));
     }
 
     public function batalkan()
     {
-        $this->json($this->model->batalkan());
+        json_response($this->model->batalkan());
     }
 }

@@ -1,10 +1,13 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-class Keringanan extends MY_Controller
+class Keringanan extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+        if ($this->session->userdata('admin')['username'] == null) {
+            redirect('/');
+        }
         $this->load->model('tagihan/M_keringanan', 'model');
     }
     public function index()
@@ -16,22 +19,22 @@ class Keringanan extends MY_Controller
     }
     public function cari_siswa()
     {
-        $this->json($this->model->cari_siswa());
+        json_response($this->model->cari_siswa());
     }
     public function tagihan_siswa()
     {
-        $this->json($this->model->tagihan_siswa());
+        json_response($this->model->tagihan_siswa());
     }
     public function simpan()
     {
-        $this->json($this->model->simpan());
+        json_response($this->model->simpan());
     }
     public function riwayat()
     {
-        $this->json($this->model->riwayat());
+        json_response($this->model->riwayat());
     }
     public function batalkan()
     {
-        $this->json($this->model->batalkan());
+        json_response($this->model->batalkan());
     }
 }
