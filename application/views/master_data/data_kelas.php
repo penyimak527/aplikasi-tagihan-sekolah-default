@@ -108,7 +108,7 @@ $(document).ready(function () {
 });
 
 function loadData() {
-    $.post('<?= base_url('data_kelas/result') ?>', {
+    $.post('<?= base_url('master_data/data_kelas/result') ?>', {
         search: $('#search').val(),
         status: $('#status_filter').val()
     }, function (rows) {
@@ -151,7 +151,7 @@ function loadData() {
 function detailData(id) {
     $('#detail_content').html('<div class="empty-state">Memuat detail...</div>');
     modalDetail.show();
-    $.post('<?= base_url('data_kelas/detail') ?>', {id: id}, function (response) {
+    $.post('<?= base_url('master_data/data_kelas/detail') ?>', {id: id}, function (response) {
         if (response.result !== 'true') {
             $('#detail_content').html('<div class="alert alert-danger">' + escapeHtml(response.message) + '</div>');
             return;
@@ -191,7 +191,7 @@ function saveData() {
     const button = $('#btn_simpan');
     button.prop('disabled', true);
 
-    $.post('<?= base_url('data_kelas/simpan') ?>', $('#form').serialize(), function (response) {
+    $.post('<?= base_url('master_data/data_kelas/simpan') ?>', $('#form').serialize(), function (response) {
         const berhasil = response.result === 'true';
         if (berhasil) {
             modalForm.hide();
@@ -205,7 +205,7 @@ function saveData() {
 
 function hapus(id) {
     confirmAction('Hapus kelas?', 'Kelas yang sudah digunakan tidak dapat dihapus.', function () {
-        $.post('<?= base_url('data_kelas/hapus') ?>', {id: id}, function (response) {
+        $.post('<?= base_url('master_data/data_kelas/hapus') ?>', {id: id}, function (response) {
             const berhasil = response.result === 'true';
             Swal.fire(berhasil ? 'Berhasil' : 'Gagal', response.message, berhasil ? 'success' : 'error');
             if (berhasil) loadData();

@@ -498,7 +498,7 @@ $(function () {
 
     if (presetStudent) {
         $.ajax({
-            url: '<?= base_url('pembayaran/siswa'); ?>',
+            url: '<?= base_url('transaksi/pembayaran/siswa'); ?>',
             type: 'POST',
             data: {
                 id: presetStudent
@@ -556,7 +556,7 @@ function searchStudent() {
         .html('<span class="spinner-border spinner-border-sm me-1"></span>Mencari');
 
     $.ajax({
-        url: '<?= base_url('pembayaran/cari_siswa'); ?>',
+        url: '<?= base_url('transaksi/pembayaran/cari_siswa'); ?>',
         type: 'POST',
         data: {
             q: keyword
@@ -766,7 +766,7 @@ function loadBills() {
     `);
 
     $.ajax({
-        url: '<?= base_url('pembayaran/tagihan_siswa'); ?>',
+        url: '<?= base_url('transaksi/pembayaran/tagihan_siswa'); ?>',
         type: 'POST',
         data: {
             id_siswa: selectedStudent.id,
@@ -1148,7 +1148,7 @@ function savePayment(event) {
             .html('<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan');
 
         $.ajax({
-            url: '<?= base_url('pembayaran/simpan'); ?>',
+            url: '<?= base_url('transaksi/pembayaran/simpan'); ?>',
             type: 'POST',
             data: data,
             dataType: 'JSON',
@@ -1181,12 +1181,12 @@ function savePayment(event) {
 
                     $('#link_bukti').attr(
                         'href',
-                        '<?= base_url('pembayaran/bukti/'); ?>' + lastPaymentId
+                        '<?= base_url('transaksi/pembayaran/bukti/'); ?>' + lastPaymentId
                     );
 
                     $('#link_kartu').attr(
                         'href',
-                        '<?= base_url('pembayaran/cetak_kartu/'); ?>' + lastPaymentId
+                        '<?= base_url('transaksi/pembayaran/cetak_kartu/'); ?>' + lastPaymentId
                     );
 
                     paymentSuccessModal.show();
@@ -1222,7 +1222,7 @@ function showTransactionDetail() {
     }
 
     $.ajax({
-        url: '<?= base_url('pembayaran/detail'); ?>',
+        url: '<?= base_url('transaksi/pembayaran/detail'); ?>',
         type: 'POST',
         data: {
             id: lastPaymentId
@@ -1356,7 +1356,7 @@ function sendWhatsapp() {
         .html('<span class="spinner-border spinner-border-sm me-1"></span>Menyiapkan');
 
     $.ajax({
-        url: '<?= base_url('pembayaran/siapkan_whatsapp'); ?>',
+        url: '<?= base_url('transaksi/pembayaran/siapkan_whatsapp'); ?>',
         type: 'POST',
         data: data,
         dataType: 'JSON',

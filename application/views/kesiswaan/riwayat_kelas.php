@@ -221,7 +221,7 @@
         }
 
         $.ajax({
-            url: '<?= base_url('riwayat_kelas/cari') ?>',
+            url: '<?= base_url('kesiswaan/riwayat_kelas/cari') ?>',
             type: 'POST',
             data: {
                 q: keyword
@@ -297,7 +297,7 @@
 
     function loadDetail(id) {
         $.ajax({
-            url: '<?= base_url('riwayat_kelas/result') ?>',
+            url: '<?= base_url('kesiswaan/riwayat_kelas/result') ?>',
             type: 'POST',
             data: {
                 id_siswa: id
@@ -482,7 +482,7 @@
             }
 
             $.ajax({
-                url: '<?= base_url('riwayat_kelas/koreksi') ?>',
+                url: '<?= base_url('kesiswaan/riwayat_kelas/koreksi') ?>',
                 type: 'POST',
                 data: {
                     id_siswa: selectedStudentId,

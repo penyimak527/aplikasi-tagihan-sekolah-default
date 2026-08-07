@@ -174,7 +174,7 @@ function cariSiswa() {
     var id = $('#tagihan').val();
     if (!id) return Swal.fire('Perhatian', 'Pilih tagihan terlebih dahulu.', 'warning');
     $('#hasil_siswa').html('<div class="empty-state">Mencari siswa...</div>');
-    $.post('<?= base_url('tarif_khusus_siswa/cari_siswa') ?>', {id_tagihan: id, q: $('#q_siswa').val()}, function (rows) {
+    $.post('<?= base_url('tagihan/tarif_khusus_siswa/cari_siswa') ?>', {id_tagihan: id, q: $('#q_siswa').val()}, function (rows) {
         if (!rows.length) {
             $('#hasil_siswa').html('<div class="empty-state">Siswa tidak ditemukan.</div>');
             refreshCariTarifPagination();
@@ -207,7 +207,7 @@ $(document).on('click', '.btn-atur', function () {
 function simpanTarifKhusus() {
     if (!$('#form_siswa [name="id_siswa"]').val()) return;
     var button = $('#btn_simpan').prop('disabled', true);
-    $.post('<?= base_url('tarif_khusus_siswa/simpan') ?>', serializeMoneyForm('#form_siswa'), function (response) {
+    $.post('<?= base_url('tagihan/tarif_khusus_siswa/simpan') ?>', serializeMoneyForm('#form_siswa'), function (response) {
         var ok = response.result === 'true';
         Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
         if (ok) {
@@ -225,7 +225,7 @@ function loadTarifAktif() {
         $('#card_aktif').addClass('d-none');
         return;
     }
-    $.post('<?= base_url('tarif_khusus_siswa/result') ?>', {id_tagihan: id}, function (response) {
+    $.post('<?= base_url('tagihan/tarif_khusus_siswa/result') ?>', {id_tagihan: id}, function (response) {
         if (response.result !== 'true') return;
         tarifRows = response.special || [];
         $('#card_aktif').removeClass('d-none');
@@ -252,7 +252,7 @@ function loadTarifAktif() {
 $(document).on('click', '.btn-normal', function () {
     var idSiswa = $(this).data('siswa');
     confirmAction('Kembalikan ke tarif normal?', 'Tarif khusus aktif akan dibatalkan. Pembayaran yang sudah masuk tetap dipertahankan.', function () {
-        $.post('<?= base_url('tarif_khusus_siswa/kembalikan_normal') ?>', {id_tagihan: $('#tagihan').val(), id_siswa: idSiswa, alasan: 'Dikembalikan ke tarif normal'}, function (response) {
+        $.post('<?= base_url('tagihan/tarif_khusus_siswa/kembalikan_normal') ?>', {id_tagihan: $('#tagihan').val(), id_siswa: idSiswa, alasan: 'Dikembalikan ke tarif normal'}, function (response) {
             var ok = response.result === 'true';
             Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
             if (ok) loadTarifAktif();
@@ -261,7 +261,7 @@ $(document).on('click', '.btn-normal', function () {
 });
 
 $(document).on('click', '.btn-riwayat', function () {
-    $.post('<?= base_url('tarif_khusus_siswa/riwayat') ?>', {id_tagihan: $('#tagihan').val(), id_siswa: $(this).data('siswa')}, function (rows) {
+    $.post('<?= base_url('tagihan/tarif_khusus_siswa/riwayat') ?>', {id_tagihan: $('#tagihan').val(), id_siswa: $(this).data('siswa')}, function (rows) {
         var html = rows.length ? rows.map(function (row) {
             return '<tr class="riwayat-tarif-row"><td>' + escapeHtml((row.tanggal || '-') + ' ' + (row.waktu || '')) + '</td><td class="text-end">' + formatRupiah(row.nominal_awal || 0) + '</td><td class="text-end">' + formatRupiah(row.nominal_setelah_keringanan || 0) + '</td><td>' + escapeHtml(row.alasan || '-') + '</td><td>' + escapeHtml(row.nama_user || '-') + '</td><td><span class="badge bg-' + (row.status === 'Aktif' ? 'success' : 'secondary') + '">' + escapeHtml(row.status) + '</span></td></tr>';
         }).join('') : '<tr><td colspan="6"><div class="empty-state">Belum ada riwayat.</div></td></tr>';

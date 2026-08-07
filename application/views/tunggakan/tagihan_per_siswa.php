@@ -13,7 +13,7 @@ $(function () {
             return;
         }
 
-        $.post('<?= base_url('tagihan_per_siswa/cari_siswa') ?>', { q }, function (rows) {
+        $.post('<?= base_url('tunggakan/tagihan_per_siswa/cari_siswa') ?>', { q }, function (rows) {
             if (!rows.length) {
                 $('#hasil').html('<div class="alert alert-warning">Siswa tidak ditemukan.</div>');
                 return;
@@ -42,7 +42,7 @@ $(function () {
             return;
         }
 
-        $.post('<?= base_url('tagihan_per_siswa/result') ?>', {
+        $.post('<?= base_url('tunggakan/tagihan_per_siswa/result') ?>', {
             id_siswa: id,
             id_periode: $('#periode').val(),
             tipe: $('#tipe').val(),
@@ -105,8 +105,8 @@ $(function () {
             .removeClass('d-none')
             .html(`<strong>${escapeHtml($(this).data('name'))}</strong><br>${escapeHtml($(this).data('info'))}`);
         $('#filter, #summary').removeClass('d-none');
-        $('#bayar').removeClass('disabled').attr('href', '<?= base_url('pembayaran') ?>?siswa=' + id);
-        $('#surat').removeClass('disabled').attr('href', '<?= base_url('surat_tunggakan') ?>?siswa=' + id);
+        $('#bayar').removeClass('disabled').attr('href', '<?= base_url('transaksi/pembayaran') ?>?siswa=' + id);
+        $('#surat').removeClass('disabled').attr('href', '<?= base_url('tunggakan/surat_tunggakan') ?>?siswa=' + id);
         load();
     });
 });

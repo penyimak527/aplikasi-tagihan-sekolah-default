@@ -8,7 +8,7 @@ class Laporan extends MY_Controller
 $this->load->view('template/header', $data);
 $this->load->view('laporan/index', $data);
 $this->load->view('template/footer');}
-    public function index(){redirect('laporan/harian');}
+    public function index(){redirect('laporan/laporan/harian');}
     public function harian(){$this->page('harian');} public function bulanan(){$this->page('bulanan');} public function tahunan(){$this->page('tahunan');} public function per_kelas(){$this->page('per_kelas');} public function per_jenis(){$this->page('per_jenis');} public function tunggakan(){$this->page('tunggakan');} public function pembatalan(){$this->page('pembatalan');}
     public function result($type=''){$this->json($this->model->report($type));}
     public function export($type=''){$this->model->export_csv($type);}

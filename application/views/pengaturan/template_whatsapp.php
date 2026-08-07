@@ -144,7 +144,7 @@ function resetForm() {
 }
 
 function loadData() {
-    $.getJSON('<?= base_url('template_whatsapp/result') ?>', function (response) {
+    $.getJSON('<?= base_url('pengaturan/template_whatsapp/result') ?>', function (response) {
         templateRows = response || [];
         renderList();
     }).fail(ajaxError);
@@ -216,7 +216,7 @@ function saveData() {
     if ($('#default_template').val() === 'Ya') $('#status_template').val('Aktif');
     var button = $('#btn_simpan').prop('disabled', true);
 
-    $.post('<?= base_url('template_whatsapp/simpan') ?>', $('#form').serialize(), function (response) {
+    $.post('<?= base_url('pengaturan/template_whatsapp/simpan') ?>', $('#form').serialize(), function (response) {
         var ok = response.result === 'true';
         if (ok) {
             modalTemplate.hide();
@@ -230,7 +230,7 @@ function saveData() {
 
 function setDefault(id) {
     confirmAction('Jadikan template default?', 'Template default pada jenis yang sama akan diganti.', function () {
-        $.post('<?= base_url('template_whatsapp/set_default') ?>', {id: id}, function (response) {
+        $.post('<?= base_url('pengaturan/template_whatsapp/set_default') ?>', {id: id}, function (response) {
             var ok = response.result === 'true';
             Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
             if (ok) loadData();

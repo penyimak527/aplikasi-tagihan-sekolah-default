@@ -185,7 +185,7 @@ $(function () {
     }
 
     function load() {
-        $.getJSON('<?= base_url('format_kartu/result') ?>', function (response) {
+        $.getJSON('<?= base_url('pengaturan/format_kartu/result') ?>', function (response) {
             rows = response || [];
             if (!rows.length) {
                 $('#list').html('<div class="empty-state">Belum ada format kartu.</div>');
@@ -292,7 +292,7 @@ $(function () {
     $(document).on('click', '.def', function () {
         var id = $(this).data('id');
         confirmAction('Jadikan format default?', 'Format default sebelumnya akan diganti.', function () {
-            $.post('<?= base_url('format_kartu/set_default') ?>', {id: id}, function (response) {
+            $.post('<?= base_url('pengaturan/format_kartu/set_default') ?>', {id: id}, function (response) {
                 var ok = response.result === 'true';
                 Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
                 if (ok) load();
@@ -309,7 +309,7 @@ $(function () {
         }
 
         var button = $('#btn_simpan').prop('disabled', true);
-        $.post('<?= base_url('format_kartu/simpan') ?>', $(this).serialize(), function (response) {
+        $.post('<?= base_url('pengaturan/format_kartu/simpan') ?>', $(this).serialize(), function (response) {
             var ok = response.result === 'true';
             Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
             if (ok) {

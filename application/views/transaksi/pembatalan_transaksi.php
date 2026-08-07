@@ -123,7 +123,7 @@ $(function () {
 
 function loadTransactions() {
     $('#data_transaksi').html('<tr><td colspan="7"><div class="empty-state"><span class="spinner-border spinner-border-sm me-1"></span>Memuat transaksi...</div></td></tr>');
-    $.post('<?= base_url('pembatalan_transaksi/result') ?>', {
+    $.post('<?= base_url('transaksi/pembatalan_transaksi/result') ?>', {
         q: $('#filter_q').val(),
         awal: $('#filter_awal').val(),
         akhir: $('#filter_akhir').val(),
@@ -154,7 +154,7 @@ function loadTransactions() {
 }
 
 function showDetail(id) {
-    $.post('<?= base_url('pembatalan_transaksi/detail') ?>', { id: id }, function (response) {
+    $.post('<?= base_url('transaksi/pembatalan_transaksi/detail') ?>', { id: id }, function (response) {
         if (response.result !== 'true') {
             Swal.fire('Gagal', response.message, 'error');
             return;
@@ -196,7 +196,7 @@ function cancelTransaction() {
 
     var button = $('#btn_konfirmasi_batal');
     button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Membatalkan');
-    $.post('<?= base_url('pembatalan_transaksi/batalkan') ?>', { id: id, alasan: reason }, function (response) {
+    $.post('<?= base_url('transaksi/pembatalan_transaksi/batalkan') ?>', { id: id, alasan: reason }, function (response) {
         if (response.result !== 'true') {
             Swal.fire('Gagal', response.message, 'error');
             return;

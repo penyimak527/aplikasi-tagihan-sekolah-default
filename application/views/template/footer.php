@@ -9,8 +9,8 @@
                         <div class="col-md-6">
                             <div class="text-md-end footer-links d-none d-md-block">
                                 <a href="<?= base_url('dashboard') ?>">Dashboard</a>
-                                <a href="<?= base_url('log_aktivitas') ?>">Log Aktivitas</a>
-                                <a href="<?= base_url('format_bukti') ?>">Pengaturan</a>
+                                <a href="<?= base_url('pengaturan/log_aktivitas') ?>">Log Aktivitas</a>
+                                <a href="<?= base_url('pengaturan/format_bukti') ?>">Pengaturan</a>
                             </div>
                         </div>
                     </div>

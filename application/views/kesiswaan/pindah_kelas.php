@@ -120,7 +120,7 @@
         );
 
         $.ajax({
-            url: '<?= base_url('pindah_kelas/cari') ?>',
+            url: '<?= base_url('kesiswaan/pindah_kelas/cari') ?>',
             type: 'POST',
             data: {
                 q: keyword
@@ -249,7 +249,7 @@
             );
 
             $.ajax({
-                url: '<?= base_url('pindah_kelas/proses') ?>',
+                url: '<?= base_url('kesiswaan/pindah_kelas/proses') ?>',
                 type: 'POST',
                 data: data,
                 dataType: 'JSON',

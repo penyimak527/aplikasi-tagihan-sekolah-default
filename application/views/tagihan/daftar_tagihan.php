@@ -6,9 +6,9 @@
                 <i class="ri-add-line me-1"></i>Buat Tagihan
             </button>
             <div class="dropdown-menu dropdown-menu-end">
-                <a class="dropdown-item" href="<?= base_url('tagihan_bulanan') ?>">Tagihan Bulanan</a>
-                <a class="dropdown-item" href="<?= base_url('tagihan_langsung') ?>">Tagihan Langsung</a>
-                <a class="dropdown-item" href="<?= base_url('tagihan_tahunan') ?>">Tagihan Tahunan</a>
+                <a class="dropdown-item" href="<?= base_url('tagihan/tagihan_bulanan') ?>">Tagihan Bulanan</a>
+                <a class="dropdown-item" href="<?= base_url('tagihan/tagihan_langsung') ?>">Tagihan Langsung</a>
+                <a class="dropdown-item" href="<?= base_url('tagihan/tagihan_tahunan') ?>">Tagihan Tahunan</a>
             </div>
         </div>
     </div>
@@ -50,15 +50,15 @@
 <script>
 var modalDetail;$(function(){modalDetail=new bootstrap.Modal('#modalDetail');loadData();$('#dt-length-daftar-tagihan').on('change',refreshDaftarTagihanPagination);});
 function loadData(){
-    $.post('<?= base_url('daftar_tagihan/result') ?>',{
+    $.post('<?= base_url('tagihan/daftar_tagihan/result') ?>',{
         id_periode:$('#periode').val(),tipe:$('#tipe').val(),id_jenis:$('#jenis').val(),status:$('#filter_status_tagihan').val(),search:$('#search').val()
     },function(rows){
         if(!rows.length){$('#data').html('<div class="empty-state">Belum ada tagihan.</div>');refreshDaftarTagihanPagination();return;}
         var h=rows.map(function(r,index){
             var badge=r.status==='Aktif'?'bg-success':(r.status==='Draft'?'bg-warning':'bg-danger');
             var actions='<button class="btn btn-outline-primary btn-icon" title="Detail" onclick="detail('+r.id+')"><i class="ri-eye-line"></i></button>'+
-                '<a class="btn btn-outline-primary btn-icon" title="Siswa Pembayar" href="<?= base_url('siswa_pembayar?id_tagihan=') ?>'+r.id+'"><i class="ri-user-follow-line"></i></a>'+
-                '<a class="btn btn-outline-warning btn-icon" title="Tarif" href="<?= base_url('tarif_per_kelas?id_tagihan=') ?>'+r.id+'"><i class="ri-money-dollar-circle-line"></i></a>'+
+                '<a class="btn btn-outline-primary btn-icon" title="Siswa Pembayar" href="<?= base_url('tagihan/siswa_pembayar?id_tagihan=') ?>'+r.id+'"><i class="ri-user-follow-line"></i></a>'+
+                '<a class="btn btn-outline-warning btn-icon" title="Tarif" href="<?= base_url('tagihan/tarif_per_kelas?id_tagihan=') ?>'+r.id+'"><i class="ri-money-dollar-circle-line"></i></a>'+
                 (r.status==='Draft'?'<button class="btn btn-outline-success btn-icon" title="Terbitkan" onclick="terbitkan('+r.id+')"><i class="ri-send-plane-line"></i></button>':'')+
                 (r.status==='Aktif'?'<button class="btn btn-outline-danger btn-icon" title="Batalkan Sisa" onclick="batalkan('+r.id+')"><i class="ri-close-circle-line"></i></button>':'');
             return '<div class="crud-list-item"><div class="crud-content">'+
@@ -72,9 +72,9 @@ function loadData(){
         refreshDaftarTagihanPagination();
     },'json').fail(ajaxError);
 }
-function detail(id){$.post('<?= base_url('daftar_tagihan/detail') ?>',{id:id},function(r){if(r.result!=='true')return Swal.fire('Gagal',r.message,'error');var m=r.master,h='<div class="row g-3"><div class="col-md-6"><div class="border rounded p-3"><h5>'+escapeHtml(m.nama_tagihan)+'</h5><div>Kode: '+escapeHtml(m.kode_tagihan)+'</div><div>Tipe: '+escapeHtml(m.tipe_tagihan)+'</div><div>Tahun Ajaran: '+escapeHtml(m.periode)+'</div><div>Status: '+escapeHtml(m.status)+'</div><div>Dihitung tunggakan: '+escapeHtml(m.dianggap_tunggakan)+'</div></div></div><div class="col-md-6"><div class="border rounded p-3"><h6>Periode dan Tarif</h6><ul class="mb-0">';r.periods.forEach(function(x){h+='<li>'+escapeHtml(x.nama_bulan)+' '+x.tahun+' - '+formatRupiah(x.nominal)+'</li>';});h+='</ul></div></div></div><h6 class="mt-4">Kelas Target</h6><div class="d-flex flex-wrap gap-2">';r.classes.forEach(function(x){h+='<span class="badge bg-primary-subtle text-primary p-2">'+escapeHtml(x.nama_kelas)+' - '+formatRupiah(x.nominal_kelas)+'</span>';});h+='</div><h6 class="mt-4">Contoh Tagihan Siswa</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>No Tagihan</th><th>Siswa</th><th>Periode</th><th>Nominal</th><th>Dibayar</th><th>Sisa</th><th>Status</th></tr></thead><tbody>';if(!r.students.length)h+='<tr><td colspan="7" class="text-center text-muted">Draft belum diterbitkan.</td></tr>';r.students.forEach(function(x){h+='<tr><td>'+escapeHtml(x.no_tagihan)+'</td><td>'+escapeHtml(x.nama_siswa)+'<br><small>'+escapeHtml(x.nama_kelas)+'</small></td><td>'+escapeHtml(x.nama_bulan)+' '+x.tahun+'</td><td>'+formatRupiah(x.nominal_tagihan)+'</td><td>'+formatRupiah(x.nominal_dibayar)+'</td><td>'+formatRupiah(x.sisa_tagihan)+'</td><td>'+escapeHtml(x.status_pembayaran)+'</td></tr>';});h+='</tbody></table></div>';$('#detail_content').html(h);modalDetail.show();},'json').fail(ajaxError);}
-function terbitkan(id){confirmAction('Terbitkan draft tagihan?','Tagihan siswa akan dibuat berdasarkan target dan tarif tersimpan.',function(){$.post('<?= base_url('daftar_tagihan/terbitkan') ?>',{id:id},function(r){Swal.fire(r.result==='true'?'Berhasil':'Gagal',r.message,r.result==='true'?'success':'error');loadData();},'json').fail(ajaxError);});}
-function batalkan(id){Swal.fire({title:'Batalkan sisa tagihan',input:'textarea',inputLabel:'Alasan wajib',showCancelButton:true,confirmButtonText:'Batalkan Tagihan',preConfirm:function(v){if(!v)Swal.showValidationMessage('Alasan wajib diisi');return v;}}).then(function(res){if(res.isConfirmed)$.post('<?= base_url('daftar_tagihan/batalkan_sisa') ?>',{id:id,alasan:res.value},function(r){Swal.fire(r.result==='true'?'Berhasil':'Gagal',r.message,r.result==='true'?'success':'error');loadData();},'json').fail(ajaxError);});}
+function detail(id){$.post('<?= base_url('tagihan/daftar_tagihan/detail') ?>',{id:id},function(r){if(r.result!=='true')return Swal.fire('Gagal',r.message,'error');var m=r.master,h='<div class="row g-3"><div class="col-md-6"><div class="border rounded p-3"><h5>'+escapeHtml(m.nama_tagihan)+'</h5><div>Kode: '+escapeHtml(m.kode_tagihan)+'</div><div>Tipe: '+escapeHtml(m.tipe_tagihan)+'</div><div>Tahun Ajaran: '+escapeHtml(m.periode)+'</div><div>Status: '+escapeHtml(m.status)+'</div><div>Dihitung tunggakan: '+escapeHtml(m.dianggap_tunggakan)+'</div></div></div><div class="col-md-6"><div class="border rounded p-3"><h6>Periode dan Tarif</h6><ul class="mb-0">';r.periods.forEach(function(x){h+='<li>'+escapeHtml(x.nama_bulan)+' '+x.tahun+' - '+formatRupiah(x.nominal)+'</li>';});h+='</ul></div></div></div><h6 class="mt-4">Kelas Target</h6><div class="d-flex flex-wrap gap-2">';r.classes.forEach(function(x){h+='<span class="badge bg-primary-subtle text-primary p-2">'+escapeHtml(x.nama_kelas)+' - '+formatRupiah(x.nominal_kelas)+'</span>';});h+='</div><h6 class="mt-4">Contoh Tagihan Siswa</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>No Tagihan</th><th>Siswa</th><th>Periode</th><th>Nominal</th><th>Dibayar</th><th>Sisa</th><th>Status</th></tr></thead><tbody>';if(!r.students.length)h+='<tr><td colspan="7" class="text-center text-muted">Draft belum diterbitkan.</td></tr>';r.students.forEach(function(x){h+='<tr><td>'+escapeHtml(x.no_tagihan)+'</td><td>'+escapeHtml(x.nama_siswa)+'<br><small>'+escapeHtml(x.nama_kelas)+'</small></td><td>'+escapeHtml(x.nama_bulan)+' '+x.tahun+'</td><td>'+formatRupiah(x.nominal_tagihan)+'</td><td>'+formatRupiah(x.nominal_dibayar)+'</td><td>'+formatRupiah(x.sisa_tagihan)+'</td><td>'+escapeHtml(x.status_pembayaran)+'</td></tr>';});h+='</tbody></table></div>';$('#detail_content').html(h);modalDetail.show();},'json').fail(ajaxError);}
+function terbitkan(id){confirmAction('Terbitkan draft tagihan?','Tagihan siswa akan dibuat berdasarkan target dan tarif tersimpan.',function(){$.post('<?= base_url('tagihan/daftar_tagihan/terbitkan') ?>',{id:id},function(r){Swal.fire(r.result==='true'?'Berhasil':'Gagal',r.message,r.result==='true'?'success':'error');loadData();},'json').fail(ajaxError);});}
+function batalkan(id){Swal.fire({title:'Batalkan sisa tagihan',input:'textarea',inputLabel:'Alasan wajib',showCancelButton:true,confirmButtonText:'Batalkan Tagihan',preConfirm:function(v){if(!v)Swal.showValidationMessage('Alasan wajib diisi');return v;}}).then(function(res){if(res.isConfirmed)$.post('<?= base_url('tagihan/daftar_tagihan/batalkan_sisa') ?>',{id:id,alasan:res.value},function(r){Swal.fire(r.result==='true'?'Berhasil':'Gagal',r.message,r.result==='true'?'success':'error');loadData();},'json').fail(ajaxError);});}
 
 function refreshDaftarTagihanPagination(){
     paging($('#data .crud-list-item'),parseInt($('#dt-length-daftar-tagihan').val(),10)||10,'#pagination-daftar-tagihan');

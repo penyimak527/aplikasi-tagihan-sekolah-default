@@ -137,7 +137,7 @@ $(document).ready(function () {
 });
 
 function loadData() {
-    $.post('<?= base_url('jenis_tagihan/result') ?>', {
+    $.post('<?= base_url('master_data/jenis_tagihan/result') ?>', {
         search: $('#search').val(),
         tipe: $('#tipe').val(),
         status: $('#filter_status').val()
@@ -217,7 +217,7 @@ function saveData() {
     const button = $('#btn_simpan');
     button.prop('disabled', true);
 
-    $.post('<?= base_url('jenis_tagihan/simpan') ?>', $('#form').serialize(), function (response) {
+    $.post('<?= base_url('master_data/jenis_tagihan/simpan') ?>', $('#form').serialize(), function (response) {
         const berhasil = response.result === 'true';
         if (berhasil) {
             modalForm.hide();
@@ -231,7 +231,7 @@ function saveData() {
 
 function toggleStatus(id) {
     confirmAction('Ubah status?', 'Jenis yang sudah digunakan tidak dihapus, hanya statusnya yang diubah.', function () {
-        $.post('<?= base_url('jenis_tagihan/status') ?>', {id: id}, function (response) {
+        $.post('<?= base_url('master_data/jenis_tagihan/status') ?>', {id: id}, function (response) {
             const berhasil = response.result === 'true';
             Swal.fire(berhasil ? 'Berhasil' : 'Gagal', response.message, berhasil ? 'success' : 'error');
             if (berhasil) loadData();

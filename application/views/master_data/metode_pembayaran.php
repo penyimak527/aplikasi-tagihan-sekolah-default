@@ -110,7 +110,7 @@ $(document).ready(function () {
 function loadMetodeData() {
     $('#data_metode').html('<div class="empty-state">Memuat data metode pembayaran...</div>');
 
-    $.post('<?= base_url('metode_pembayaran/result') ?>', {
+    $.post('<?= base_url('master_data/metode_pembayaran/result') ?>', {
         search: $('#search_metode').val(),
         status: $('#status_metode').val()
     }, function (rows) {
@@ -162,7 +162,7 @@ $(document).on('click', '.btn-status-metode', function () {
         (action === 'nonaktifkan' ? 'Nonaktifkan' : 'Aktifkan') + ' metode pembayaran?',
         'Riwayat transaksi lama tidak akan berubah.',
         function () {
-            $.post('<?= base_url('metode_pembayaran/status') ?>', {id: id}, function (response) {
+            $.post('<?= base_url('master_data/metode_pembayaran/status') ?>', {id: id}, function (response) {
                 var berhasil = response.result === 'true';
                 Swal.fire(berhasil ? 'Berhasil' : 'Gagal', response.message, berhasil ? 'success' : 'error');
                 if (berhasil) loadMetodeData();
@@ -190,7 +190,7 @@ function saveMetodeData() {
     var button = $('#btn_simpan_metode');
     button.prop('disabled', true);
 
-    $.post('<?= base_url('metode_pembayaran/simpan') ?>', $('#form_metode').serialize(), function (response) {
+    $.post('<?= base_url('master_data/metode_pembayaran/simpan') ?>', $('#form_metode').serialize(), function (response) {
         var berhasil = response.result === 'true';
         if (berhasil) {
             modalMetode.hide();

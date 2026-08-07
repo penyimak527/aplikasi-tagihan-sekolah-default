@@ -97,7 +97,7 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                             <div class="dropdown-header noti-title">
                                 <h6 class="text-overflow m-0">Aplikasi Tagihan Sekolah</h6>
                             </div>
-                            <a href="<?= base_url('log_aktivitas') ?>" class="dropdown-item">
+                            <a href="<?= base_url('pengaturan/log_aktivitas') ?>" class="dropdown-item">
                                 <i class="ri-history-line me-1 fs-16 align-middle"></i>
                                 <span class="align-middle">Log Aktivitas</span>
                             </a>
@@ -127,12 +127,12 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                         </a>
                         <div class="collapse <?= $master_open ? 'show' : '' ?>" id="menuMaster">
                             <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('tahun_ajaran') ?>" class="side-nav-link <?= menu_is_active('tahun_ajaran') ? 'active' : '' ?>"><span class="menu-text">Tahun Ajaran</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('data_kelas') ?>" class="side-nav-link <?= menu_is_active('data_kelas') ? 'active' : '' ?>"><span class="menu-text">Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('siswa') ?>" class="side-nav-link <?= menu_is_active('siswa') ? 'active' : '' ?>"><span class="menu-text">Siswa</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('import_siswa') ?>" class="side-nav-link <?= menu_is_active('import_siswa') ? 'active' : '' ?>"><span class="menu-text">Import Siswa</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('jenis_tagihan') ?>" class="side-nav-link <?= menu_is_active('jenis_tagihan') ? 'active' : '' ?>"><span class="menu-text">Jenis Tagihan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('metode_pembayaran') ?>" class="side-nav-link <?= menu_is_active('metode_pembayaran') ? 'active' : '' ?>"><span class="menu-text">Metode Pembayaran</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('master_data/tahun_ajaran') ?>" class="side-nav-link <?= menu_is_active('tahun_ajaran') ? 'active' : '' ?>"><span class="menu-text">Tahun Ajaran</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('master_data/data_kelas') ?>" class="side-nav-link <?= menu_is_active('data_kelas') ? 'active' : '' ?>"><span class="menu-text">Kelas</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('master_data/siswa') ?>" class="side-nav-link <?= menu_is_active('siswa') ? 'active' : '' ?>"><span class="menu-text">Siswa</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('master_data/import_siswa') ?>" class="side-nav-link <?= menu_is_active('import_siswa') ? 'active' : '' ?>"><span class="menu-text">Import Siswa</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('master_data/jenis_tagihan') ?>" class="side-nav-link <?= menu_is_active('jenis_tagihan') ? 'active' : '' ?>"><span class="menu-text">Jenis Tagihan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('master_data/metode_pembayaran') ?>" class="side-nav-link <?= menu_is_active('metode_pembayaran') ? 'active' : '' ?>"><span class="menu-text">Metode Pembayaran</span></a></li>
                             </ul>
                         </div>
                     </li>
@@ -145,13 +145,13 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                         </a>
                         <div class="collapse <?= $kesiswaan_open ? 'show' : '' ?>" id="menuKesiswaan">
                             <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('penempatan_siswa') ?>" class="side-nav-link <?= menu_is_active('penempatan_siswa') ? 'active' : '' ?>"><span class="menu-text">Penempatan Siswa</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('kenaikan_kelas') ?>" class="side-nav-link <?= menu_is_active('kenaikan_kelas') ? 'active' : '' ?>"><span class="menu-text">Kenaikan Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('pindah_kelas') ?>" class="side-nav-link <?= menu_is_active('pindah_kelas') ? 'active' : '' ?>"><span class="menu-text">Pindah Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tinggal_kelas') ?>" class="side-nav-link <?= menu_is_active('tinggal_kelas') ? 'active' : '' ?>"><span class="menu-text">Tinggal Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('kelulusan') ?>" class="side-nav-link <?= menu_is_active('kelulusan') ? 'active' : '' ?>"><span class="menu-text">Kelulusan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('status_siswa') ?>" class="side-nav-link <?= menu_is_active('status_siswa') ? 'active' : '' ?>"><span class="menu-text">Berhenti/Pindah Sekolah</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('riwayat_kelas') ?>" class="side-nav-link <?= menu_is_active('riwayat_kelas') ? 'active' : '' ?>"><span class="menu-text">Riwayat Kelas</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/penempatan_siswa') ?>" class="side-nav-link <?= menu_is_active('penempatan_siswa') ? 'active' : '' ?>"><span class="menu-text">Penempatan Siswa</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/kenaikan_kelas') ?>" class="side-nav-link <?= menu_is_active('kenaikan_kelas') ? 'active' : '' ?>"><span class="menu-text">Kenaikan Kelas</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/pindah_kelas') ?>" class="side-nav-link <?= menu_is_active('pindah_kelas') ? 'active' : '' ?>"><span class="menu-text">Pindah Kelas</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/tinggal_kelas') ?>" class="side-nav-link <?= menu_is_active('tinggal_kelas') ? 'active' : '' ?>"><span class="menu-text">Tinggal Kelas</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/kelulusan') ?>" class="side-nav-link <?= menu_is_active('kelulusan') ? 'active' : '' ?>"><span class="menu-text">Kelulusan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/status_siswa') ?>" class="side-nav-link <?= menu_is_active('status_siswa') ? 'active' : '' ?>"><span class="menu-text">Berhenti/Pindah Sekolah</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('kesiswaan/riwayat_kelas') ?>" class="side-nav-link <?= menu_is_active('riwayat_kelas') ? 'active' : '' ?>"><span class="menu-text">Riwayat Kelas</span></a></li>
                             </ul>
                         </div>
                     </li>
@@ -165,14 +165,14 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                         </a>
                         <div class="collapse <?= $tagihan_open ? 'show' : '' ?>" id="menuTagihan">
                             <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan_bulanan') ?>" class="side-nav-link <?= menu_is_active('tagihan_bulanan') ? 'active' : '' ?>"><span class="menu-text">Buat Tagihan Bulanan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan_langsung') ?>" class="side-nav-link <?= menu_is_active('tagihan_langsung') ? 'active' : '' ?>"><span class="menu-text">Buat Tagihan Langsung</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan_tahunan') ?>" class="side-nav-link <?= menu_is_active('tagihan_tahunan') ? 'active' : '' ?>"><span class="menu-text">Buat Tagihan Tahunan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('daftar_tagihan') ?>" class="side-nav-link <?= menu_is_active('daftar_tagihan') ? 'active' : '' ?>"><span class="menu-text">Daftar Tagihan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('siswa_pembayar') ?>" class="side-nav-link <?= menu_is_active('siswa_pembayar') ? 'active' : '' ?>"><span class="menu-text">Siswa Pembayar</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tarif_per_kelas') ?>" class="side-nav-link <?= menu_is_active('tarif_per_kelas') ? 'active' : '' ?>"><span class="menu-text">Tarif Per Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tarif_khusus_siswa') ?>" class="side-nav-link <?= menu_is_active('tarif_khusus_siswa') ? 'active' : '' ?>"><span class="menu-text">Tarif Khusus Siswa</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('keringanan') ?>" class="side-nav-link <?= menu_is_active('keringanan') ? 'active' : '' ?>"><span class="menu-text">Potongan/Pembebasan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tagihan/tagihan_bulanan') ?>" class="side-nav-link <?= menu_is_active('tagihan_bulanan') ? 'active' : '' ?>"><span class="menu-text">Buat Tagihan Bulanan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tagihan/tagihan_langsung') ?>" class="side-nav-link <?= menu_is_active('tagihan_langsung') ? 'active' : '' ?>"><span class="menu-text">Buat Tagihan Langsung</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tagihan/tagihan_tahunan') ?>" class="side-nav-link <?= menu_is_active('tagihan_tahunan') ? 'active' : '' ?>"><span class="menu-text">Buat Tagihan Tahunan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tagihan/daftar_tagihan') ?>" class="side-nav-link <?= menu_is_active('daftar_tagihan') ? 'active' : '' ?>"><span class="menu-text">Daftar Tagihan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tagihan/siswa_pembayar') ?>" class="side-nav-link <?= menu_is_active('siswa_pembayar') ? 'active' : '' ?>"><span class="menu-text">Siswa Pembayar</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tagihan/tarif_per_kelas') ?>" class="side-nav-link <?= menu_is_active('tarif_per_kelas') ? 'active' : '' ?>"><span class="menu-text">Tarif Per Kelas</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tagihan/tarif_khusus_siswa') ?>" class="side-nav-link <?= menu_is_active('tarif_khusus_siswa') ? 'active' : '' ?>"><span class="menu-text">Tarif Khusus Siswa</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tagihan/keringanan') ?>" class="side-nav-link <?= menu_is_active('keringanan') ? 'active' : '' ?>"><span class="menu-text">Potongan/Pembebasan</span></a></li>
                             </ul>
                         </div>
                     </li>
@@ -185,9 +185,9 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                         </a>
                         <div class="collapse <?= $transaksi_open ? 'show' : '' ?>" id="menuTransaksi">
                             <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('pembayaran') ?>" class="side-nav-link <?= menu_is_active('pembayaran') ? 'active' : '' ?>"><span class="menu-text">Pembayaran Tagihan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('riwayat_pembayaran') ?>" class="side-nav-link <?= menu_is_active('riwayat_pembayaran') ? 'active' : '' ?>"><span class="menu-text">Riwayat Pembayaran</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('pembatalan_transaksi') ?>" class="side-nav-link <?= menu_is_active('pembatalan_transaksi') ? 'active' : '' ?>"><span class="menu-text">Pembatalan Transaksi</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('transaksi/pembayaran') ?>" class="side-nav-link <?= menu_is_active('pembayaran') ? 'active' : '' ?>"><span class="menu-text">Pembayaran Tagihan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('transaksi/riwayat_pembayaran') ?>" class="side-nav-link <?= menu_is_active('riwayat_pembayaran') ? 'active' : '' ?>"><span class="menu-text">Riwayat Pembayaran</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('transaksi/pembatalan_transaksi') ?>" class="side-nav-link <?= menu_is_active('pembatalan_transaksi') ? 'active' : '' ?>"><span class="menu-text">Pembatalan Transaksi</span></a></li>
                             </ul>
                         </div>
                     </li>
@@ -200,11 +200,11 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                         </a>
                         <div class="collapse <?= $tunggakan_open ? 'show' : '' ?>" id="menuTunggakan">
                             <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan_per_siswa') ?>" class="side-nav-link <?= menu_is_active('tagihan_per_siswa') ? 'active' : '' ?>"><span class="menu-text">Tagihan Per Siswa</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan_per_kelas') ?>" class="side-nav-link <?= menu_is_active('tagihan_per_kelas') ? 'active' : '' ?>"><span class="menu-text">Tagihan Per Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tagihan_per_jenis') ?>" class="side-nav-link <?= menu_is_active('tagihan_per_jenis') ? 'active' : '' ?>"><span class="menu-text">Tagihan Per Jenis</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('tunggakan_lama') ?>" class="side-nav-link <?= menu_is_active('tunggakan_lama') ? 'active' : '' ?>"><span class="menu-text">Tunggakan Tahun Sebelumnya</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('surat_tunggakan') ?>" class="side-nav-link <?= menu_is_active('surat_tunggakan') ? 'active' : '' ?>"><span class="menu-text">Surat Tunggakan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tunggakan/tagihan_per_siswa') ?>" class="side-nav-link <?= menu_is_active('tagihan_per_siswa') ? 'active' : '' ?>"><span class="menu-text">Tagihan Per Siswa</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tunggakan/tagihan_per_kelas') ?>" class="side-nav-link <?= menu_is_active('tagihan_per_kelas') ? 'active' : '' ?>"><span class="menu-text">Tagihan Per Kelas</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tunggakan/tagihan_per_jenis') ?>" class="side-nav-link <?= menu_is_active('tagihan_per_jenis') ? 'active' : '' ?>"><span class="menu-text">Tagihan Per Jenis</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tunggakan/tunggakan_lama') ?>" class="side-nav-link <?= menu_is_active('tunggakan_lama') ? 'active' : '' ?>"><span class="menu-text">Tunggakan Tahun Sebelumnya</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('tunggakan/surat_tunggakan') ?>" class="side-nav-link <?= menu_is_active('surat_tunggakan') ? 'active' : '' ?>"><span class="menu-text">Surat Tunggakan</span></a></li>
                             </ul>
                         </div>
                     </li>
@@ -218,13 +218,13 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                         </a>
                         <div class="collapse <?= $laporan_open ? 'show' : '' ?>" id="menuLaporan">
                             <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/harian') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'harian' ? 'active' : '' ?>"><span class="menu-text">Pembayaran Harian</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/bulanan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'bulanan' ? 'active' : '' ?>"><span class="menu-text">Pembayaran Bulanan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/tahunan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'tahunan' ? 'active' : '' ?>"><span class="menu-text">Pembayaran Tahunan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/per_kelas') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'per_kelas' ? 'active' : '' ?>"><span class="menu-text">Rekap Per Kelas</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/per_jenis') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'per_jenis' ? 'active' : '' ?>"><span class="menu-text">Rekap Per Jenis</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/tunggakan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'tunggakan' ? 'active' : '' ?>"><span class="menu-text">Laporan Tunggakan</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('laporan/pembatalan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'pembatalan' ? 'active' : '' ?>"><span class="menu-text">Riwayat Pembatalan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/harian') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'harian' ? 'active' : '' ?>"><span class="menu-text">Pembayaran Harian</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/bulanan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'bulanan' ? 'active' : '' ?>"><span class="menu-text">Pembayaran Bulanan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/tahunan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'tahunan' ? 'active' : '' ?>"><span class="menu-text">Pembayaran Tahunan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/per_kelas') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'per_kelas' ? 'active' : '' ?>"><span class="menu-text">Rekap Per Kelas</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/per_jenis') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'per_jenis' ? 'active' : '' ?>"><span class="menu-text">Rekap Per Jenis</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/tunggakan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'tunggakan' ? 'active' : '' ?>"><span class="menu-text">Laporan Tunggakan</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('laporan/laporan/pembatalan') ?>" class="side-nav-link <?= $laporan_open && $current_method === 'pembatalan' ? 'active' : '' ?>"><span class="menu-text">Riwayat Pembatalan</span></a></li>
                             </ul>
                         </div>
                     </li>
@@ -237,10 +237,10 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                         </a>
                         <div class="collapse <?= $pengaturan_open ? 'show' : '' ?>" id="menuPengaturan">
                             <ul class="sub-menu">
-                                <li class="side-nav-item"><a href="<?= base_url('format_bukti') ?>" class="side-nav-link <?= menu_is_active('format_bukti') ? 'active' : '' ?>"><span class="menu-text">Format Bukti</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('format_kartu') ?>" class="side-nav-link <?= menu_is_active('format_kartu') ? 'active' : '' ?>"><span class="menu-text">Format Kartu</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('template_whatsapp') ?>" class="side-nav-link <?= menu_is_active('template_whatsapp') ? 'active' : '' ?>"><span class="menu-text">Template WhatsApp</span></a></li>
-                                <li class="side-nav-item"><a href="<?= base_url('log_aktivitas') ?>" class="side-nav-link <?= menu_is_active('log_aktivitas') ? 'active' : '' ?>"><span class="menu-text">Log Aktivitas</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('pengaturan/format_bukti') ?>" class="side-nav-link <?= menu_is_active('format_bukti') ? 'active' : '' ?>"><span class="menu-text">Format Bukti</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('pengaturan/format_kartu') ?>" class="side-nav-link <?= menu_is_active('format_kartu') ? 'active' : '' ?>"><span class="menu-text">Format Kartu</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('pengaturan/template_whatsapp') ?>" class="side-nav-link <?= menu_is_active('template_whatsapp') ? 'active' : '' ?>"><span class="menu-text">Template WhatsApp</span></a></li>
+                                <li class="side-nav-item"><a href="<?= base_url('pengaturan/log_aktivitas') ?>" class="side-nav-link <?= menu_is_active('log_aktivitas') ? 'active' : '' ?>"><span class="menu-text">Log Aktivitas</span></a></li>
                             </ul>
                         </div>
                     </li>
@@ -298,7 +298,7 @@ $pengaturan_open = menu_is_active(array('format_bukti', 'format_kartu', 'templat
                                 <div class="dropdown-header noti-title">
                                     <h6 class="text-overflow m-0"><?= html_escape($user_role) ?></h6>
                                 </div>
-                                <a href="<?= base_url('log_aktivitas') ?>" class="dropdown-item">
+                                <a href="<?= base_url('pengaturan/log_aktivitas') ?>" class="dropdown-item">
                                     <i class="ri-history-line me-1 fs-16 align-middle"></i>
                                     <span class="align-middle">Log Aktivitas</span>
                                 </a>

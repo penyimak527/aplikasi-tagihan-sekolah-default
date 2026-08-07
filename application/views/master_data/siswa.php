@@ -149,7 +149,7 @@ function filterKelas() {
 }
 
 function loadData() {
-    $.post('<?= base_url('siswa/result') ?>', {
+    $.post('<?= base_url('master_data/siswa/result') ?>', {
         search: $('#search').val(),
         id_periode: $('#periode_filter').val(),
         id_kelas_setting: $('#kelas_filter').val(),
@@ -174,8 +174,8 @@ function loadData() {
                     <div class="crud-actions">
                         <button type="button" class="btn btn-outline-primary btn-icon" title="Detail" onclick="detail(${row.id}, false)"><i class="ri-eye-line"></i></button>
                         <button type="button" class="btn btn-outline-warning btn-icon" title="Edit" onclick="detail(${row.id}, true)"><i class="ri-edit-line"></i></button>
-                        <a class="btn btn-outline-info btn-icon" title="Riwayat Kelas" href="<?= base_url('riwayat_kelas?id_siswa=') ?>${row.id}"><i class="ri-history-line"></i></a>
-                        <a class="btn btn-outline-primary btn-icon" title="Riwayat Tagihan" href="<?= base_url('tagihan_per_siswa?id_siswa=') ?>${row.id}"><i class="ri-file-list-3-line"></i></a>
+                        <a class="btn btn-outline-info btn-icon" title="Riwayat Kelas" href="<?= base_url('kesiswaan/riwayat_kelas?id_siswa=') ?>${row.id}"><i class="ri-history-line"></i></a>
+                        <a class="btn btn-outline-primary btn-icon" title="Riwayat Tagihan" href="<?= base_url('tunggakan/tagihan_per_siswa?id_siswa=') ?>${row.id}"><i class="ri-file-list-3-line"></i></a>
                     </div>
                 </div>`;
         }).join('');
@@ -200,7 +200,7 @@ function openForm() {
 }
 
 function detail(id, editMode) {
-    $.post('<?= base_url('siswa/detail') ?>', {id: id}, function (row) {
+    $.post('<?= base_url('master_data/siswa/detail') ?>', {id: id}, function (row) {
         if (!row || !row.id) {
             Swal.fire('Gagal', 'Data siswa tidak ditemukan.', 'error');
             return;
@@ -226,7 +226,7 @@ function saveData() {
     const button = $('#btn_simpan');
     button.prop('disabled', true);
 
-    $.post('<?= base_url('siswa/simpan') ?>', $('#form').serialize(), function (response) {
+    $.post('<?= base_url('master_data/siswa/simpan') ?>', $('#form').serialize(), function (response) {
         const berhasil = response.result === 'true';
         if (berhasil) {
             modalForm.hide();

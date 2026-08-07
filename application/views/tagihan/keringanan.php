@@ -159,7 +159,7 @@ function cariSiswa() {
     var button = $('#btn_cari_siswa');
 
     $.ajax({
-        url: '<?= base_url('keringanan/cari_siswa'); ?>',
+        url: '<?= base_url('tagihan/keringanan/cari_siswa'); ?>',
         type: 'POST',
         data: {
             q: search
@@ -240,7 +240,7 @@ function pilihSiswa(row) {
 }
 
 function loadTagihan() {
-    $.post('<?= base_url('keringanan/tagihan_siswa') ?>', {
+    $.post('<?= base_url('tagihan/keringanan/tagihan_siswa') ?>', {
         id_siswa: $('#id_siswa').val()
     }, function (rows) {
         tagihanMap = {};
@@ -307,7 +307,7 @@ function saveData() {
         'Simpan keringanan?',
         'Perubahan akan memengaruhi nominal dan sisa tagihan siswa.',
         function () {
-            $.post('<?= base_url('keringanan/simpan') ?>', serializeMoneyForm('#form'), function (response) {
+            $.post('<?= base_url('tagihan/keringanan/simpan') ?>', serializeMoneyForm('#form'), function (response) {
                 var berhasil = response.result === 'true';
                 Swal.fire(berhasil ? 'Berhasil' : 'Gagal', response.message, berhasil ? 'success' : 'error');
                 if (berhasil) {
@@ -321,7 +321,7 @@ function saveData() {
 }
 
 function loadRiwayat() {
-    $.post('<?= base_url('keringanan/riwayat') ?>', {
+    $.post('<?= base_url('tagihan/keringanan/riwayat') ?>', {
         id_siswa: $('#id_siswa').val()
     }, function (rows) {
         var html = '';
@@ -371,7 +371,7 @@ function batalkan(id) {
     }).then(function (result) {
         if (!result.isConfirmed) return;
 
-        $.post('<?= base_url('keringanan/batalkan') ?>', {
+        $.post('<?= base_url('tagihan/keringanan/batalkan') ?>', {
             id: id,
             alasan: result.value
         }, function (response) {

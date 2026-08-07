@@ -110,7 +110,7 @@
         var button = $('#btn_cari');
 
         $.ajax({
-            url: '<?= base_url('status_siswa/cari'); ?>',
+            url: '<?= base_url('kesiswaan/status_siswa/cari'); ?>',
             type: 'POST',
             data: {
                 q: search
@@ -238,7 +238,7 @@
                 var button = $('#btn_proses');
 
                 $.ajax({
-                    url: '<?= base_url('status_siswa/proses'); ?>',
+                    url: '<?= base_url('kesiswaan/status_siswa/proses'); ?>',
                     type: 'POST',
                     data: data,
                     dataType: 'JSON',

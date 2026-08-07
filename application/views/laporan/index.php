@@ -548,7 +548,7 @@ $(function () {
         $('#pagination').empty();
         $('#pagination-wrapper').addClass('d-none').removeClass('d-flex');
 
-        $.post('<?= base_url('laporan/result/') ?>' + type, filters(), function (response) {
+        $.post('<?= base_url('laporan/laporan/result/') ?>' + type, filters(), function (response) {
             if (response.result !== 'true') {
                 Swal.fire('Gagal', response.message, 'error');
                 return;
@@ -580,7 +580,7 @@ $(function () {
         window.print();
     });
     $('#export').on('click', function () {
-        this.href = '<?= base_url('laporan/export/') ?>' + type + '?' + new URLSearchParams(filters()).toString();
+        this.href = '<?= base_url('laporan/laporan/export/') ?>' + type + '?' + new URLSearchParams(filters()).toString();
     });
     $('#dt-length-0').on('change', function () {
         var pageSize = parseInt($(this).val(), 10) || 10;

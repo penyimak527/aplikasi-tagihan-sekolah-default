@@ -151,7 +151,7 @@ function loadData() {
         return Swal.fire('Perhatian', 'Pilih tagihan terlebih dahulu.', 'warning');
     }
 
-    $.post('<?= base_url('siswa_pembayar/result') ?>', {
+    $.post('<?= base_url('tagihan/siswa_pembayar/result') ?>', {
         id_tagihan: id,
         search: $('#search').val()
     }, function (response) {
@@ -235,7 +235,7 @@ function tambah() {
         'Tambahkan siswa?',
         'Tarif mengikuti tarif khusus, tarif kelas, lalu tarif umum.',
         function () {
-            $.post('<?= base_url('siswa_pembayar/tambah') ?>', {
+            $.post('<?= base_url('tagihan/siswa_pembayar/tambah') ?>', {
                 id_tagihan: $('#tagihan').val(),
                 id_siswa: ids
             }, function (response) {
@@ -252,7 +252,7 @@ function keluarkan(id) {
         'Keluarkan siswa?',
         'Siswa yang sudah membayar tidak dapat dikeluarkan.',
         function () {
-            $.post('<?= base_url('siswa_pembayar/keluarkan') ?>', {
+            $.post('<?= base_url('tagihan/siswa_pembayar/keluarkan') ?>', {
                 id_tagihan: $('#tagihan').val(),
                 id_siswa: id
             }, function (response) {

@@ -171,7 +171,7 @@ function loadSiswaKenaikan() {
     var id = $('#kelas_asal').val();
     if (!id) return;
     $('#data').html('<tr><td colspan="4"><div class="empty-state">Memuat siswa...</div></td></tr>');
-    $.post('<?= base_url('kenaikan_kelas/siswa') ?>', {id_kelas_setting: id}, function (rows) {
+    $.post('<?= base_url('kesiswaan/kenaikan_kelas/siswa') ?>', {id_kelas_setting: id}, function (rows) {
         if (!rows.length) {
             $('#data').html('<tr><td colspan="4"><div class="empty-state">Tidak ada siswa aktif pada kelas asal.</div></td></tr>');
             refreshKelasAsalPagination();
@@ -210,7 +210,7 @@ function validasiKenaikan(data) {
 function previewKenaikan() {
     var data = dataKenaikan();
     if (!validasiKenaikan(data)) return;
-    $.post('<?= base_url('kenaikan_kelas/preview') ?>', data, function (response) {
+    $.post('<?= base_url('kesiswaan/kenaikan_kelas/preview') ?>', data, function (response) {
         if (response.result !== 'true') {
             Swal.fire('Gagal', response.message, 'error');
             return;
@@ -236,7 +236,7 @@ function prosesKenaikan() {
     if (!validasiKenaikan(data)) return;
     confirmAction('Proses kenaikan kelas?', data.id_siswa.length + ' siswa akan dibuatkan penempatan baru. Data kelas lama tidak dihapus.', function () {
         $('#btn_proses').prop('disabled', true);
-        $.post('<?= base_url('kenaikan_kelas/proses') ?>', data, function (response) {
+        $.post('<?= base_url('kesiswaan/kenaikan_kelas/proses') ?>', data, function (response) {
             var ok = response.result === 'true';
             Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
             if (ok) loadSiswaKenaikan();

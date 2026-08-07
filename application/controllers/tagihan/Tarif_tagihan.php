@@ -6,6 +6,6 @@ class Tarif_tagihan extends MY_Controller
     public function index()
     {
         $id = (int) $this->input->get('id_tagihan');
-        redirect('tarif_per_kelas' . ($id > 0 ? '?id_tagihan=' . $id : ''));
+        redirect('tagihan/tarif_per_kelas' . ($id > 0 ? '?id_tagihan=' . $id : ''));
     }
 }

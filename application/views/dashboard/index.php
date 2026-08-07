@@ -4,7 +4,7 @@ $metricCards = array(
     array('key' => 'siswa_aktif', 'label' => 'Siswa Aktif', 'icon' => 'ti-users', 'tone' => 'primary', 'money' => false, 'hint' => 'Siswa aktif sesuai filter'),
     array('key' => 'total_tagihan', 'label' => 'Total Tagihan', 'icon' => 'ti-file-invoice', 'tone' => 'secondary', 'money' => true, 'hint' => 'Nominal tagihan sesuai periode'),
     array('key' => 'pembayaran_masuk', 'label' => 'Pembayaran Masuk', 'icon' => 'ti-cash', 'tone' => 'success', 'money' => true, 'hint' => 'Hanya transaksi berstatus Aktif'),
-    array('key' => 'tunggakan', 'label' => 'Tunggakan', 'icon' => 'ti-alert-circle', 'tone' => 'danger', 'money' => true, 'hint' => 'Sisa tagihan yang dianggap tunggakan', 'url' => base_url('tagihan_per_kelas')),
+    array('key' => 'tunggakan', 'label' => 'Tunggakan', 'icon' => 'ti-alert-circle', 'tone' => 'danger', 'money' => true, 'hint' => 'Sisa tagihan yang dianggap tunggakan', 'url' => base_url('tunggakan/tagihan_per_kelas')),
     array('key' => 'sudah_lunas', 'label' => 'Sudah Lunas', 'icon' => 'ti-circle-check', 'tone' => 'success', 'money' => false, 'hint' => 'Jumlah tagihan berstatus Lunas'),
     array('key' => 'belum_lunas', 'label' => 'Belum Lunas', 'icon' => 'ti-clock', 'tone' => 'warning', 'money' => false, 'hint' => 'Jumlah tagihan belum dibayar'),
     array('key' => 'cicilan_aktif', 'label' => 'Cicilan Aktif', 'icon' => 'ti-chart-pie', 'tone' => 'info', 'money' => false, 'hint' => 'Jumlah tagihan dibayar sebagian'),
@@ -91,7 +91,7 @@ $metricCards = array(
 <div class="card mb-3">
     <div class="card-header justify-content-between">
         <h4 class="header-title">Grafik Realisasi Pembayaran Juli–Juni</h4>
-        <a href="<?= base_url('laporan/tahunan') ?>" class="btn btn-sm btn-outline-primary">Buka Laporan Tahunan</a>
+        <a href="<?= base_url('laporan/laporan/tahunan') ?>" class="btn btn-sm btn-outline-primary">Buka Laporan Tahunan</a>
     </div>
     <div class="card-body">
         <div id="chart_realisasi" class="dashboard-chart-wrap"></div>
@@ -100,7 +100,7 @@ $metricCards = array(
                 <i class="ti ti-chart-bar-off empty-icon"></i>
                 <div class="empty-state-title">Tidak ada tagihan pada periode ini</div>
                 <div>Silakan pilih periode lain atau buat tagihan terlebih dahulu.</div>
-                <a href="<?= base_url('tagihan_bulanan') ?>" class="btn btn-sm btn-primary mt-3">Buka Menu Tagihan</a>
+                <a href="<?= base_url('tagihan/tagihan_bulanan') ?>" class="btn btn-sm btn-primary mt-3">Buka Menu Tagihan</a>
             </div>
         </div>
     </div>
@@ -134,7 +134,7 @@ $metricCards = array(
         <div class="card h-100">
             <div class="card-header justify-content-between">
                 <h4 class="header-title">Transaksi Terbaru</h4>
-                <a href="<?= base_url('riwayat_pembayaran') ?>" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+                <a href="<?= base_url('transaksi/riwayat_pembayaran') ?>" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -162,7 +162,7 @@ $metricCards = array(
         <div class="card h-100">
             <div class="card-header justify-content-between">
                 <h4 class="header-title">Tunggakan Prioritas</h4>
-                <a href="<?= base_url('tagihan_per_kelas') ?>" class="btn btn-sm btn-outline-primary">Tindak Lanjut</a>
+                <a href="<?= base_url('tunggakan/tagihan_per_kelas') ?>" class="btn btn-sm btn-outline-primary">Tindak Lanjut</a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -379,7 +379,7 @@ function renderTransaksiTerbaru(rows) {
     }
 
     var html = rows.map(function (row) {
-        var detailUrl = '<?= base_url('riwayat_pembayaran?detail=') ?>' + encodeURIComponent(row.id);
+        var detailUrl = '<?= base_url('transaksi/riwayat_pembayaran?detail=') ?>' + encodeURIComponent(row.id);
         return '<tr>' +
             '<td><strong class="text-primary">' + escapeHtml(row.no_transaksi) + '</strong></td>' +
             '<td>' + escapeHtml(row.nama_siswa) + '<br><small class="text-muted">' + escapeHtml(row.nama_kelas || '-') + '</small></td>' +
@@ -401,7 +401,7 @@ function renderTunggakanPrioritas(rows) {
     }
 
     var html = rows.map(function (row) {
-        var detailUrl = '<?= base_url('tagihan_per_siswa?id_siswa=') ?>' + encodeURIComponent(row.id_siswa);
+        var detailUrl = '<?= base_url('tunggakan/tagihan_per_siswa?id_siswa=') ?>' + encodeURIComponent(row.id_siswa);
         return '<tr>' +
             '<td class="fw-semibold">' + escapeHtml(row.nama_siswa) + '</td>' +
             '<td>' + escapeHtml(row.nama_kelas || '-') + '</td>' +

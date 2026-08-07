@@ -359,7 +359,7 @@ function loadPenempatan() {
     refreshPaginationSudah();
 
     $.ajax({
-        url: '<?= base_url('penempatan_siswa/result'); ?>',
+        url: '<?= base_url('kesiswaan/penempatan_siswa/result'); ?>',
         type: 'POST',
         data: {
             id_kelas_setting: idKelas,
@@ -566,7 +566,7 @@ function prosesPenempatan() {
             $('#btn_tempatkan').prop('disabled', true);
 
             $.ajax({
-                url: '<?= base_url('penempatan_siswa/proses'); ?>',
+                url: '<?= base_url('kesiswaan/penempatan_siswa/proses'); ?>',
                 type: 'POST',
                 data: {
                     id_kelas_setting: $('#kelas').val(),
@@ -607,7 +607,7 @@ function keluarkanPenempatan(id) {
         'Penempatan yang sudah digunakan untuk tagihan tidak dapat dikeluarkan langsung.',
         function () {
             $.ajax({
-                url: '<?= base_url('penempatan_siswa/keluarkan'); ?>',
+                url: '<?= base_url('kesiswaan/penempatan_siswa/keluarkan'); ?>',
                 type: 'POST',
                 data: {
                     id_kelas_siswa: id

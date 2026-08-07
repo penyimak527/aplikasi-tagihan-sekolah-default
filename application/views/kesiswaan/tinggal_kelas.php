@@ -154,7 +154,7 @@ function loadSiswaTinggal() {
     var id = $('#kelas_asal').val();
     if (!id) return;
     $('#data').html('<tr><td colspan="4"><div class="empty-state">Memuat siswa...</div></td></tr>');
-    $.post('<?= base_url('tinggal_kelas/siswa') ?>', {id_kelas_setting: id}, function (rows) {
+    $.post('<?= base_url('kesiswaan/tinggal_kelas/siswa') ?>', {id_kelas_setting: id}, function (rows) {
         if (!rows.length) {
             $('#data').html('<tr><td colspan="4"><div class="empty-state">Tidak ada siswa aktif.</div></td></tr>');
             refreshTinggalPagination();
@@ -188,7 +188,7 @@ function validasiTinggal(data) {
 function previewTinggal() {
     var data = dataTinggal();
     if (!validasiTinggal(data)) return;
-    $.post('<?= base_url('tinggal_kelas/preview') ?>', data, function (response) {
+    $.post('<?= base_url('kesiswaan/tinggal_kelas/preview') ?>', data, function (response) {
         if (response.result !== 'true') return Swal.fire('Gagal', response.message, 'error');
         Swal.fire({
             title: 'Preview Tinggal Kelas',
@@ -204,7 +204,7 @@ function prosesTinggal() {
     if (!validasiTinggal(data)) return;
     confirmAction('Proses tinggal kelas?', data.id_siswa.length + ' siswa akan dibuatkan penempatan baru. Data kelas lama tidak dihapus.', function () {
         $('#btn_proses').prop('disabled', true);
-        $.post('<?= base_url('tinggal_kelas/proses') ?>', data, function (response) {
+        $.post('<?= base_url('kesiswaan/tinggal_kelas/proses') ?>', data, function (response) {
             var ok = response.result === 'true';
             Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
             if (ok) loadSiswaTinggal();

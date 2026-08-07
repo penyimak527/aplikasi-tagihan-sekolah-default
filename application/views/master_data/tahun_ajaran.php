@@ -98,7 +98,7 @@
     });
 
     function loadData() {
-        $.post('<?= base_url('tahun_ajaran/result') ?>', {
+        $.post('<?= base_url('master_data/tahun_ajaran/result') ?>', {
             search: $('#search').val()
         }, function(rows) {
             dataRows = rows || [];
@@ -149,7 +149,7 @@
     function detailData(id) {
         $('#detail_content').html('<div class="empty-state">Memuat detail...</div>');
         modalDetail.show();
-        $.post('<?= base_url('tahun_ajaran/detail') ?>', {
+        $.post('<?= base_url('master_data/tahun_ajaran/detail') ?>', {
             id: id
         }, function(response) {
             if (response.result !== 'true') {
@@ -192,7 +192,7 @@
         const button = $('#btn_simpan');
         button.prop('disabled', true);
 
-        $.post('<?= base_url('tahun_ajaran/simpan') ?>', $('#form').serialize(), function(response) {
+        $.post('<?= base_url('master_data/tahun_ajaran/simpan') ?>', $('#form').serialize(), function(response) {
             const berhasil = response.result === 'true';
             if (berhasil) {
                 modalForm.hide();
@@ -206,7 +206,7 @@
 
     function aktifkan(id) {
         confirmAction('Aktifkan tahun ajaran?', 'Periode aktif sebelumnya akan dinonaktifkan.', function() {
-            $.post('<?= base_url('tahun_ajaran/aktifkan') ?>', {
+            $.post('<?= base_url('master_data/tahun_ajaran/aktifkan') ?>', {
                 id: id
             }, function(response) {
                 const berhasil = response.result === 'true';
@@ -218,7 +218,7 @@
 
     function hapus(id) {
         confirmAction('Hapus tahun ajaran?', 'Hanya data yang belum digunakan yang dapat dihapus.', function() {
-            $.post('<?= base_url('tahun_ajaran/hapus') ?>', {
+            $.post('<?= base_url('master_data/tahun_ajaran/hapus') ?>', {
                 id: id
             }, function(response) {
                 const berhasil = response.result === 'true';

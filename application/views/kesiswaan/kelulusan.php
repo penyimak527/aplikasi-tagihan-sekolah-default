@@ -110,7 +110,7 @@ function loadSiswaKelulusan() {
         return;
     }
     $('#data').html('<tr><td colspan="4"><div class="empty-state">Memuat siswa...</div></td></tr>');
-    $.post('<?= base_url('kelulusan/siswa') ?>', {id_kelas_setting: $('#kelas').val()}, function (rows) {
+    $.post('<?= base_url('kesiswaan/kelulusan/siswa') ?>', {id_kelas_setting: $('#kelas').val()}, function (rows) {
         if (!rows.length) {
             $('#data').html('<tr><td colspan="4"><div class="empty-state">Tidak ada siswa aktif pada kelas ini.</div></td></tr>');
             refreshKelulusanPagination();
@@ -146,7 +146,7 @@ function validasiKelulusan(data) {
 function previewKelulusan() {
     var data = dataKelulusan();
     if (!validasiKelulusan(data)) return;
-    $.post('<?= base_url('kelulusan/preview') ?>', data, function (response) {
+    $.post('<?= base_url('kesiswaan/kelulusan/preview') ?>', data, function (response) {
         if (response.result !== 'true') return Swal.fire('Gagal', response.message, 'error');
         Swal.fire({
             title: 'Preview Kelulusan',
@@ -162,7 +162,7 @@ function prosesKelulusan() {
     if (!validasiKelulusan(data)) return;
     confirmAction('Proses kelulusan ' + data.id_siswa.length + ' siswa?', 'Siswa tidak ikut tagihan baru. Tagihan dan pembayaran lama tetap tersimpan.', function () {
         $('#btn_proses').prop('disabled', true);
-        $.post('<?= base_url('kelulusan/proses') ?>', data, function (response) {
+        $.post('<?= base_url('kesiswaan/kelulusan/proses') ?>', data, function (response) {
             var ok = response.result === 'true';
             Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
             if (ok) loadSiswaKelulusan();

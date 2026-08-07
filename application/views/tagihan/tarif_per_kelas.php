@@ -88,7 +88,7 @@ function loadTarifKelas() {
     }
 
     $('#kelas_rows').html('<tr><td colspan="6"><div class="empty-state">Memuat tarif kelas...</div></td></tr>');
-    $.post('<?= base_url('tarif_per_kelas/result') ?>', {id_tagihan: id}, function (response) {
+    $.post('<?= base_url('tagihan/tarif_per_kelas/result') ?>', {id_tagihan: id}, function (response) {
         if (response.result !== 'true') {
             Swal.fire('Gagal', response.message, 'error');
             return;
@@ -122,7 +122,7 @@ function loadTarifKelas() {
 function simpanTarifKelas() {
     confirmAction('Simpan tarif per kelas?', 'Perubahan akan diterapkan pada siswa tanpa tarif khusus dan dicatat pada log aktivitas.', function () {
         var button = $('#btn_simpan').prop('disabled', true);
-        $.post('<?= base_url('tarif_per_kelas/simpan') ?>', serializeMoneyForm('#form_tarif'), function (response) {
+        $.post('<?= base_url('tagihan/tarif_per_kelas/simpan') ?>', serializeMoneyForm('#form_tarif'), function (response) {
             var ok = response.result === 'true';
             Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
             if (ok) loadTarifKelas();
