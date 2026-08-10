@@ -459,7 +459,6 @@
 
         $('#btn_tambah_wali').on('click', openTambahWali);
         $('#btn_cari_wali').on('click', loadWaliData);
-        $('#filter_status_wali').on('change', loadWaliData);
         $('#search_wali').on('keyup', function (event) {
             if (event.key === 'Enter') loadWaliData();
         });

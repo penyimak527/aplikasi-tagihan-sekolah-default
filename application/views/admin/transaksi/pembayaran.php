@@ -315,9 +315,19 @@
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" for="wa_pesan">Pesan</label>
-                    <textarea id="wa_pesan" class="form-control" rows="7" placeholder="Kosongkan untuk menggunakan template default"></textarea>
-                    <small class="text-muted">Pesan dapat diedit sebelum membuka WhatsApp.</small>
+                    <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                        <label class="form-label mb-0" for="wa_pesan">Pesan</label>
+                        <button type="button" id="btn_muat_template_wa" class="btn btn-sm btn-outline-secondary">
+                            <i class="ri-refresh-line me-1"></i>Muat Template
+                        </button>
+                    </div>
+                    <textarea id="wa_pesan" class="form-control" rows="7" placeholder="Template default Bukti Pembayaran akan dimuat otomatis"></textarea>
+                    <small class="text-muted">Template default dari Pengaturan → Template WhatsApp dimuat otomatis dan tetap dapat diedit sebelum dikirim.</small>
+                    <div id="wa_template_info" class="small text-primary mt-1"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tautan Bukti Pembayaran</label>
+                    <div><a href="#" id="wa_bukti_link" target="_blank">Buka bukti pembayaran</a></div>
                 </div>
                 <div class="alert alert-info mb-0">Mode tautan WhatsApp menyiapkan pesan, tetapi tidak dapat memastikan pesan benar-benar terkirim.</div>
             </div>
@@ -430,6 +440,7 @@ var paymentSuccessModal;
 var checkoutPaymentModal;
 var transactionDetailModal;
 var whatsappModal;
+var waPesanEdited = false;
 
 $(function () {
     flatpickr('#tanggal_pembayaran', {
@@ -534,12 +545,23 @@ $(function () {
         sendWhatsapp();
     });
 
+    $('#btn_muat_template_wa').click(function () {
+        loadWhatsappTemplate(true);
+    });
+
+    $('#wa_pesan').on('input', function () {
+        waPesanEdited = true;
+    });
+
     $('#btn_transaksi_baru').click(function () {
         location.reload();
     });
 
     $('.tujuan-wa').change(function () {
         applyWhatsappRecipient();
+        if (!waPesanEdited) {
+            loadWhatsappTemplate(false);
+        }
     });
 
     drawBills();
@@ -1406,11 +1428,17 @@ function openWhatsapp() {
     $('#label_wa_ayah').text('Ayah - ' + (selectedStudent.telepon_ayah || 'Tidak tersedia'));
     $('#label_wa_ibu').text('Ibu - ' + (selectedStudent.telepon_ibu || 'Tidak tersedia'));
     $('#wa_pesan').val('');
+    $('#wa_template_info').text('Memuat template...');
+    $('#wa_bukti_link').attr('href', '<?= base_url('admin/transaksi/pembayaran/bukti/'); ?>' + lastPaymentId);
+    waPesanEdited = false;
+
     if (selectedStudent.telepon_ayah) $('#wa_ayah').prop('checked', true);
     else if (selectedStudent.telepon_ibu) $('#wa_ibu').prop('checked', true);
     else $('#wa_lain').prop('checked', true);
+
     applyWhatsappRecipient();
     whatsappModal.show();
+    loadWhatsappTemplate(true);
 }
 
 function applyWhatsappRecipient() {
@@ -1424,6 +1452,41 @@ function applyWhatsappRecipient() {
     } else {
         $('#wa_nama,#wa_nomor').val('');
     }
+}
+
+function loadWhatsappTemplate(force) {
+    if (!lastPaymentId) return;
+    if (!force && waPesanEdited) return;
+
+    var button = $('#btn_muat_template_wa');
+    button.prop('disabled', true);
+    $('#wa_template_info').text('Memuat template...');
+
+    $.ajax({
+        url: '<?= base_url('admin/transaksi/pembayaran/preview_whatsapp'); ?>',
+        type: 'POST',
+        data: {
+            id: lastPaymentId,
+            nama_penerima: $('#wa_nama').val()
+        },
+        dataType: 'JSON',
+        success: function (data) {
+            if (data.result == 'true') {
+                $('#wa_pesan').val(data.pesan || '');
+                $('#wa_template_info').text('Template: ' + (data.nama_template || 'Default'));
+                waPesanEdited = false;
+            } else {
+                $('#wa_template_info').text(data.message || 'Template tidak dapat dimuat.');
+            }
+        },
+        error: function (xhr, status, error) {
+            $('#wa_template_info').text('Template tidak dapat dimuat.');
+            ajaxError(xhr);
+        },
+        complete: function () {
+            button.prop('disabled', false);
+        }
+    });
 }
 
 function sendWhatsapp() {

@@ -244,7 +244,7 @@ $(function () {
         var values = {
             'Tanggal': '04-08-2026',
             'Jenis/Bulan': 'SPP Juli',
-            'Nominal': '250,000',
+            'Nominal': '250.000',
             'Petugas': 'MW'
         };
         var widths = {
@@ -253,13 +253,22 @@ $(function () {
             'Nominal': Number($('#wNominal').val() || 35),
             'Petugas': Number($('#wPetugas').val() || 20)
         };
+        var cardWidth = Number($('#lebar').val() || 210);
+        var cardHeight = Number($('#tinggi').val() || 148);
+        var x = Number($('#x').val() || 0);
+        var y = Number($('#y').val() || 0);
 
-        return '<div style="margin-left:' + Number($('#x').val() || 0) + 'px;margin-top:' + Number($('#y').val() || 0) + 'px">' +
-            '<div class="d-flex border rounded overflow-hidden">' +
-            columns.map(function (column) {
-                return '<div class="p-2 border-end" style="width:' + widths[column] + '%"><small class="text-muted d-block">' + escapeHtml(column) + '</small><strong>' + escapeHtml(values[column]) + '</strong></div>';
-            }).join('') +
-            '</div><small class="text-muted d-block mt-2">Jumlah baris: ' + escapeHtml($('#jumlahBaris').val()) + ' | Jarak: ' + escapeHtml($('#jarak').val()) + ' mm</small></div>';
+        return '<div style="overflow:auto;padding:8px;background:#f5f6f8">' +
+            '<div style="position:relative;width:' + cardWidth + 'mm;height:' + cardHeight + 'mm;background:#fff;border:1px dashed #999;overflow:hidden">' +
+                '<div style="position:absolute;left:' + x + 'mm;top:' + y + 'mm;display:flex;align-items:center;white-space:nowrap;line-height:1.15">' +
+                    '<div style="width:11mm;font-weight:700;overflow:hidden">01</div>' +
+                    columns.map(function (column) {
+                        return '<div style="width:' + widths[column] + 'mm;overflow:hidden;white-space:nowrap;padding-right:1.5mm">' + escapeHtml(values[column]) + '</div>';
+                    }).join('') +
+                '</div>' +
+            '</div>' +
+            '<small class="text-muted d-block mt-2">Ukuran: ' + cardWidth + ' × ' + cardHeight + ' mm | Jumlah baris: ' + escapeHtml($('#jumlahBaris').val()) + ' | Jarak: ' + escapeHtml($('#jarak').val()) + ' mm</small>' +
+        '</div>';
     }
 
     function showPreview() {
@@ -280,7 +289,9 @@ $(function () {
         if (!showPreview()) return;
         var win = window.open('', '_blank', 'width=900,height=500');
         if (!win) return;
-        win.document.write('<!doctype html><html><head><title>Tes Cetak Kartu</title><style>body{font-family:Arial,sans-serif;padding:20px}.d-flex{display:flex}.border{border:1px solid #aaa}.border-end{border-right:1px solid #aaa}.rounded{border-radius:6px}.overflow-hidden{overflow:hidden}.p-2{padding:8px}.mt-2{margin-top:8px}.d-block{display:block}.text-muted{color:#666}small{font-size:11px}</style></head><body>' + previewHtml() + '<script>window.onload=function(){window.print();}<\/script></body></html>');
+        var width = Number($('#lebar').val() || 210);
+        var height = Number($('#tinggi').val() || 148);
+        win.document.write('<!doctype html><html><head><title>Tes Cetak Kartu</title><style>@page{size:' + width + 'mm ' + height + 'mm;margin:0}body{font-family:Arial,sans-serif;margin:0;color:#111}.mt-2{margin-top:8px}.d-block{display:block}.text-muted{color:#666}small{font-size:11px}@media print{small{display:none}}</style></head><body>' + previewHtml() + '<script>window.onload=function(){window.print();}<\/script></body></html>');
         win.document.close();
     });
 

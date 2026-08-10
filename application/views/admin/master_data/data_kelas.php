@@ -102,7 +102,6 @@ $(document).ready(function () {
     $('#search').on('keyup', function (event) {
         if (event.key === 'Enter') loadData();
     });
-    $('#status_filter').on('change', loadData);
     $('#btn_simpan').on('click', saveData);
     $('#dt-length-0').on('change', refreshPagination);
 });

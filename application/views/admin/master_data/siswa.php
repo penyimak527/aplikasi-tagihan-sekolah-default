@@ -129,9 +129,7 @@ $(document).ready(function () {
 
     $('#periode_filter').on('change', function () {
         filterKelas();
-        loadData();
     });
-    $('#kelas_filter, #status_filter').on('change', loadData);
     $('#search').on('keyup', function (event) {
         if (event.key === 'Enter') loadData();
     });

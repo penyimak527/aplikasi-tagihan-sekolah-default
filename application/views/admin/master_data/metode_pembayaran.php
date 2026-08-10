@@ -97,7 +97,6 @@ $(document).ready(function () {
 
     $('#btn_tambah_metode').on('click', function () { openMetodeForm(); });
     $('#btn_cari_metode').on('click', loadMetodeData);
-    $('#status_metode').on('change', loadMetodeData);
     $('#search_metode').on('keyup', function (event) {
         if (event.key === 'Enter') loadMetodeData();
     });

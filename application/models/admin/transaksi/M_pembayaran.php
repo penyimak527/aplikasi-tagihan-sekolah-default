@@ -136,13 +136,343 @@ class M_pembayaran extends CI_Model
     public function detail($id){
         $header=$this->db->where('id',$id)->get('tagihan_pembayaran')->row_array();if(!$header)return model_response(false,'Transaksi tidak ditemukan.');$detail=$this->db->where('id_pembayaran',$id)->order_by('id')->get('tagihan_pembayaran_detail')->result_array();$siswa=$this->db->where('id',$header['id_siswa'])->get('siswa')->row_array();$cancel=$this->db->where('id_pembayaran',$id)->get('tagihan_pembatalan_transaksi')->row_array();return array('result'=>'true','header'=>$header,'detail'=>$detail,'siswa'=>$siswa,'pembatalan'=>$cancel);
     }
-    private function replace_template($tpl,$header,$siswa){$map=array('{nama_wali}'=>trim($siswa['nama_ayah']??'')?:trim($siswa['nama_ibu']??''),'{nama_siswa}'=>$header['nama_siswa'],'{kelas}'=>$header['nama_kelas'],'{tanggal}'=>$header['tanggal_transaksi'],'{no_transaksi}'=>$header['no_transaksi'],'{total_bayar}'=>rupiah($header['total_pembayaran']),'{total_tunggakan}'=>'','{nama_sekolah}'=>$this->config->item('nama_sekolah')?:'Sekolah','{nama_petugas}'=>$header['nama_user']);return strtr($tpl,$map);}
-    public function siapkan_whatsapp(){
-        $id=(int)$this->input->post('id');$hub=trim((string)$this->input->post('hubungan',true));$nomor=bersihkan_nomor_wa((string)$this->input->post('nomor',true));$nama=trim((string)$this->input->post('nama_penerima',true));$pesan=trim((string)$this->input->post('pesan',false));$data=$this->detail($id);if($data['result']!=='true')return $data;if($data['header']['status_transaksi']!=='Aktif')return model_response(false,'Bukti transaksi dibatalkan tidak dapat dikirim.');if($nomor==='')return model_response(false,'Nomor WhatsApp wajib diisi.');if($pesan===''){$tpl=$this->db->where('jenis_template','Bukti Pembayaran')->where('status','Aktif')->order_by("status_default='Ya'",'DESC',false)->get('tagihan_template_whatsapp')->row_array();$pesan=$this->replace_template($tpl?$tpl['isi_template']:'Yth. Bapak/Ibu wali {nama_siswa}, pembayaran sebesar {total_bayar} telah kami terima pada {tanggal}. Nomor transaksi: {no_transaksi}. Terima kasih.',$data['header'],$data['siswa']?:array());}
-        $this->db->trans_begin();$this->db->insert('tagihan_riwayat_whatsapp',array('jenis_kirim'=>'Bukti Pembayaran','id_referensi'=>$id,'nomor_referensi'=>$data['header']['no_transaksi'],'id_siswa'=>$data['header']['id_siswa'],'nama_siswa'=>$data['header']['nama_siswa'],'nama_penerima'=>$nama,'hubungan_penerima'=>$hub,'nomor_whatsapp'=>$nomor,'isi_pesan'=>$pesan,'metode_kirim'=>'Tautan','status_kirim'=>'Disiapkan','tanggal'=>tanggal_sekarang(),'waktu'=>waktu_sekarang(),'id_user'=>app_user_id(),'nama_user'=>app_user_name()));$this->db->where('id',$id)->update('tagihan_pembayaran',array('status_kirim_whatsapp'=>'Disiapkan'));tagihan_log_activity('Kirim Ulang Bukti WhatsApp','Transaksi','Kirim','tagihan_pembayaran',$id,$data['header']['no_transaksi'],'Bukti disiapkan ke '.$nomor);if($this->db->trans_status()===FALSE){$this->db->trans_rollback();return model_response(false,'Gagal menyiapkan WhatsApp.');}$this->db->trans_commit();return model_response(true,'Tautan WhatsApp berhasil disiapkan.',array('url'=>'https://wa.me/'.$nomor.'?text='.rawurlencode($pesan),'pesan'=>$pesan));
+    private function template_whatsapp_default()
+    {
+        return $this->db
+            ->where('jenis_template', 'Bukti Pembayaran')
+            ->where('status', 'Aktif')
+            ->order_by("status_default='Ya'", 'DESC', false)
+            ->order_by('id', 'DESC')
+            ->get('tagihan_template_whatsapp')
+            ->row_array();
     }
-    public function format_kartu(){return $this->db->where('jenis_format','Kartu Pembayaran')->where('status','Aktif')->order_by("status_default='Ya'",'DESC',false)->get('tagihan_pengaturan_cetak')->row_array();}
-    public function catat_cetak_kartu(){
-        $id=(int)$this->input->post('id');$baris=(int)$this->input->post('nomor_baris');$x=trim((string)$this->input->post('posisi_x',true));$y=trim((string)$this->input->post('posisi_y',true));$data=$this->detail($id);if($data['result']!=='true')return $data;if($data['header']['status_transaksi']!=='Aktif')return model_response(false,'Transaksi dibatalkan tidak dapat dicetak ke kartu.');$format=$this->format_kartu();$existing=$this->db->where('id_pembayaran',$id)->where('nomor_baris',$baris)->count_all_results('tagihan_cetak_kartu');$this->db->trans_begin();$this->db->insert('tagihan_cetak_kartu',array('id_pembayaran'=>$id,'no_transaksi'=>$data['header']['no_transaksi'],'id_siswa'=>$data['header']['id_siswa'],'nama_siswa'=>$data['header']['nama_siswa'],'id_format_cetak'=>$format['id']??0,'nama_format'=>$format['nama_format']??'Kartu Pembayaran','nomor_baris'=>$baris,'posisi_x'=>$x,'posisi_y'=>$y,'status_cetak'=>'Berhasil','jumlah_cetak'=>1,'keterangan'=>$existing?'Cetak ulang pada baris yang pernah digunakan.':'Cetak kartu pembayaran.','tanggal'=>tanggal_sekarang(),'waktu'=>waktu_sekarang(),'id_user'=>app_user_id(),'nama_user'=>app_user_name()));tagihan_log_activity('Cetak Kartu Pembayaran','Transaksi','Cetak','tagihan_pembayaran',$id,$data['header']['no_transaksi'],'Baris '.$baris.($existing?' (cetak ulang)':''));return tagihan_transaction_result('Cetak kartu berhasil dicatat.'.($existing?' Peringatan: baris ini pernah digunakan.':''));
+
+    private function replace_template($tpl, $header, $siswa, $namaWali = '')
+    {
+        $wali = trim((string) $namaWali);
+        if ($wali === '') {
+            $wali = trim((string) ($siswa['nama_ayah'] ?? ''));
+        }
+        if ($wali === '') {
+            $wali = trim((string) ($siswa['nama_ibu'] ?? ''));
+        }
+        if ($wali === '') {
+            $wali = 'Bapak/Ibu Wali';
+        }
+
+        $map = array(
+            '{nama_wali}' => $wali,
+            '{nama_siswa}' => $header['nama_siswa'],
+            '{kelas}' => $header['nama_kelas'],
+            '{tanggal}' => $header['tanggal_transaksi'],
+            '{no_transaksi}' => $header['no_transaksi'],
+            '{total_bayar}' => rupiah($header['total_pembayaran']),
+            '{total_tunggakan}' => '',
+            '{nama_sekolah}' => $this->config->item('nama_sekolah') ?: 'Sekolah',
+            '{nama_petugas}' => $header['nama_user']
+        );
+
+        return strtr($tpl, $map);
     }
+
+    public function preview_whatsapp()
+    {
+        $id = (int) $this->input->post('id');
+        $nama = trim((string) $this->input->post('nama_penerima', true));
+        $data = $this->detail($id);
+
+        if ($data['result'] !== 'true') {
+            return $data;
+        }
+        if ($data['header']['status_transaksi'] !== 'Aktif') {
+            return model_response(false, 'Bukti transaksi dibatalkan tidak dapat dikirim.');
+        }
+
+        $tpl = $this->template_whatsapp_default();
+        $isi = $tpl
+            ? $tpl['isi_template']
+            : 'Yth. Bapak/Ibu {nama_wali}, pembayaran {nama_siswa} sebesar {total_bayar} telah kami terima pada {tanggal}. Nomor transaksi: {no_transaksi}. Terima kasih.';
+
+        return model_response(true, 'Template WhatsApp berhasil dimuat.', array(
+            'pesan' => $this->replace_template($isi, $data['header'], $data['siswa'] ?: array(), $nama),
+            'nama_template' => $tpl['nama_template'] ?? 'Template Default Sistem'
+        ));
+    }
+
+    public function siapkan_whatsapp()
+    {
+        $id = (int) $this->input->post('id');
+        $hub = trim((string) $this->input->post('hubungan', true));
+        $nomor = bersihkan_nomor_wa((string) $this->input->post('nomor', true));
+        $nama = trim((string) $this->input->post('nama_penerima', true));
+        $pesan = trim((string) $this->input->post('pesan', false));
+        $data = $this->detail($id);
+
+        if ($data['result'] !== 'true') {
+            return $data;
+        }
+        if ($data['header']['status_transaksi'] !== 'Aktif') {
+            return model_response(false, 'Bukti transaksi dibatalkan tidak dapat dikirim.');
+        }
+        if ($nomor === '') {
+            return model_response(false, 'Nomor WhatsApp wajib diisi.');
+        }
+
+        if ($pesan === '') {
+            $tpl = $this->template_whatsapp_default();
+            $isi = $tpl
+                ? $tpl['isi_template']
+                : 'Yth. Bapak/Ibu {nama_wali}, pembayaran {nama_siswa} sebesar {total_bayar} telah kami terima pada {tanggal}. Nomor transaksi: {no_transaksi}. Terima kasih.';
+            $pesan = $this->replace_template($isi, $data['header'], $data['siswa'] ?: array(), $nama);
+        }
+
+        $this->db->trans_begin();
+        $this->db->insert('tagihan_riwayat_whatsapp', array(
+            'jenis_kirim' => 'Bukti Pembayaran',
+            'id_referensi' => $id,
+            'nomor_referensi' => $data['header']['no_transaksi'],
+            'id_siswa' => $data['header']['id_siswa'],
+            'nama_siswa' => $data['header']['nama_siswa'],
+            'nama_penerima' => $nama,
+            'hubungan_penerima' => $hub,
+            'nomor_whatsapp' => $nomor,
+            'isi_pesan' => $pesan,
+            'metode_kirim' => 'Tautan',
+            'status_kirim' => 'Disiapkan',
+            'tanggal' => tanggal_sekarang(),
+            'waktu' => waktu_sekarang(),
+            'id_user' => app_user_id(),
+            'nama_user' => app_user_name()
+        ));
+        $this->db->where('id', $id)->update('tagihan_pembayaran', array(
+            'status_kirim_whatsapp' => 'Disiapkan'
+        ));
+        tagihan_log_activity(
+            'Kirim Ulang Bukti WhatsApp',
+            'Transaksi',
+            'Kirim',
+            'tagihan_pembayaran',
+            $id,
+            $data['header']['no_transaksi'],
+            'Bukti disiapkan ke ' . $nomor
+        );
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            return model_response(false, 'Gagal menyiapkan WhatsApp.');
+        }
+
+        $this->db->trans_commit();
+        return model_response(true, 'Tautan WhatsApp berhasil disiapkan.', array(
+            'url' => 'https://wa.me/' . $nomor . '?text=' . rawurlencode($pesan),
+            'pesan' => $pesan
+        ));
+    }
+
+    public function format_bukti()
+    {
+        return $this->db
+            ->where('jenis_format', 'Bukti Pembayaran')
+            ->where('status', 'Aktif')
+            ->order_by("status_default='Ya'", 'DESC', false)
+            ->order_by('id', 'DESC')
+            ->get('tagihan_pengaturan_cetak')
+            ->row_array();
+    }
+
+    public function format_kartu_list()
+    {
+        return $this->db
+            ->where('jenis_format', 'Kartu Pembayaran')
+            ->where('status', 'Aktif')
+            ->order_by("status_default='Ya'", 'DESC', false)
+            ->order_by('nama_format', 'ASC')
+            ->get('tagihan_pengaturan_cetak')
+            ->result_array();
+    }
+
+    public function format_kartu($id = 0)
+    {
+        $this->db
+            ->where('jenis_format', 'Kartu Pembayaran')
+            ->where('status', 'Aktif');
+
+        if ((int) $id > 0) {
+            $this->db->where('id', (int) $id);
+        } else {
+            $this->db
+                ->order_by("status_default='Ya'", 'DESC', false)
+                ->order_by('id', 'DESC');
+        }
+
+        return $this->db->get('tagihan_pengaturan_cetak')->row_array();
+    }
+
+    private function kartu_config($format)
+    {
+        $config = array();
+        if (!empty($format['pengaturan_json'])) {
+            $decoded = json_decode($format['pengaturan_json'], true);
+            if (is_array($decoded)) {
+                $config = $decoded;
+            }
+        }
+
+        return array(
+            'jumlah_baris' => max(1, (int) ($config['jumlah_baris'] ?? 12)),
+            'jarak_baris' => max(0, (float) ($config['jarak_baris'] ?? 8)),
+            'posisi_x' => max(0, (float) ($config['posisi_x'] ?? 10)),
+            'posisi_y' => max(0, (float) ($config['posisi_y'] ?? 10)),
+            'lebar_tanggal' => max(0, (float) ($config['lebar_tanggal'] ?? 25)),
+            'lebar_jenis' => max(0, (float) ($config['lebar_jenis'] ?? 70)),
+            'lebar_nominal' => max(0, (float) ($config['lebar_nominal'] ?? 35)),
+            'lebar_petugas' => max(0, (float) ($config['lebar_petugas'] ?? 20)),
+            'kolom' => !empty($config['kolom']) && is_array($config['kolom'])
+                ? array_values($config['kolom'])
+                : array('Tanggal', 'Jenis/Bulan', 'Nominal', 'Petugas')
+        );
+    }
+
+    public function cek_baris_kartu()
+    {
+        $id = (int) $this->input->post('id');
+        $idFormat = (int) $this->input->post('id_format');
+        $baris = (int) $this->input->post('nomor_baris');
+        $data = $this->detail($id);
+
+        if ($data['result'] !== 'true') {
+            return $data;
+        }
+
+        $format = $this->format_kartu($idFormat);
+        if (!$format) {
+            return model_response(false, 'Format kartu tidak ditemukan atau tidak aktif.');
+        }
+
+        $config = $this->kartu_config($format);
+        if ($baris < 1 || $baris > $config['jumlah_baris']) {
+            return model_response(false, 'Nomor baris berada di luar jumlah baris pada format kartu.');
+        }
+
+        $this->db
+            ->where('id_siswa', (int) $data['header']['id_siswa'])
+            ->where('id_format_cetak', (int) $format['id'])
+            ->where('nomor_baris', $baris);
+        $jumlah = $this->db->count_all_results('tagihan_cetak_kartu');
+
+        $terakhir = $this->db
+            ->where('id_siswa', (int) $data['header']['id_siswa'])
+            ->where('id_format_cetak', (int) $format['id'])
+            ->where('nomor_baris', $baris)
+            ->order_by('id', 'DESC')
+            ->limit(1)
+            ->get('tagihan_cetak_kartu')
+            ->row_array();
+
+        return model_response(true, '', array(
+            'pernah_digunakan' => $jumlah > 0 ? 'Ya' : 'Tidak',
+            'jumlah' => $jumlah,
+            'terakhir' => $terakhir,
+            'posisi_x_default' => $config['posisi_x'],
+            'posisi_y_default' => $config['posisi_y'] + (($baris - 1) * $config['jarak_baris'])
+        ));
+    }
+
+    public function catat_cetak_kartu()
+    {
+        $id = (int) $this->input->post('id');
+        $idFormat = (int) $this->input->post('id_format');
+        $baris = (int) $this->input->post('nomor_baris');
+        $aksi = $this->input->post('aksi', true) === 'tandai' ? 'tandai' : 'cetak';
+        $data = $this->detail($id);
+
+        if ($data['result'] !== 'true') {
+            return $data;
+        }
+        if ($data['header']['status_transaksi'] !== 'Aktif') {
+            return model_response(false, 'Transaksi dibatalkan tidak dapat dicetak ke kartu.');
+        }
+
+        $format = $this->format_kartu($idFormat);
+        if (!$format) {
+            return model_response(false, 'Format kartu tidak ditemukan atau tidak aktif.');
+        }
+
+        $config = $this->kartu_config($format);
+        if ($baris < 1 || $baris > $config['jumlah_baris']) {
+            return model_response(false, 'Nomor baris berada di luar jumlah baris pada format kartu.');
+        }
+
+        $defaultX = $config['posisi_x'];
+        $defaultY = $config['posisi_y'] + (($baris - 1) * $config['jarak_baris']);
+        $xInput = $this->input->post('posisi_x', true);
+        $yInput = $this->input->post('posisi_y', true);
+        $x = is_numeric($xInput) ? max(0, (float) $xInput) : $defaultX;
+        $y = is_numeric($yInput) ? max(0, (float) $yInput) : $defaultY;
+
+        $existing = $this->db
+            ->where('id_siswa', (int) $data['header']['id_siswa'])
+            ->where('id_format_cetak', (int) $format['id'])
+            ->where('nomor_baris', $baris)
+            ->count_all_results('tagihan_cetak_kartu');
+
+        if ($aksi === 'tandai') {
+            $statusCetak = 'Ditandai';
+            $jumlahCetak = 0;
+            $jenisAktivitas = 'Tandai Baris Kartu Pembayaran';
+            $aksiLog = 'Ubah';
+            $keterangan = 'Baris kartu ditandai sudah digunakan tanpa proses cetak.';
+        } else {
+            $statusCetak = $existing ? 'Cetak Ulang' : 'Berhasil';
+            $jumlahCetak = 1;
+            $jenisAktivitas = $existing ? 'Cetak Ulang Kartu Pembayaran' : 'Cetak Kartu Pembayaran';
+            $aksiLog = 'Cetak';
+            $keterangan = $existing
+                ? 'Cetak ulang kartu pembayaran pada baris yang pernah digunakan.'
+                : 'Cetak kartu pembayaran.';
+        }
+
+        $this->db->trans_begin();
+        $this->db->insert('tagihan_cetak_kartu', array(
+            'id_pembayaran' => $id,
+            'no_transaksi' => $data['header']['no_transaksi'],
+            'id_siswa' => $data['header']['id_siswa'],
+            'nama_siswa' => $data['header']['nama_siswa'],
+            'id_format_cetak' => (int) $format['id'],
+            'nama_format' => $format['nama_format'],
+            'nomor_baris' => $baris,
+            'posisi_x' => $x,
+            'posisi_y' => $y,
+            'status_cetak' => $statusCetak,
+            'jumlah_cetak' => $jumlahCetak,
+            'keterangan' => $keterangan,
+            'tanggal' => tanggal_sekarang(),
+            'waktu' => waktu_sekarang(),
+            'id_user' => app_user_id(),
+            'nama_user' => app_user_name()
+        ));
+        $idCetak = (int) $this->db->insert_id();
+
+        tagihan_log_activity(
+            $jenisAktivitas,
+            'Transaksi',
+            $aksiLog,
+            'tagihan_cetak_kartu',
+            $idCetak,
+            $data['header']['no_transaksi'] . ' / Baris ' . str_pad((string) $baris, 2, '0', STR_PAD_LEFT),
+            'Format ' . $format['nama_format'] . ', baris ' . str_pad((string) $baris, 2, '0', STR_PAD_LEFT)
+                . ', X ' . $x . ' mm, Y ' . $y . ' mm'
+                . ($existing ? ' (baris pernah digunakan)' : '')
+        );
+
+        $message = $aksi === 'tandai'
+            ? 'Baris berhasil ditandai sudah digunakan dan dicatat pada Log Aktivitas.'
+            : ($existing
+                ? 'Cetak ulang kartu berhasil dicatat pada Log Aktivitas.'
+                : 'Cetak kartu berhasil dicatat pada Log Aktivitas.');
+
+        return tagihan_transaction_result($message);
+    }
+
+
 }

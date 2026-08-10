@@ -103,17 +103,14 @@ $pengaturan_open = $is_group_active($menuPengaturan);
 
     <!-- vendor.min.js asli Adminto sudah memuat jQuery dan Bootstrap. -->
     <script src="<?= base_url('assets/js/vendor.min.js') ?>"></script>
-    <!-- CDN hanya menjadi cadangan bila jQuery dari bundle vendor gagal dimuat. -->
+
     <script>
         if (typeof window.jQuery === 'undefined') {
             document.write('<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>');
         }
     </script>
 
-    <!-- Utilitas format angka bawaan project. -->
     <script src="<?= base_url('assets/js/js-form.js') ?>"></script>
-
-    <!-- Dibaca sebelum script view agar SweetAlert dan ApexCharts siap digunakan. -->
     <script src="<?= base_url('assets/vendor/sweetalert2/sweetalert2.min.js') ?>"></script>
     <script src="<?= base_url('assets/vendor/apexcharts/apexcharts.min.js') ?>"></script>
 </head>
