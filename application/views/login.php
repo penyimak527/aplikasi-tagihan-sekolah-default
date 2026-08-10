@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Login Aplikasi Tagihan Sekolah">
 
-    <link rel="shortcut icon" href="<?= base_url('assets/images/favicon.ico') ?>">
+    <link rel="shortcut icon" href="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>">
     <script src="<?= base_url('assets/js/config.js') ?>"></script>
     <link href="<?= base_url('assets/css/vendor.min.css') ?>" rel="stylesheet" type="text/css">
     <link href="<?= base_url('assets/css/app.min.css') ?>" rel="stylesheet" type="text/css" id="app-style">
@@ -52,8 +52,6 @@
                             <button class="btn btn-primary fw-semibold" type="submit">Masuk</button>
                         </div>
                     </form>
-
-                    <p class="text-muted fs-14 mb-0">Akun awal: <strong>admin</strong> / <strong>admin123</strong></p>
                 </div>
 
                 <p class="mt-4 text-center mb-0"><?= date('Y') ?> © Aplikasi Tagihan Sekolah</p>

@@ -18,9 +18,9 @@ class Dashboard extends CI_Controller
         $data['periode'] = $this->model->periode_list();
         $data['kelas'] = $this->model->kelas_list();
         $data['periode_aktif'] = $this->model->periode_aktif();
-        $this->load->view('template/header', $data);
+        $this->load->view('admin/template/header', $data);
         $this->load->view('dashboard/index', $data);
-        $this->load->view('template/footer');
+        $this->load->view('admin/template/footer');
     }
 
     public function result()
