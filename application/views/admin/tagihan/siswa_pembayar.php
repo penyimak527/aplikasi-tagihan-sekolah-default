@@ -123,7 +123,6 @@
 
 <script>
 $(document).ready(function () {
-    $('#tagihan').on('change', loadData);
     $('#btn_tampilkan').on('click', loadData);
     $('#btn_tambah').on('click', tambah);
     $('#btn_pilih_semua').on('click', function () {

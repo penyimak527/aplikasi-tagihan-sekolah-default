@@ -1,8 +1,14 @@
-<?php $endpoint = 'admin/tagihan/tagihan_tahunan'; ?>
 <div class="card">
-    <div class="card-header border-bottom border-dashed">
+      <div class="card-header border-bottom border-dashed d-flex align-items-center justify-content-between">
         <h4 class="header-title mb-0">Langkah 1 - Informasi Tagihan</h4>
+
+        <a href="<?= base_url('admin/tagihan/daftar_tagihan'); ?>"
+            class="btn btn-outline-danger">
+            <i class="ri-arrow-left-line me-1"></i>
+            Kembali
+        </a>
     </div>
+
     <div class="card-body">
         <form id="form_tagihan">
             <div class="row g-3">
@@ -200,7 +206,7 @@
         }
 
         $.ajax({
-            url: '<?= base_url($endpoint . '/cari_siswa'); ?>',
+            url: '<?= base_url('admin/tagihan/tagihan_tahunan/cari_siswa'); ?>',
             type: 'POST',
             data: {
                 q: $('#cari_siswa').val(),
@@ -265,7 +271,7 @@
         $('#btn_preview').prop('disabled', true);
 
         $.ajax({
-            url: '<?= base_url($endpoint . '/preview'); ?>',
+            url: '<?= base_url('admin/tagihan/tagihan_tahunan/preview'); ?>',
             type: 'POST',
             data: formData('Preview'),
             dataType: 'JSON',
@@ -318,7 +324,7 @@
                 $('button').prop('disabled', true);
 
                 $.ajax({
-                    url: '<?= base_url($endpoint . '/simpan'); ?>',
+                    url: '<?= base_url('admin/tagihan/tagihan_tahunan/simpan'); ?>',
                     type: 'POST',
                     data: formData(mode),
                     dataType: 'JSON',
