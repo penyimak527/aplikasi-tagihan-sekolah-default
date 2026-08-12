@@ -23,10 +23,10 @@ class Kenaikan_kelas extends CI_Controller
     }
     public function preview()
     {
-        json_response($this->model->preview('Naik Kelas'));
+        json_response($this->model->preview());
     }
     public function proses()
     {
-        json_response($this->model->proses('Naik Kelas'));
+        json_response($this->model->proses());
     }
 }

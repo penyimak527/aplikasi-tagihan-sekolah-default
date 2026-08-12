@@ -22,7 +22,7 @@
                 <select id="kelas_filter" class="form-select">
                     <option value="0">Semua Kelas</option>
                     <?php foreach ($kelas as $row): ?>
-                        <option value="<?= $row['id'] ?>" data-periode="<?= $row['id_periode'] ?>"><?= html_escape($row['nama_kelas'] . ' - ' . $row['semester']) ?></option>
+                        <option value="<?= $row['id'] ?>" data-periode="<?= $row['id_periode'] ?>"><?= html_escape($row['nama_kelas']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -129,9 +129,7 @@ $(document).ready(function () {
 
     $('#periode_filter').on('change', function () {
         filterKelas();
-        loadData();
     });
-    $('#kelas_filter, #status_filter').on('change', loadData);
     $('#search').on('keyup', function (event) {
         if (event.key === 'Enter') loadData();
     });
@@ -169,7 +167,7 @@ function loadData() {
                         <div class="crud-status">Status: <span class="badge ${aktif ? 'bg-success' : 'bg-secondary'}">${escapeHtml(row.status_pendaftaran)}</span></div>
                         <div class="crud-title">${index + 1}. ${escapeHtml(row.nama_lengkap)}</div>
                         <div class="crud-meta">NIS: ${escapeHtml(row.nis)} | NISN: ${escapeHtml(row.nisn)} | ${escapeHtml(row.jk || '-')}</div>
-                        <div class="crud-note">Kelas aktif: ${escapeHtml(row.nama_kelas || 'Belum ditempatkan')} | ${escapeHtml(row.periode || '-')} ${escapeHtml(row.semester || '')}</div>
+                        <div class="crud-note">Kelas aktif: ${escapeHtml(row.nama_kelas || 'Belum ditempatkan')} | ${escapeHtml(row.periode || '-')}</div>
                     </div>
                     <div class="crud-actions">
                         <button type="button" class="btn btn-outline-primary btn-icon" title="Detail" onclick="detail(${row.id}, false)"><i class="ri-eye-line"></i></button>

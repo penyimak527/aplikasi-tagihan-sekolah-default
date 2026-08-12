@@ -23,20 +23,12 @@ foreach ($kelas as $row) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Semester</label>
-                            <select id="semester_asal" class="form-select">
-                                <option value="">Pilih</option>
-                                <option value="Ganjil">Ganjil</option>
-                                <option value="Genap">Genap</option>
-                            </select>
-                        </div>
                         <div class="col-md-4">
                             <label class="form-label">Kelas</label>
                             <select id="kelas_asal" class="form-select">
                                 <option value="">Pilih Kelas</option>
                                 <?php foreach ($kelas as $row): ?>
-                                    <option value="<?= (int) $row['id'] ?>" data-periode="<?= html_escape($row['id_periode']) ?>" data-semester="<?= html_escape($row['semester']) ?>"><?= html_escape($row['nama_kelas']) ?></option>
+                                    <option value="<?= (int) $row['id'] ?>" data-periode="<?= html_escape($row['id_periode']) ?>" ><?= html_escape($row['nama_kelas']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -57,20 +49,12 @@ foreach ($kelas as $row) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Semester</label>
-                            <select id="semester_tujuan" class="form-select">
-                                <option value="">Pilih</option>
-                                <option value="Ganjil">Ganjil</option>
-                                <option value="Genap">Genap</option>
-                            </select>
-                        </div>
                         <div class="col-md-4">
                             <label class="form-label">Kelas Penempatan</label>
                             <select id="kelas_tujuan" class="form-select">
                                 <option value="">Pilih Kelas</option>
                                 <?php foreach ($kelas as $row): ?>
-                                    <option value="<?= (int) $row['id'] ?>" data-periode="<?= html_escape($row['id_periode']) ?>" data-semester="<?= html_escape($row['semester']) ?>"><?= html_escape($row['nama_kelas']) ?></option>
+                                    <option value="<?= (int) $row['id'] ?>" data-periode="<?= html_escape($row['id_periode']) ?>" ><?= html_escape($row['nama_kelas']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -125,8 +109,8 @@ foreach ($kelas as $row) {
 $(document).ready(function () {
     filterKelasTinggal('asal');
     filterKelasTinggal('tujuan');
-    $('#periode_asal,#semester_asal').on('change', function () { filterKelasTinggal('asal'); });
-    $('#periode_tujuan,#semester_tujuan').on('change', function () { filterKelasTinggal('tujuan'); });
+    $('#periode_asal').on('change', function () { filterKelasTinggal('asal'); });
+    $('#periode_tujuan').on('change', function () { filterKelasTinggal('tujuan'); });
     $('#kelas_asal').on('change', loadSiswaTinggal);
     $('#btn_pilih_semua').on('click', function () { $('.pilih-siswa').prop('checked', true); });
     $('#btn_preview').on('click', previewTinggal);
@@ -136,11 +120,9 @@ $(document).ready(function () {
 
 function filterKelasTinggal(side) {
     var periode = String($('#periode_' + side).val() || '');
-    var semester = String($('#semester_' + side).val() || '');
     $('#kelas_' + side + ' option').each(function () {
         var p = String($(this).data('periode') || '');
-        var s = String($(this).data('semester') || '');
-        var visible = !p || (p === periode && s === semester);
+        var visible = !p || p === periode;
         $(this).prop('hidden', !visible).prop('disabled', !visible);
     });
     $('#kelas_' + side).val('');

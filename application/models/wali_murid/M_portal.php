@@ -84,7 +84,7 @@ class M_portal extends CI_Model
             "SELECT wms.id AS id_relasi, wms.id_siswa, wms.hubungan,
                     s.nis, s.nisn, s.nama_lengkap, s.status_pendaftaran,
                     ks.id_kelas_setting, kset.id_kelas, kset.nama_kelas,
-                    kset.id_periode, kset.semester, ta.periode
+                    kset.id_periode, ta.periode
              FROM wali_murid_siswa wms
              INNER JOIN siswa s ON s.id = wms.id_siswa
              LEFT JOIN kelas_siswa ks ON ks.id = (

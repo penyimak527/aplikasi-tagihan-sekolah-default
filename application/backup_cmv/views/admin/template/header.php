@@ -50,16 +50,11 @@ $menuPengaturan = $this->db->query(
 )->result_array();
 
 $current_uri = trim((string) $this->uri->uri_string(), '/');
-$menu_admin_path = function ($path) {
-    $path = trim((string) $path, '/');
-    if ($path === '' || $path === 'dashboard' || strpos($path, 'admin/') === 0) {
-        return $path;
-    }
-    return 'admin/' . $path;
-};
+$dashboard_path = !empty($menuDashboard['path']) ? trim((string) $menuDashboard['path'], '/') : 'dashboard';
 
-$is_menu_active = function ($path) use ($current_uri, $menu_admin_path) {
-    $path = $menu_admin_path($path);
+// Path menu digunakan langsung dari database tanpa penambahan prefix di header.
+$is_menu_active = function ($path) use ($current_uri) {
+    $path = trim((string) $path, '/');
     return $current_uri === $path || ($path !== '' && strpos($current_uri, $path . '/') === 0);
 };
 $is_group_active = function ($menus) use ($is_menu_active) {
@@ -103,17 +98,14 @@ $pengaturan_open = $is_group_active($menuPengaturan);
 
     <!-- vendor.min.js asli Adminto sudah memuat jQuery dan Bootstrap. -->
     <script src="<?= base_url('assets/js/vendor.min.js') ?>"></script>
-    <!-- CDN hanya menjadi cadangan bila jQuery dari bundle vendor gagal dimuat. -->
+
     <script>
         if (typeof window.jQuery === 'undefined') {
             document.write('<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>');
         }
     </script>
 
-    <!-- Utilitas format angka bawaan project. -->
     <script src="<?= base_url('assets/js/js-form.js') ?>"></script>
-
-    <!-- Dibaca sebelum script view agar SweetAlert dan ApexCharts siap digunakan. -->
     <script src="<?= base_url('assets/vendor/sweetalert2/sweetalert2.min.js') ?>"></script>
     <script src="<?= base_url('assets/vendor/apexcharts/apexcharts.min.js') ?>"></script>
 </head>
@@ -124,7 +116,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
 
         <!-- Sidenav Menu Start: struktur langsung dari template Adminto. -->
         <div class="sidenav-menu">
-            <a href="<?= base_url('dashboard') ?>" class="logo">
+            <a href="<?= base_url($dashboard_path) ?>" class="logo">
                 <span class="logo-light">
                     <span class="logo-lg"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>"
                             alt="Adminto"></span>
@@ -168,10 +160,10 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                             <div class="dropdown-header noti-title">
                                 <h6 class="text-overflow m-0">Aplikasi Tagihan Sekolah</h6>
                             </div>
-                            <?php $log_menu = array_filter($menuPengaturan, function ($m) {
-                                return isset($m['path']) && $m['path'] === 'admin/pengaturan/log_aktivitas'; }); ?>
+                            <?php $log_menu = array_values(array_filter($menuPengaturan, function ($m) {
+                                return isset($m['name']) && $m['name'] === 'Log Aktivitas'; })); ?>
                             <?php if (!empty($log_menu)): ?>
-                                <a href="<?= base_url('admin/pengaturan/log_aktivitas') ?>" class="dropdown-item">
+                                <a href="<?= base_url($log_menu[0]['path']) ?>" class="dropdown-item">
                                     <i class="ri-history-line me-1 fs-16 align-middle"></i>
                                     <span class="align-middle">Log Aktivitas</span>
                                 </a>
@@ -189,7 +181,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                 <ul class="side-nav">
                     <?php if ($menuDashboard): ?>
                         <li class="side-nav-item">
-                            <a href="<?= base_url($menu_admin_path($menuDashboard['path'])) ?>"
+                            <a href="<?= base_url($menuDashboard['path']) ?>"
                                 class="side-nav-link <?= $is_menu_active($menuDashboard['path']) ? 'active' : '' ?>">
                                 <span class="menu-icon"><i class="ti ti-dashboard"></i></span>
                                 <span class="menu-text"><?= html_escape($menuDashboard['name']) ?></span>
@@ -214,7 +206,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                 <ul class="sub-menu">
                                     <?php foreach ($menuMaster as $menu): ?>
                                         <li class="side-nav-item">
-                                            <a href="<?= base_url($menu_admin_path($menu['path'])) ?>"
+                                            <a href="<?= base_url($menu['path']) ?>"
                                                 class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
                                                 <span class="menu-text"><?= html_escape($menu['name']) ?></span>
                                             </a>
@@ -238,7 +230,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                 <ul class="sub-menu">
                                     <?php foreach ($menuKesiswaan as $menu): ?>
                                         <li class="side-nav-item">
-                                            <a href="<?= base_url($menu_admin_path($menu['path'])) ?>"
+                                            <a href="<?= base_url($menu['path']) ?>"
                                                 class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
                                                 <span class="menu-text"><?= html_escape($menu['name']) ?></span>
                                             </a>
@@ -266,7 +258,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                 <ul class="sub-menu">
                                     <?php foreach ($menuTagihan as $menu): ?>
                                         <li class="side-nav-item">
-                                            <a href="<?= base_url($menu_admin_path($menu['path'])) ?>"
+                                            <a href="<?= base_url($menu['path']) ?>"
                                                 class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
                                                 <span class="menu-text"><?= html_escape($menu['name']) ?></span>
                                             </a>
@@ -290,7 +282,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                 <ul class="sub-menu">
                                     <?php foreach ($menuTransaksi as $menu): ?>
                                         <li class="side-nav-item">
-                                            <a href="<?= base_url($menu_admin_path($menu['path'])) ?>"
+                                            <a href="<?= base_url($menu['path']) ?>"
                                                 class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
                                                 <span class="menu-text"><?= html_escape($menu['name']) ?></span>
                                             </a>
@@ -314,7 +306,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                 <ul class="sub-menu">
                                     <?php foreach ($menuTunggakan as $menu): ?>
                                         <li class="side-nav-item">
-                                            <a href="<?= base_url($menu_admin_path($menu['path'])) ?>"
+                                            <a href="<?= base_url($menu['path']) ?>"
                                                 class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
                                                 <span class="menu-text"><?= html_escape($menu['name']) ?></span>
                                             </a>
@@ -342,7 +334,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                 <ul class="sub-menu">
                                     <?php foreach ($menuLaporan as $menu): ?>
                                         <li class="side-nav-item">
-                                            <a href="<?= base_url($menu_admin_path($menu['path'])) ?>"
+                                            <a href="<?= base_url($menu['path']) ?>"
                                                 class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
                                                 <span class="menu-text"><?= html_escape($menu['name']) ?></span>
                                             </a>
@@ -366,7 +358,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                 <ul class="sub-menu">
                                     <?php foreach ($menuPengaturan as $menu): ?>
                                         <li class="side-nav-item">
-                                            <a href="<?= base_url($menu_admin_path($menu['path'])) ?>"
+                                            <a href="<?= base_url($menu['path']) ?>"
                                                 class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
                                                 <span class="menu-text"><?= html_escape($menu['name']) ?></span>
                                             </a>
@@ -388,7 +380,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
             <div class="page-container topbar-menu">
                 <div class="d-flex align-items-center gap-2 min-w-0">
                     <!-- Logo ini hanya tampil pada mode mobile sesuai perilaku bawaan Adminto. -->
-                    <a href="<?= base_url('dashboard') ?>" class="logo">
+                    <a href="<?= base_url($dashboard_path) ?>" class="logo">
                         <span class="logo-light">
                             <span class="logo-lg"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>"
                                     alt="Adminto"></span>
@@ -437,10 +429,10 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                 <div class="dropdown-header noti-title">
                                     <h6 class="text-overflow m-0"><?= html_escape($user_role) ?></h6>
                                 </div>
-                                <?php $log_menu = array_filter($menuPengaturan, function ($m) {
-                                    return isset($m['path']) && $m['path'] === 'admin/pengaturan/log_aktivitas'; }); ?>
+                                <?php $log_menu = array_values(array_filter($menuPengaturan, function ($m) {
+                                    return isset($m['name']) && $m['name'] === 'Log Aktivitas'; })); ?>
                                 <?php if (!empty($log_menu)): ?>
-                                    <a href="<?= base_url('admin/pengaturan/log_aktivitas') ?>" class="dropdown-item">
+                                    <a href="<?= base_url($log_menu[0]['path']) ?>" class="dropdown-item">
                                         <i class="ri-history-line me-1 fs-16 align-middle"></i>
                                         <span class="align-middle">Log Aktivitas</span>
                                     </a>

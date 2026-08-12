@@ -459,7 +459,6 @@
 
         $('#btn_tambah_wali').on('click', openTambahWali);
         $('#btn_cari_wali').on('click', loadWaliData);
-        $('#filter_status_wali').on('change', loadWaliData);
         $('#search_wali').on('keyup', function (event) {
             if (event.key === 'Enter') loadWaliData();
         });
@@ -476,10 +475,10 @@
         $('#btn_pilih_siswa_tambah').on('click', function () {
             openStudentPicker('create');
         });
-        $('#picker_periode').on('change', function () {
-            loadPickerClasses(true);
-        });
-        $('#picker_kelas').on('change', loadPickerStudents);
+        // $('#picker_periode').on('change', function () {
+        //     loadPickerClasses(true);
+        // });
+        // $('#picker_kelas').on('change', loadPickerStudents);
         $('#btn_cari_siswa_picker').on('click', loadPickerStudents);
         $('#picker_search').on('keyup', function (event) {
             if (event.key === 'Enter') loadPickerStudents();
@@ -766,7 +765,6 @@
         var relationHtml = relations.length ? relations.map(function (rel, index) {
             var relAktif = rel.status === 'Aktif';
             var classText = rel.nama_kelas || '-';
-            if (rel.semester) classText += ' / ' + rel.semester;
             if (rel.periode) classText += ' / ' + rel.periode;
             return '<div class="relation-item">' +
                 '<div class="d-flex flex-column flex-lg-row justify-content-between gap-3">' +
@@ -1000,7 +998,6 @@
                 var html = pickerRows.map(function (row) {
                     var checked = pickerContext === 'create' && selectedIds.indexOf(Number(row.id)) !== -1;
                     var kelas = row.nama_kelas || '-';
-                    if (row.semester) kelas += ' / ' + row.semester;
                     if (row.periode) kelas += ' / ' + row.periode;
                     return '<label class="student-picker-item d-flex align-items-start gap-3 cursor-pointer">' +
                         '<div class="pt-1"><input type="checkbox" class="form-check-input picker-siswa-check" value="' + row.id + '" ' + (checked ? 'checked' : '') + '></div>' +
@@ -1044,7 +1041,6 @@
                         nisn: row.nisn || '-',
                         nama_kelas: row.nama_kelas || '-',
                         periode: row.periode || '',
-                        semester: row.semester || '',
                         hubungan: hubungan
                     });
                 }
@@ -1094,7 +1090,6 @@
 
         var html = selectedCreate.map(function (row, index) {
             var kelas = row.nama_kelas || '-';
-            if (row.semester) kelas += ' / ' + row.semester;
             if (row.periode) kelas += ' / ' + row.periode;
             return '<div class="selected-student">' +
                 '<div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">' +

@@ -9,7 +9,7 @@ class Tarif_khusus_siswa extends CI_Controller
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
-        $this->load->model('admin/tagihan/M_tarif_tagihan', 'model');
+        $this->load->model('admin/tagihan/M_tarif_khusus_siswa', 'model');
     }
 
     public function index()
@@ -36,7 +36,7 @@ class Tarif_khusus_siswa extends CI_Controller
 
     public function simpan()
     {
-        json_response($this->model->simpan_siswa());
+        json_response($this->model->simpan());
     }
 
     public function kembalikan_normal()
@@ -46,6 +46,6 @@ class Tarif_khusus_siswa extends CI_Controller
 
     public function riwayat()
     {
-        json_response($this->model->riwayat_siswa());
+        json_response($this->model->riwayat());
     }
 }

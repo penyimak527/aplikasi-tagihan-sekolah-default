@@ -12,7 +12,7 @@ class M_data_kelas extends CI_Model
         $id=(int)$this->input->post('id');
         $row=$this->db->where('id',$id)->get('kelas')->row_array();
         if(!$row)return model_response(false,'Kelas tidak ditemukan.');
-        $setting=$this->db->query("SELECT ks.*,ta.periode,COUNT(kss.id) jumlah_siswa FROM kelas_setting ks LEFT JOIN master_tahun_ajaran ta ON ta.id=CAST(ks.id_periode AS UNSIGNED) LEFT JOIN kelas_siswa kss ON CAST(kss.id_kelas_setting AS UNSIGNED)=ks.id AND kss.status_aktif='1' WHERE CAST(ks.id_kelas AS UNSIGNED)=? GROUP BY ks.id ORDER BY ta.id DESC,ks.semester",array($id))->result_array();
+        $setting=$this->db->query("SELECT ks.*,ta.periode,COUNT(kss.id) jumlah_siswa FROM kelas_setting ks LEFT JOIN master_tahun_ajaran ta ON ta.id=CAST(ks.id_periode AS UNSIGNED) LEFT JOIN kelas_siswa kss ON CAST(kss.id_kelas_setting AS UNSIGNED)=ks.id AND kss.status_aktif='1' WHERE CAST(ks.id_kelas AS UNSIGNED)=? GROUP BY ks.id ORDER BY ta.id DESC,ks.nama_kelas",array($id))->result_array();
         return array('result'=>'true','data'=>$row,'setting'=>$setting);
     }
     public function simpan(){

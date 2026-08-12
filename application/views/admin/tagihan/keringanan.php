@@ -145,6 +145,7 @@ $(document).ready(function () {
     });
 
     $('#tagihan, #jenis, #nilai').on('change input', previewHitung);
+    $('#nilai').on('input', batasiPersen);
     $('#jenis').on('change', aturInputKeringanan);
     $('#btn_simpan').on('click', saveData);
     $('#dt-length-riwayat-keringanan').on('change', refreshRiwayatKeringananPagination);
@@ -240,24 +241,31 @@ function pilihSiswa(row) {
 }
 
 function loadTagihan() {
-    $.post('<?= base_url('admin/tagihan/keringanan/tagihan_siswa') ?>', {
-        id_siswa: $('#id_siswa').val()
-    }, function (rows) {
-        tagihanMap = {};
-        var html = '<option value="">Pilih tagihan</option>';
+    $.ajax({
+        url: '<?= base_url('admin/tagihan/keringanan/tagihan_siswa') ?>',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            id_siswa: $('#id_siswa').val()
+        },
+        success: function (rows) {
+            tagihanMap = {};
+            var html = '<option value="">Pilih tagihan</option>';
 
-        rows.forEach(function (row) {
-            tagihanMap[row.id] = row;
-            html += '<option value="' + row.id + '">' +
-                escapeHtml(row.nama_tagihan) + ' - ' +
-                escapeHtml(row.nama_bulan || '') + ' ' + escapeHtml(row.tahun || '') +
-                ' | Sisa ' + formatRupiah(row.sisa_tagihan) +
-            '</option>';
-        });
+            rows.forEach(function (row) {
+                tagihanMap[row.id] = row;
+                html += '<option value="' + row.id + '">' +
+                    escapeHtml(row.nama_tagihan) + ' - ' +
+                    escapeHtml(row.nama_bulan || '') + ' ' + escapeHtml(row.tahun || '') +
+                    ' | Sisa ' + formatRupiah(row.sisa_tagihan) +
+                '</option>';
+            });
 
-        $('#tagihan').html(html);
-        $('#nominal_awal, #sudah_dibayar, #nominal_akhir, #sisa').val('');
-    }, 'json').fail(ajaxError);
+            $('#tagihan').html(html);
+            $('#nominal_awal, #sudah_dibayar, #nominal_akhir, #sisa').val('');
+        },
+        error: ajaxError
+    });
 }
 
 function aturInputKeringanan() {
@@ -269,15 +277,71 @@ function aturInputKeringanan() {
     input.data('jenis', jenis);
 
     if (jenis === 'Pembebasan Penuh') {
-        input.prop('disabled', true).removeClass('money-input').val('0');
+        input
+            .prop('disabled', true)
+            .removeClass('money-input')
+            .removeAttr('max')
+            .val('0');
     } else if (jenis === 'Potongan Persen') {
-        input.prop('disabled', false).removeClass('money-input').attr('inputmode', 'decimal').attr('placeholder', '0 - 100');
+        input
+            .prop('disabled', false)
+            .removeClass('money-input')
+            .attr('inputmode', 'decimal')
+            .attr('max', '100')
+            .attr('placeholder', '0 - 100');
+
+        batasiPersen();
     } else {
-        input.prop('disabled', false).addClass('money-input').attr('inputmode', 'numeric').attr('placeholder', 'Nominal potongan');
+        input
+            .prop('disabled', false)
+            .addClass('money-input')
+            .removeAttr('max')
+            .attr('inputmode', 'numeric')
+            .attr('placeholder', 'Nominal potongan');
+
         if (input.val() !== '') input.val(formatMoneyInput(input.val()));
     }
 
     previewHitung();
+}
+
+function batasiPersen() {
+    if ($('#jenis').val() !== 'Potongan Persen') {
+        return;
+    }
+
+    var input = $('#nilai');
+    var value = String(input.val() || '');
+
+    // Hanya izinkan angka dan satu separator desimal.
+    value = value.replace(',', '.').replace(/[^0-9.]/g, '');
+
+    var parts = value.split('.');
+    if (parts.length > 2) {
+        value = parts.shift() + '.' + parts.join('');
+    }
+
+    if (value === '') {
+        input.val('');
+        return;
+    }
+
+    var persen = parseFloat(value);
+
+    if (isNaN(persen)) {
+        input.val('');
+        return;
+    }
+
+    if (persen > 100) {
+        persen = 100;
+    }
+
+    if (persen < 0) {
+        persen = 0;
+    }
+
+    input.val(persen);
 }
 
 function previewHitung() {
@@ -307,47 +371,61 @@ function saveData() {
         'Simpan keringanan?',
         'Perubahan akan memengaruhi nominal dan sisa tagihan siswa.',
         function () {
-            $.post('<?= base_url('admin/tagihan/keringanan/simpan') ?>', serializeMoneyForm('#form'), function (response) {
-                var berhasil = response.result === 'true';
-                Swal.fire(berhasil ? 'Berhasil' : 'Gagal', response.message, berhasil ? 'success' : 'error');
-                if (berhasil) {
-                    loadTagihan();
-                    loadRiwayat();
-                    $('#form [name="alasan"]').val('');
-                }
-            }, 'json').fail(ajaxError);
+            $.ajax({
+                url: '<?= base_url('admin/tagihan/keringanan/simpan') ?>',
+                type: 'POST',
+                dataType: 'json',
+                data: serializeMoneyForm('#form'),
+                success: function (response) {
+                    var berhasil = response.result === 'true';
+                    Swal.fire(berhasil ? 'Berhasil' : 'Gagal', response.message, berhasil ? 'success' : 'error');
+                    if (berhasil) {
+                        loadTagihan();
+                        loadRiwayat();
+                        $('#form [name="alasan"]').val('');
+                    }
+                },
+                error: ajaxError
+            });
         }
     );
 }
 
 function loadRiwayat() {
-    $.post('<?= base_url('admin/tagihan/keringanan/riwayat') ?>', {
-        id_siswa: $('#id_siswa').val()
-    }, function (rows) {
-        var html = '';
+    $.ajax({
+        url: '<?= base_url('admin/tagihan/keringanan/riwayat') ?>',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            id_siswa: $('#id_siswa').val()
+        },
+        success: function (rows) {
+            var html = '';
 
-        if (!rows.length) {
-            html = '<div class="empty-state">Belum ada keringanan.</div>';
-        } else {
-            rows.forEach(function (row) {
-                html +=
-                    '<div class="keringanan-history-row border-bottom py-3">' +
-                        '<div class="d-flex justify-content-between gap-2">' +
-                            '<strong>' + escapeHtml(row.jenis_keringanan) + '</strong>' +
-                            '<span class="badge bg-' + (row.status === 'Aktif' ? 'success' : 'secondary') + '">' + escapeHtml(row.status) + '</span>' +
-                        '</div>' +
-                        '<div>' + formatRupiah(row.nominal_awal) + ' → ' + formatRupiah(row.nominal_setelah_keringanan) + '</div>' +
-                        '<small class="text-muted">' + escapeHtml(row.alasan || '-') + ' | ' + escapeHtml(row.tanggal || '-') + '</small>' +
-                        (row.status === 'Aktif'
-                            ? '<div class="mt-2"><button type="button" class="btn btn-sm btn-outline-danger" onclick="batalkan(' + Number(row.id) + ')">Batalkan</button></div>'
-                            : '') +
-                    '</div>';
-            });
-        }
+            if (!rows.length) {
+                html = '<div class="empty-state">Belum ada keringanan.</div>';
+            } else {
+                rows.forEach(function (row) {
+                    html +=
+                        '<div class="keringanan-history-row border-bottom py-3">' +
+                            '<div class="d-flex justify-content-between gap-2">' +
+                                '<strong>' + escapeHtml(row.jenis_keringanan) + '</strong>' +
+                                '<span class="badge bg-' + (row.status === 'Aktif' ? 'success' : 'secondary') + '">' + escapeHtml(row.status) + '</span>' +
+                            '</div>' +
+                            '<div>' + formatRupiah(row.nominal_awal) + ' → ' + formatRupiah(row.nominal_setelah_keringanan) + '</div>' +
+                            '<small class="text-muted">' + escapeHtml(row.alasan || '-') + ' | ' + escapeHtml(row.tanggal || '-') + '</small>' +
+                            (row.status === 'Aktif'
+                                ? '<div class="mt-2"><button type="button" class="btn btn-sm btn-outline-danger" onclick="batalkan(' + Number(row.id) + ')">Batalkan</button></div>'
+                                : '') +
+                        '</div>';
+                });
+            }
 
-        $('#riwayat').html(html);
-        refreshRiwayatKeringananPagination();
-    }, 'json').fail(ajaxError);
+            $('#riwayat').html(html);
+            refreshRiwayatKeringananPagination();
+        },
+        error: ajaxError
+    });
 }
 
 function refreshRiwayatKeringananPagination() {
@@ -371,17 +449,24 @@ function batalkan(id) {
     }).then(function (result) {
         if (!result.isConfirmed) return;
 
-        $.post('<?= base_url('admin/tagihan/keringanan/batalkan') ?>', {
-            id: id,
-            alasan: result.value
-        }, function (response) {
-            var berhasil = response.result === 'true';
-            Swal.fire(berhasil ? 'Berhasil' : 'Gagal', response.message, berhasil ? 'success' : 'error');
-            if (berhasil) {
-                loadTagihan();
-                loadRiwayat();
-            }
-        }, 'json').fail(ajaxError);
+        $.ajax({
+            url: '<?= base_url('admin/tagihan/keringanan/batalkan') ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                id: id,
+                alasan: result.value
+            },
+            success: function (response) {
+                var berhasil = response.result === 'true';
+                Swal.fire(berhasil ? 'Berhasil' : 'Gagal', response.message, berhasil ? 'success' : 'error');
+                if (berhasil) {
+                    loadTagihan();
+                    loadRiwayat();
+                }
+            },
+            error: ajaxError
+        });
     });
 }
 </script>

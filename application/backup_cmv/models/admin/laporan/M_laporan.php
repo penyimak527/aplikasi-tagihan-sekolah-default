@@ -4,7 +4,7 @@ class M_laporan extends CI_Model
 {
     private $allowed=array('harian','bulanan','tahunan','per_kelas','per_jenis','tunggakan','pembatalan');
     public function periode_list(){return $this->db->order_by('id','DESC')->get('master_tahun_ajaran')->result_array();}
-    public function kelas_list(){return $this->db->select('id,nama_kelas,id_periode,semester')->order_by('id_periode','DESC')->order_by('nama_kelas')->get('kelas_setting')->result_array();}
+    public function kelas_list(){return $this->db->select('id,nama_kelas,id_periode')->order_by('id_periode','DESC')->order_by('nama_kelas')->get('kelas_setting')->result_array();}
     public function jenis_list(){return $this->db->where('status','Aktif')->order_by('nama_jenis')->get('tagihan_jenis')->result_array();}
     public function metode_list(){return $this->db->where('status','Aktif')->order_by('urutan')->get('tagihan_metode_pembayaran')->result_array();}
     private function input($key,$default=''){return $this->input->post_get($key,true)!==null?$this->input->post_get($key,true):$default;}

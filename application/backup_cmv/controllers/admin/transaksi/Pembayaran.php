@@ -69,7 +69,13 @@ class Pembayaran extends CI_Controller
             show_404();
         }
 
+        $data['format'] = $this->model->format_bukti();
         $this->load->view('admin/transaksi/bukti_pembayaran', $data);
+    }
+
+    public function preview_whatsapp()
+    {
+        json_response($this->model->preview_whatsapp());
     }
 
     public function siapkan_whatsapp()
@@ -85,8 +91,14 @@ class Pembayaran extends CI_Controller
             show_404();
         }
 
+        $data['format_list'] = $this->model->format_kartu_list();
         $data['format'] = $this->model->format_kartu();
         $this->load->view('admin/transaksi/cetak_kartu', $data);
+    }
+
+    public function cek_baris_kartu()
+    {
+        json_response($this->model->cek_baris_kartu());
     }
 
     public function catat_cetak_kartu()

@@ -58,8 +58,8 @@
                                     <option
                                         value="<?= $r['id'] ?>"
                                         data-periode="<?= $r['id_periode'] ?>"
-                                        data-semester="<?= html_escape($r['semester']) ?>">
-                                        <?= html_escape($r['periode'] . ' - ' . $r['semester'] . ' - ' . $r['nama_kelas']) ?>
+                                        >
+                                        <?= html_escape($r['periode'] . ' - ' . $r['nama_kelas']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -142,8 +142,7 @@
                                 '<small>' +
                                     escapeHtml(row.nis || '-') + ' | ' +
                                     escapeHtml(row.nama_kelas || '-') + ' - ' +
-                                    escapeHtml(row.periode || '-') + ' ' +
-                                    escapeHtml(row.semester || '-') +
+                                    escapeHtml(row.periode || '-') +
                                 '</small>' +
                             '</button>';
                     });
@@ -209,18 +208,16 @@
             '<strong>' + escapeHtml(row.nama_lengkap || '-') + '</strong><br>' +
             'NIS ' + escapeHtml(row.nis || '-') +
             ' | Kelas saat ini: ' + escapeHtml(row.nama_kelas || '-') +
-            ' - ' + escapeHtml(row.periode || '-') + ' ' + escapeHtml(row.semester || '-')
+            ' - ' + escapeHtml(row.periode || '-')
         );
 
         $('#kelas_tujuan option').each(function() {
             var periode = $(this).data('periode');
-            var semester = $(this).data('semester');
 
             if (
                 !periode ||
                 (
                     String(periode) === String(row.id_periode) &&
-                    String(semester) === String(row.semester) &&
                     String(this.value) !== String(row.id_kelas_setting)
                 )
             ) {

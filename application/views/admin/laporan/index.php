@@ -33,7 +33,7 @@ $type = $jenis_laporan;
                                 value="<?= (int) $row['id'] ?>"
                                 data-periode="<?= html_escape($row['id_periode']) ?>"
                             >
-                                <?= html_escape($row['nama_kelas'] . ' - ' . $row['semester']) ?>
+                                <?= html_escape($row['nama_kelas']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -95,7 +95,7 @@ $type = $jenis_laporan;
                                 value="<?= (int) $row['id'] ?>"
                                 data-periode="<?= html_escape($row['id_periode']) ?>"
                             >
-                                <?= html_escape($row['nama_kelas'] . ' - ' . $row['semester']) ?>
+                                <?= html_escape($row['nama_kelas']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -140,7 +140,7 @@ $type = $jenis_laporan;
                                 value="<?= (int) $row['id'] ?>"
                                 data-periode="<?= html_escape($row['id_periode']) ?>"
                             >
-                                <?= html_escape($row['nama_kelas'] . ' - ' . $row['semester']) ?>
+                                <?= html_escape($row['nama_kelas']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -207,7 +207,7 @@ $type = $jenis_laporan;
                                 value="<?= (int) $row['id'] ?>"
                                 data-periode="<?= html_escape($row['id_periode']) ?>"
                             >
-                                <?= html_escape($row['nama_kelas'] . ' - ' . $row['semester']) ?>
+                                <?= html_escape($row['nama_kelas']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -241,7 +241,7 @@ $type = $jenis_laporan;
                                 value="<?= (int) $row['id'] ?>"
                                 data-periode="<?= html_escape($row['id_periode']) ?>"
                             >
-                                <?= html_escape($row['nama_kelas'] . ' - ' . $row['semester']) ?>
+                                <?= html_escape($row['nama_kelas']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

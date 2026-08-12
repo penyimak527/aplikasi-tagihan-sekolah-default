@@ -17,15 +17,6 @@
                 </select>
             </div>
 
-            <div class="col-md-2">
-                <label for="semester" class="form-label">Semester</label>
-                <select id="semester" class="form-select">
-                    <option value="">Pilih Semester</option>
-                    <option value="Ganjil">Ganjil</option>
-                    <option value="Genap">Genap</option>
-                </select>
-            </div>
-
             <div class="col-md-3">
                 <label for="kelas" class="form-label">Kelas</label>
                 <select id="kelas" class="form-select">
@@ -34,7 +25,6 @@
                         <option
                             value="<?= (int) $row['id'] ?>"
                             data-periode="<?= html_escape($row['id_periode']) ?>"
-                            data-semester="<?= html_escape($row['semester']) ?>"
                         >
                             <?= html_escape($row['nama_kelas']) ?>
                         </option>
@@ -73,7 +63,7 @@
                 <div>
                     <h4 class="header-title">Siswa Belum Ditempatkan</h4>
                     <small class="text-muted">
-                        Siswa yang belum memiliki penempatan pada periode dan semester terpilih.
+                        Siswa yang belum memiliki penempatan pada tahun ajaran terpilih.
                     </small>
                 </div>
 
@@ -101,7 +91,7 @@
                             <tr class="data-belum">
                                 <td colspan="3">
                                     <div class="empty-state">
-                                        Pilih tahun ajaran, semester, dan kelas.
+                                        Pilih tahun ajaran dan kelas.
                                     </div>
                                 </td>
                             </tr>
@@ -223,7 +213,7 @@
 $(document).ready(function () {
     filterKelasPenempatan();
 
-    $('#periode, #semester').on('change', function () {
+    $('#periode').on('change', function () {
         filterKelasPenempatan();
     });
 
@@ -273,16 +263,11 @@ $(document).ready(function () {
 
 function filterKelasPenempatan() {
     var periode = String($('#periode').val() || '');
-    var semester = String($('#semester').val() || '');
 
     $('#kelas option').each(function () {
         var optionPeriode = String($(this).data('periode') || '');
-        var optionSemester = String($(this).data('semester') || '');
 
-        var visible = !optionPeriode || (
-            optionPeriode === periode &&
-            optionSemester === semester
-        );
+        var visible = !optionPeriode || optionPeriode === periode;
 
         $(this)
             .prop('hidden', !visible)
@@ -323,13 +308,12 @@ function loadPenempatan() {
 
     if (
         $('#periode').val() == '' ||
-        $('#semester').val() == '' ||
         idKelas == ''
     ) {
         Swal.fire({
             icon: 'warning',
             title: 'Perhatian',
-            text: 'Pilih tahun ajaran, semester, dan kelas terlebih dahulu.'
+            text: 'Pilih tahun ajaran dan kelas terlebih dahulu.'
         });
 
         return;

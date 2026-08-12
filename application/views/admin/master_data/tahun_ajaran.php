@@ -159,11 +159,11 @@
             var row = response.data;
             var kelas = response.kelas || [];
             var table = kelas.length ? kelas.map(function(item, index) {
-                return '<tr><td>' + (index + 1) + '</td><td>' + escapeHtml(item.nama_kelas || '-') + '</td><td>' + escapeHtml(item.semester || '-') + '</td><td>' + escapeHtml(item.wali_kelas || '-') + '</td><td class="text-center">' + Number(item.jumlah_siswa || 0).toLocaleString('id-ID') + '</td></tr>';
-            }).join('') : '<tr><td colspan="5"><div class="empty-state">Belum ada kelas_setting pada tahun ajaran ini.</div></td></tr>';
+                return '<tr><td>' + (index + 1) + '</td><td>' + escapeHtml(item.nama_kelas || '-') + '</td><td class="text-center">' + Number(item.jumlah_siswa || 0).toLocaleString('id-ID') + '</td></tr>';
+            }).join('') : '<tr><td colspan="3"><div class="empty-state">Belum ada kelas_setting pada tahun ajaran ini.</div></td></tr>';
             $('#detail_content').html(
                 '<div class="row g-3 mb-3"><div class="col-md-4"><strong>Periode</strong><div>' + escapeHtml(row.periode) + '</div></div><div class="col-md-4"><strong>Status</strong><div><span class="badge bg-' + (row.status === 'Aktif' ? 'success' : 'secondary') + '">' + escapeHtml(row.status) + '</span></div></div><div class="col-md-4"><strong>Dibuat/Diubah</strong><div>' + escapeHtml((row.tanggal || '-') + ' ' + (row.waktu || '')) + '</div></div></div>' +
-                '<h6 class="mb-3">Kelas Terkait</h6><div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>No</th><th>Kelas</th><th>Semester</th><th>Wali Kelas</th><th class="text-center">Siswa Aktif</th></tr></thead><tbody>' + table + '</tbody></table></div>'
+                '<h6 class="mb-3">Kelas Terkait</h6><div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>No</th><th>Kelas</th><th class="text-center">Siswa Aktif</th></tr></thead><tbody>' + table + '</tbody></table></div>'
             );
         }, 'json').fail(ajaxError);
     }

@@ -10,7 +10,6 @@ class M_riwayat_kelas extends CI_Model
             ->from('kelas_setting ks')
             ->join('master_tahun_ajaran ta', 'ta.id=CAST(ks.id_periode AS UNSIGNED)', 'left')
             ->order_by('ta.id', 'DESC')
-            ->order_by('ks.semester', 'ASC')
             ->order_by('ks.nama_kelas', 'ASC')
             ->get()
             ->result_array();
@@ -42,7 +41,7 @@ class M_riwayat_kelas extends CI_Model
         }
 
         $placements = $this->db->query(
-            "SELECT ks.id,ks.status_aktif,k.id id_kelas_setting,k.nama_kelas,k.semester,k.wali_kelas,ta.periode,
+            "SELECT ks.id,ks.status_aktif,k.id id_kelas_setting,k.nama_kelas,k.wali_kelas,ta.periode,
                     (SELECT h.jenis_proses FROM tagihan_riwayat_kelas_siswa h
                      WHERE h.id_siswa=? AND h.id_kelas_setting_tujuan=k.id
                      ORDER BY h.id DESC LIMIT 1) jenis_proses,
@@ -56,7 +55,7 @@ class M_riwayat_kelas extends CI_Model
              JOIN kelas_setting k ON k.id=CAST(ks.id_kelas_setting AS UNSIGNED)
              LEFT JOIN master_tahun_ajaran ta ON ta.id=CAST(k.id_periode AS UNSIGNED)
              WHERE CAST(ks.id_siswa AS UNSIGNED)=?
-             ORDER BY ta.id,k.semester,ks.id",
+             ORDER BY ta.id,ks.id",
             array($id, $id, $id, $id)
         )->result_array();
 
@@ -139,13 +138,13 @@ class M_riwayat_kelas extends CI_Model
             'nama_kelas_asal' => $asal['nama_kelas'],
             'id_periode_asal' => (int) $asal['id_periode'],
             'periode_asal' => $asal['periode'],
-            'semester_asal' => $asal['semester'],
+            'semester_asal' => null,
             'id_kelas_setting_tujuan' => $idTujuan,
             'id_kelas_tujuan' => (int) $tujuan['id_kelas'],
             'nama_kelas_tujuan' => $tujuan['nama_kelas'],
             'id_periode_tujuan' => (int) $tujuan['id_periode'],
             'periode_tujuan' => $periodeTujuan ? $periodeTujuan['periode'] : '',
-            'semester_tujuan' => $tujuan['semester'],
+            'semester_tujuan' => null,
             'jenis_proses' => 'Koreksi Penempatan',
             'status_sebelum' => 'Aktif',
             'status_setelah' => 'Aktif',

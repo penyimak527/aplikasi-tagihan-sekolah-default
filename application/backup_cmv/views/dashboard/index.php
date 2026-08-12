@@ -35,7 +35,7 @@ $metricCards = array(
                     <option value="0">Semua Kelas</option>
                     <?php foreach ($kelas as $row): ?>
                         <option value="<?= (int) $row['id'] ?>" data-periode="<?= html_escape($row['id_periode']) ?>">
-                            <?= html_escape($row['nama_kelas'] . ' - ' . $row['semester']) ?>
+                            <?= html_escape($row['nama_kelas']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

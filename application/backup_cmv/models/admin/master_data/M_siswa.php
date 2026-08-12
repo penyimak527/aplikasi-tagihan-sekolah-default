@@ -16,7 +16,7 @@ class M_siswa extends CI_Model
         $periode = (int)$this->input->post('id_periode');
         $kelas = (int)$this->input->post('id_kelas_setting');
         $status = trim((string)$this->input->post('status', true));
-        $sql = "SELECT s.*, ks.id_kelas_setting, kset.nama_kelas, kset.id_periode, kset.semester, ta.periode
+        $sql = "SELECT s.*, ks.id_kelas_setting, kset.nama_kelas, kset.id_periode, ta.periode
               FROM siswa s
               LEFT JOIN kelas_siswa ks ON ks.id=(SELECT MAX(ks2.id) FROM kelas_siswa ks2 WHERE CAST(ks2.id_siswa AS UNSIGNED)=s.id AND ks2.status_aktif='1')
               LEFT JOIN kelas_setting kset ON kset.id=CAST(ks.id_kelas_setting AS UNSIGNED)

@@ -23,20 +23,12 @@ foreach ($kelas as $row) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="semester_asal" class="form-label">Semester</label>
-                            <select id="semester_asal" class="form-select">
-                                <option value="">Pilih</option>
-                                <option value="Ganjil">Ganjil</option>
-                                <option value="Genap">Genap</option>
-                            </select>
-                        </div>
                         <div class="col-md-4">
                             <label for="kelas_asal" class="form-label">Kelas</label>
                             <select id="kelas_asal" class="form-select">
                                 <option value="">Pilih Kelas</option>
                                 <?php foreach ($kelas as $row): ?>
-                                    <option value="<?= (int) $row['id'] ?>" data-periode="<?= html_escape($row['id_periode']) ?>" data-semester="<?= html_escape($row['semester']) ?>">
+                                    <option value="<?= (int) $row['id'] ?>" data-periode="<?= html_escape($row['id_periode']) ?>" >
                                         <?= html_escape($row['nama_kelas']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -59,20 +51,12 @@ foreach ($kelas as $row) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="semester_tujuan" class="form-label">Semester</label>
-                            <select id="semester_tujuan" class="form-select">
-                                <option value="">Pilih</option>
-                                <option value="Ganjil">Ganjil</option>
-                                <option value="Genap">Genap</option>
-                            </select>
-                        </div>
                         <div class="col-md-4">
                             <label for="kelas_tujuan" class="form-label">Kelas</label>
                             <select id="kelas_tujuan" class="form-select">
                                 <option value="">Pilih Kelas</option>
                                 <?php foreach ($kelas as $row): ?>
-                                    <option value="<?= (int) $row['id'] ?>" data-periode="<?= html_escape($row['id_periode']) ?>" data-semester="<?= html_escape($row['semester']) ?>">
+                                    <option value="<?= (int) $row['id'] ?>" data-periode="<?= html_escape($row['id_periode']) ?>" >
                                         <?= html_escape($row['nama_kelas']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -88,9 +72,12 @@ foreach ($kelas as $row) {
             </div>
         </div>
     </div>
+    <div class="card-footer bg-transparent d-flex justify-content-end">
+        <button type="button" class="btn btn-primary" id="btn_terapkan">Terapkan</button>
+    </div>
 </div>
 
-<div class="card">
+<div class="card" id="card_siswa_asal" style="display: none;">
     <div class="card-header app-card-header">
         <div>
             <h4 class="header-title">Daftar Siswa Kelas Asal</h4>
@@ -135,14 +122,26 @@ foreach ($kelas as $row) {
 </div>
 
 <script>
+var kenaikanDiterapkan = false;
+var filterKenaikanAktif = null;
+
 $(document).ready(function () {
     filterKelasKenaikan('asal');
     filterKelasKenaikan('tujuan');
 
-    $('#periode_asal, #semester_asal').on('change', function () { filterKelasKenaikan('asal'); });
-    $('#periode_tujuan, #semester_tujuan').on('change', function () { filterKelasKenaikan('tujuan'); });
-    $('#kelas_asal').on('change', loadSiswaKenaikan);
-    $('#btn_pilih_semua').on('click', function () { $('.pilih-siswa').prop('checked', true); });
+    $('#periode_asal').on('change', function () {
+        filterKelasKenaikan('asal');
+        resetTerapkanKenaikan();
+    });
+    $('#periode_tujuan').on('change', function () {
+        filterKelasKenaikan('tujuan');
+        resetTerapkanKenaikan();
+    });
+    $('#kelas_asal, #kelas_tujuan').on('change', resetTerapkanKenaikan);
+    $('#btn_terapkan').on('click', terapkanKenaikan);
+    $('#btn_pilih_semua').on('click', function () {
+        $('.pilih-siswa:not(:disabled)').prop('checked', true);
+    });
     $('#btn_preview').on('click', previewKenaikan);
     $('#btn_proses').on('click', prosesKenaikan);
     $('#dt-length-kelas-asal').on('change', refreshKelasAsalPagination);
@@ -150,44 +149,115 @@ $(document).ready(function () {
 
 function filterKelasKenaikan(side) {
     var periode = String($('#periode_' + side).val() || '');
-    var semester = String($('#semester_' + side).val() || '');
     var select = $('#kelas_' + side);
 
     select.find('option').each(function () {
         var p = String($(this).data('periode') || '');
-        var s = String($(this).data('semester') || '');
-        var visible = !p || (p === periode && s === semester);
+        var visible = !p || p === periode;
         $(this).prop('hidden', !visible).prop('disabled', !visible);
     });
     select.val('');
 
     if (side === 'asal') {
-        $('#data').html('<tr><td colspan="4"><div class="empty-state">Pilih kelas asal untuk menampilkan siswa.</div></td></tr>');
+        $('#data').html('<tr><td colspan="4"><div class="empty-state">Pilih kelas asal dan kelas tujuan, lalu klik Terapkan.</div></td></tr>');
         refreshKelasAsalPagination();
     }
 }
 
+function resetTerapkanKenaikan() {
+    kenaikanDiterapkan = false;
+    filterKenaikanAktif = null;
+    $('#card_siswa_asal').hide();
+    $('#data').html('<tr><td colspan="4"><div class="empty-state">Pilih kelas asal dan kelas tujuan, lalu klik Terapkan.</div></td></tr>');
+    refreshKelasAsalPagination();
+}
+
+function terapkanKenaikan() {
+    var periodeAsal = $('#periode_asal').val();
+    var kelasAsal = $('#kelas_asal').val();
+    var periodeTujuan = $('#periode_tujuan').val();
+    var kelasTujuan = $('#kelas_tujuan').val();
+
+    if (!periodeAsal || !kelasAsal || !periodeTujuan || !kelasTujuan) {
+        Swal.fire('Perhatian', 'Pilih tahun ajaran dan kelas asal serta tujuan terlebih dahulu.', 'warning');
+        return;
+    }
+
+    if (String(periodeAsal) === String(periodeTujuan)) {
+        Swal.fire('Perhatian', 'Tahun ajaran tujuan harus berbeda dari tahun ajaran asal.', 'warning');
+        return;
+    }
+
+    kenaikanDiterapkan = true;
+    filterKenaikanAktif = {
+        periode_asal: String(periodeAsal),
+        kelas_asal: String(kelasAsal),
+        periode_tujuan: String(periodeTujuan),
+        kelas_tujuan: String(kelasTujuan)
+    };
+
+    $('#card_siswa_asal').show();
+    loadSiswaKenaikan();
+}
+
 function loadSiswaKenaikan() {
     var id = $('#kelas_asal').val();
-    if (!id) return;
+    var idTujuan = $('#kelas_tujuan').val();
+
+    if (!id || !idTujuan || !kenaikanDiterapkan) {
+        resetTerapkanKenaikan();
+        return;
+    }
+
     $('#data').html('<tr><td colspan="4"><div class="empty-state">Memuat siswa...</div></td></tr>');
-    $.post('<?= base_url('admin/kesiswaan/kenaikan_kelas/siswa') ?>', {id_kelas_setting: id}, function (rows) {
-        if (!rows.length) {
-            $('#data').html('<tr><td colspan="4"><div class="empty-state">Tidak ada siswa aktif pada kelas asal.</div></td></tr>');
+
+    $.ajax({
+        url: '<?= base_url('admin/kesiswaan/kenaikan_kelas/siswa'); ?>',
+        type: 'POST',
+        data: {
+            id_kelas_setting: id,
+            id_kelas_tujuan: idTujuan
+        },
+        dataType: 'JSON',
+        success: function (rows) {
+            if (!rows.length) {
+                $('#data').html('<tr><td colspan="4"><div class="empty-state">Tidak ada siswa aktif pada kelas asal.</div></td></tr>');
+                refreshKelasAsalPagination();
+                return;
+            }
+
+            var html = rows.map(function (row) {
+                var sudahTujuan = Number(row.sudah_tujuan || 0) === 1;
+                var checkbox = '<input type="checkbox" class="form-check-input pilih-siswa" value="' + row.id + '"' +
+                    (sudahTujuan ? ' disabled' : '') + '>';
+
+                var status = '<span class="badge bg-primary-subtle text-primary">Naik Kelas</span>';
+
+                if (sudahTujuan) {
+                    status =
+                        '<span class="badge bg-secondary-subtle text-secondary">Sudah ditempatkan</span>' +
+                        '<small class="text-muted d-block mt-1">' +
+                            escapeHtml(row.kelas_tujuan_existing || '-') +
+                            ' | ' +
+                            escapeHtml(row.periode_tujuan_existing || '-') +
+                        '</small>';
+                }
+
+                return '<tr class="siswa-kelas-asal-row' + (sudahTujuan ? ' table-light' : '') + '">' +
+                    '<td>' + checkbox + '</td>' +
+                    '<td>' + escapeHtml(row.nis || '-') + '</td>' +
+                    '<td><strong>' + escapeHtml(row.nama_lengkap) + '</strong><br><small class="text-muted">NISN ' + escapeHtml(row.nisn || '-') + '</small></td>' +
+                    '<td>' + status + '</td>' +
+                '</tr>';
+            }).join('');
+
+            $('#data').html(html);
             refreshKelasAsalPagination();
-            return;
+        },
+        error: function (xhr) {
+            ajaxError(xhr);
         }
-        var html = rows.map(function (row) {
-            return '<tr class="siswa-kelas-asal-row">' +
-                '<td><input type="checkbox" class="form-check-input pilih-siswa" value="' + row.id + '"></td>' +
-                '<td>' + escapeHtml(row.nis || '-') + '</td>' +
-                '<td><strong>' + escapeHtml(row.nama_lengkap) + '</strong><br><small class="text-muted">NISN ' + escapeHtml(row.nisn || '-') + '</small></td>' +
-                '<td><span class="badge bg-primary-subtle text-primary">Naik Kelas</span></td>' +
-            '</tr>';
-        }).join('');
-        $('#data').html(html);
-        refreshKelasAsalPagination();
-    }, 'json').fail(ajaxError);
+    });
 }
 
 function dataKenaikan() {
@@ -200,6 +270,17 @@ function dataKenaikan() {
 }
 
 function validasiKenaikan(data) {
+    var filterMasihSama = filterKenaikanAktif &&
+        filterKenaikanAktif.periode_asal === String($('#periode_asal').val() || '') &&
+        filterKenaikanAktif.kelas_asal === String($('#kelas_asal').val() || '') &&
+        filterKenaikanAktif.periode_tujuan === String($('#periode_tujuan').val() || '') &&
+        filterKenaikanAktif.kelas_tujuan === String($('#kelas_tujuan').val() || '');
+
+    if (!kenaikanDiterapkan || !filterMasihSama) {
+        Swal.fire('Perhatian', 'Klik Terapkan terlebih dahulu setelah memilih kelas asal dan kelas tujuan.', 'warning');
+        return false;
+    }
+
     if (!data.id_kelas_asal || !data.id_kelas_tujuan || !data.id_siswa.length) {
         Swal.fire('Perhatian', 'Pilih kelas asal, kelas tujuan, dan minimal satu siswa.', 'warning');
         return false;
@@ -210,25 +291,35 @@ function validasiKenaikan(data) {
 function previewKenaikan() {
     var data = dataKenaikan();
     if (!validasiKenaikan(data)) return;
-    $.post('<?= base_url('admin/kesiswaan/kenaikan_kelas/preview') ?>', data, function (response) {
-        if (response.result !== 'true') {
-            Swal.fire('Gagal', response.message, 'error');
-            return;
+    $.ajax({
+        url: '<?= base_url('admin/kesiswaan/kenaikan_kelas/preview'); ?>',
+        type: 'POST',
+        data: data,
+        dataType: 'JSON',
+        success: function (response) {
+            if (response.result !== 'true') {
+                Swal.fire('Gagal', response.message, 'error');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Preview Kenaikan Kelas',
+                html: '<div class="text-start">' +
+                    '<p><strong>Asal:</strong> ' + escapeHtml(response.asal.nama_kelas) + '</p>' +
+                    '<p><strong>Tujuan:</strong> ' + escapeHtml(response.tujuan.nama_kelas) + '</p>' +
+                    '<p><strong>Dipilih:</strong> ' + response.dipilih + ' siswa</p>' +
+                    '<p><strong>Dapat diproses:</strong> ' + response.valid + ' siswa</p>' +
+                    '<p><strong>Dilewati:</strong> ' + response.dilewati + ' siswa</p>' +
+                    '<p class="mb-0 text-muted">Data kelas lama tidak akan dihapus.</p>' +
+                '</div>',
+                icon: 'info',
+                confirmButtonText: 'Tutup'
+            });
+        },
+        error: function (xhr) {
+            ajaxError(xhr);
         }
-        Swal.fire({
-            title: 'Preview Kenaikan Kelas',
-            html: '<div class="text-start">' +
-                '<p><strong>Asal:</strong> ' + escapeHtml(response.asal.nama_kelas) + '</p>' +
-                '<p><strong>Tujuan:</strong> ' + escapeHtml(response.tujuan.nama_kelas) + '</p>' +
-                '<p><strong>Dipilih:</strong> ' + response.dipilih + ' siswa</p>' +
-                '<p><strong>Dapat diproses:</strong> ' + response.valid + ' siswa</p>' +
-                '<p><strong>Dilewati:</strong> ' + response.dilewati + ' siswa</p>' +
-                '<p class="mb-0 text-muted">Data kelas lama tidak akan dihapus.</p>' +
-            '</div>',
-            icon: 'info',
-            confirmButtonText: 'Tutup'
-        });
-    }, 'json').fail(ajaxError);
+    });
 }
 
 function prosesKenaikan() {
@@ -236,11 +327,27 @@ function prosesKenaikan() {
     if (!validasiKenaikan(data)) return;
     confirmAction('Proses kenaikan kelas?', data.id_siswa.length + ' siswa akan dibuatkan penempatan baru. Data kelas lama tidak dihapus.', function () {
         $('#btn_proses').prop('disabled', true);
-        $.post('<?= base_url('admin/kesiswaan/kenaikan_kelas/proses') ?>', data, function (response) {
-            var ok = response.result === 'true';
-            Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
-            if (ok) loadSiswaKenaikan();
-        }, 'json').fail(ajaxError).always(function () { $('#btn_proses').prop('disabled', false); });
+
+        $.ajax({
+            url: '<?= base_url('admin/kesiswaan/kenaikan_kelas/proses'); ?>',
+            type: 'POST',
+            data: data,
+            dataType: 'JSON',
+            success: function (response) {
+                var ok = response.result === 'true';
+                Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
+
+                if (ok) {
+                    loadSiswaKenaikan();
+                }
+            },
+            error: function (xhr) {
+                ajaxError(xhr);
+            },
+            complete: function () {
+                $('#btn_proses').prop('disabled', false);
+            }
+        });
     });
 }
 

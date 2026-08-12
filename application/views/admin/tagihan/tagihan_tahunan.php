@@ -15,11 +15,6 @@
                 <div class="col-md-3"><label class="form-label">Tahun Ajaran</label><select name="id_periode" id="id_periode" class="form-select" required>
                         <option value="">Pilih tahun ajaran</option><?php foreach ($periode as $r): ?><option value="<?= $r['id'] ?>" data-periode="<?= html_escape($r['periode']) ?>"><?= html_escape($r['periode']) ?><?= $r['status'] === 'Aktif' ? ' - Aktif' : '' ?></option><?php endforeach; ?>
                     </select></div>
-                <div class="col-md-3"><label class="form-label">Semester</label><select name="semester" id="semester" class="form-select">
-                        <option value="">Semua Semester</option>
-                        <option>Ganjil</option>
-                        <option>Genap</option>
-                    </select></div>
                 <div class="col-md-3"><label class="form-label">Jenis Tagihan</label><select name="id_jenis_tagihan" id="id_jenis" class="form-select" required>
                         <option value="">Pilih jenis</option><?php foreach ($jenis as $r): ?><option value="<?= $r['id'] ?>" data-tunggakan="<?= $r['dianggap_tunggakan'] ?>"><?= html_escape($r['nama_jenis']) ?></option><?php endforeach; ?>
                     </select></div>
@@ -60,7 +55,7 @@
                             </select></div>
                     </div>
                     <div id="target_kelas_area" class="mt-3 d-none"><label class="form-label">Pilih Kelas</label>
-                        <div class="row g-2" id="kelas_options"><?php foreach ($kelas as $r): ?><div class="col-md-4 kelas-item" data-periode="<?= $r['id_periode'] ?>" data-semester="<?= html_escape($r['semester']) ?>"><label class="border rounded p-2 w-100"><input type="checkbox" class="form-check-input me-1" name="target_kelas[]" value="<?= $r['id'] ?>"> <?= html_escape($r['nama_kelas'] . ' - ' . $r['semester']) ?></label></div><?php endforeach; ?></div>
+                        <div class="row g-2" id="kelas_options"><?php foreach ($kelas as $r): ?><div class="col-md-4 kelas-item" data-periode="<?= $r['id_periode'] ?>"><label class="border rounded p-2 w-100"><input type="checkbox" class="form-check-input me-1" name="target_kelas[]" value="<?= $r['id'] ?>"> <?= html_escape($r['nama_kelas']) ?></label></div><?php endforeach; ?></div>
                     </div>
                     <div id="target_siswa_area" class="mt-3 d-none"><label class="form-label">Cari dan Tambahkan Siswa</label>
                         <div class="row g-2 align-items-end">
@@ -98,7 +93,7 @@
             dateFormat: 'd-m-Y'
         });
 
-        $('#id_periode, #semester').change(function() {
+        $('#id_periode').change(function() {
             updatePeriodTarget();
         });
 
@@ -143,7 +138,6 @@
 
     function updatePeriodTarget() {
         var periode = $('#id_periode').val();
-        var semester = $('#semester').val();
         var periodeText = $('#id_periode :selected').data('periode') || '';
         var years = String(periodeText).split('/');
 
@@ -154,8 +148,7 @@
         );
 
         $('.kelas-item').each(function() {
-            var sesuai = String($(this).data('periode')) === String(periode) &&
-                (!semester || String($(this).data('semester')) === String(semester));
+            var sesuai = String($(this).data('periode')) === String(periode);
 
             $(this).toggle(sesuai);
             if (!sesuai) {
@@ -210,8 +203,7 @@
             type: 'POST',
             data: {
                 q: $('#cari_siswa').val(),
-                id_periode: $('#id_periode').val(),
-                semester: $('#semester').val()
+                id_periode: $('#id_periode').val()
             },
             dataType: 'JSON',
             success: function(data) {

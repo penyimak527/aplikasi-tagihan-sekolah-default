@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class M_wali_murid extends CI_Model
 {
@@ -65,7 +65,7 @@ class M_wali_murid extends CI_Model
 
         $relasi = $this->db->query(
             "SELECT wms.*, s.nis, s.nisn, s.nama_lengkap, s.status_pendaftaran,
-                    kset.nama_kelas, kset.semester, ta.periode
+                    kset.nama_kelas, ta.periode
              FROM wali_murid_siswa wms
              INNER JOIN siswa s ON s.id = wms.id_siswa
              LEFT JOIN kelas_siswa kss ON kss.id = (
@@ -120,7 +120,7 @@ class M_wali_murid extends CI_Model
         }
 
         $sql = "SELECT s.id, s.nis, s.nisn, s.nama_lengkap, s.status_pendaftaran,
-                       kset.nama_kelas, kset.semester, ta.periode, k.id AS id_kelas
+                       kset.nama_kelas, ta.periode, k.id AS id_kelas
                 FROM siswa s
                 LEFT JOIN kelas_siswa kss ON kss.id = (
                     SELECT MAX(x.id)

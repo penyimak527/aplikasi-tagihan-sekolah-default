@@ -58,7 +58,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>Tahun Ajaran</th>
-                            <th>Semester</th>
+                            
                             <th>Kelas</th>
                             <th>Wali Kelas</th>
                             <th>Status</th>
@@ -119,10 +119,10 @@
                 <div class="mb-3">
                     <label class="form-label" for="id_kelas_tujuan">Kelas Koreksi <span class="text-danger">*</span></label>
                     <select class="form-select" id="id_kelas_tujuan">
-                        <option value="">Pilih tahun ajaran, semester, dan kelas</option>
+                        <option value="">Pilih tahun ajaran dan kelas</option>
                         <?php foreach ($kelas as $row): ?>
                             <option value="<?= (int) $row['id'] ?>">
-                                <?= html_escape(($row['periode'] ?: '-') . ' | ' . ($row['semester'] ?: '-') . ' | ' . $row['nama_kelas']) ?>
+                                <?= html_escape(($row['periode'] ?: '-') . ' | ' . $row['nama_kelas']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -345,7 +345,7 @@
     function renderPlacements(rows) {
         var html = '';
         if (!rows.length) {
-            html = '<tr><td colspan="7"><div class="empty-state"><i class="ri-school-line empty-icon"></i>Belum ada penempatan kelas.</div></td></tr>';
+            html = '<tr><td colspan="6"><div class="empty-state"><i class="ri-school-line empty-icon"></i>Belum ada penempatan kelas.</div></td></tr>';
         }
 
         rows.forEach(function(row, index) {
@@ -354,7 +354,6 @@
             var statusClass = isActive ? 'success' : 'secondary';
             html += '<tr>' +
                 '<td>' + escapeHtml(row.periode || '-') + '</td>' +
-                '<td>' + escapeHtml(row.semester || '-') + '</td>' +
                 '<td><strong>' + escapeHtml(row.nama_kelas || '-') + '</strong></td>' +
                 '<td>' + escapeHtml(row.wali_kelas || '-') + '</td>' +
                 '<td><span class="badge bg-' + statusClass + '-subtle text-' + statusClass + '">' + escapeHtml(statusLabel) + '</span></td>' +
@@ -431,7 +430,6 @@
         var statusLabel = String(row.status_aktif) === '1' ? 'Aktif' : (row.jenis_proses || 'Riwayat');
         var content = '';
         content += detailItem('Tahun Ajaran', row.periode || '-');
-        content += detailItem('Semester', row.semester || '-');
         content += detailItem('Kelas', row.nama_kelas || '-');
         content += detailItem('Wali Kelas', row.wali_kelas || '-');
         content += detailItem('Status', statusLabel);
@@ -452,7 +450,6 @@
         }
         $('#kelas_asal_label').val(
             (activePlacement.periode || '-') + ' | ' +
-            (activePlacement.semester || '-') + ' | ' +
             (activePlacement.nama_kelas || '-')
         );
         $('#id_kelas_tujuan').val('');

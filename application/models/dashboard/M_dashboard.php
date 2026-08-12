@@ -16,11 +16,10 @@ class M_dashboard extends CI_Model
     public function kelas_list()
     {
         return $this->db
-            ->select('ks.id, ks.id_kelas, ks.nama_kelas, ks.id_periode, ks.semester, ta.periode')
+            ->select('ks.id, ks.id_kelas, ks.nama_kelas, ks.id_periode, ta.periode')
             ->from('kelas_setting ks')
             ->join('master_tahun_ajaran ta', 'ta.id = CAST(ks.id_periode AS UNSIGNED)', 'left')
             ->order_by('ta.id', 'DESC')
-            ->order_by('ks.semester', 'ASC')
             ->order_by('ks.nama_kelas', 'ASC')
             ->get()
             ->result_array();

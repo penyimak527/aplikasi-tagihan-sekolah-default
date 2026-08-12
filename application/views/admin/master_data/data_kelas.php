@@ -158,11 +158,11 @@ function detailData(id) {
         var row = response.data;
         var setting = response.setting || [];
         var table = setting.length ? setting.map(function (item, index) {
-            return '<tr><td>' + (index + 1) + '</td><td>' + escapeHtml(item.periode || '-') + '</td><td>' + escapeHtml(item.semester || '-') + '</td><td>' + escapeHtml(item.wali_kelas || '-') + '</td><td class="text-center">' + Number(item.jumlah_siswa || 0).toLocaleString('id-ID') + '</td></tr>';
-        }).join('') : '<tr><td colspan="5"><div class="empty-state">Kelas belum digunakan pada kelas_setting.</div></td></tr>';
+            return '<tr><td>' + (index + 1) + '</td><td>' + escapeHtml(item.periode || '-') + '</td><td class="text-center">' + Number(item.jumlah_siswa || 0).toLocaleString('id-ID') + '</td></tr>';
+        }).join('') : '<tr><td colspan="3"><div class="empty-state">Kelas belum digunakan pada kelas_setting.</div></td></tr>';
         $('#detail_content').html(
             '<div class="row g-3 mb-3"><div class="col-md-4"><strong>Nama Kelas</strong><div>' + escapeHtml(row.nama_kelas || '-') + '</div></div><div class="col-md-4"><strong>Jurusan/Kelompok</strong><div>' + escapeHtml(row.jurusan || '-') + '</div></div><div class="col-md-4"><strong>Status</strong><div><span class="badge bg-primary">' + escapeHtml(row.status || '-') + '</span></div></div></div>' +
-            '<h6 class="mb-3">Penggunaan Kelas</h6><div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>No</th><th>Tahun Ajaran</th><th>Semester</th><th>Wali Kelas</th><th class="text-center">Siswa Aktif</th></tr></thead><tbody>' + table + '</tbody></table></div>'
+            '<h6 class="mb-3">Penggunaan Kelas</h6><div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>No</th><th>Tahun Ajaran</th><th class="text-center">Siswa Aktif</th></tr></thead><tbody>' + table + '</tbody></table></div>'
         );
     }, 'json').fail(ajaxError);
 }

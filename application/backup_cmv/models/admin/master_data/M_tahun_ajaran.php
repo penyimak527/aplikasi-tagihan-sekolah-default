@@ -12,7 +12,7 @@ class M_tahun_ajaran extends CI_Model
         $id=(int)$this->input->post('id');
         $row=$this->db->where('id',$id)->get('master_tahun_ajaran')->row_array();
         if(!$row)return model_response(false,'Tahun ajaran tidak ditemukan.');
-        $kelas=$this->db->query("SELECT ks.*,COUNT(kss.id) jumlah_siswa FROM kelas_setting ks LEFT JOIN kelas_siswa kss ON CAST(kss.id_kelas_setting AS UNSIGNED)=ks.id AND kss.status_aktif='1' WHERE CAST(ks.id_periode AS UNSIGNED)=? GROUP BY ks.id ORDER BY ks.semester,ks.nama_kelas",array($id))->result_array();
+        $kelas=$this->db->query("SELECT ks.*,COUNT(kss.id) jumlah_siswa FROM kelas_setting ks LEFT JOIN kelas_siswa kss ON CAST(kss.id_kelas_setting AS UNSIGNED)=ks.id AND kss.status_aktif='1' WHERE CAST(ks.id_periode AS UNSIGNED)=? GROUP BY ks.id ORDER BY ks.nama_kelas",array($id))->result_array();
         return array('result'=>'true','data'=>$row,'kelas'=>$kelas);
     }
     public function simpan(){

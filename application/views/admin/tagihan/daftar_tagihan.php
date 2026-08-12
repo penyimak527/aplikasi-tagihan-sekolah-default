@@ -94,7 +94,7 @@
                 return '<div class="crud-list-item"><div class="crud-content">' +
                     '<div class="crud-status">Status: <span class="badge ' + badge + '">' + escapeHtml(r.status) + '</span> <span class="badge bg-light text-dark">' + escapeHtml(r.tipe_tagihan) + '</span></div>' +
                     '<div class="crud-title">' + (index + 1) + '. ' + escapeHtml(r.nama_tagihan) + '</div>' +
-                    '<div class="crud-meta">Kode: ' + escapeHtml(r.kode_tagihan) + ' | Tahun: ' + escapeHtml(r.periode) + ' ' + escapeHtml(r.semester || '') + ' | Target: ' + escapeHtml(r.target_tagihan) + '</div>' +
+                    '<div class="crud-meta">Kode: ' + escapeHtml(r.kode_tagihan) + ' | Tahun: ' + escapeHtml(r.periode) + ' | Target: ' + escapeHtml(r.target_tagihan) + '</div>' +
                     '<div class="crud-note">Siswa: ' + Number(r.jumlah_siswa || 0) + ' | Total: ' + formatRupiah(r.total_nominal || 0) + ' | Belum: ' + Number(r.belum_bayar || 0) + ' | Sebagian: ' + Number(r.sebagian || 0) + ' | Lunas: ' + Number(r.lunas || 0) + '</div></div>' +
                     '<div class="crud-actions">' + actions + '</div></div>';
             }).join('');

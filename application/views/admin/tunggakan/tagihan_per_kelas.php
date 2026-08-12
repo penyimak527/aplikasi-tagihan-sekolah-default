@@ -25,7 +25,7 @@
                         <option
                             value="<?= $k['id'] ?>"
                             data-period="<?= $k['id_periode'] ?>">
-                            <?= html_escape($k['nama_kelas'] . ' - ' . $k['semester']) ?>
+                            <?= html_escape($k['nama_kelas']) ?>
                         </option>
                     <?php endforeach ?>
                 </select>

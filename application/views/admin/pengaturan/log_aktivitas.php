@@ -7,26 +7,13 @@
     <div class="card-body">
         <div class="row g-2 align-items-end mb-2">
             <div class="col-md-2">
-                <input
-                    id="awal"
-                    class="form-control tanggal-picker"
-                    placeholder="Tanggal awal"
-                    autocomplete="off">
+                <input id="awal" class="form-control tanggal-picker" placeholder="Tanggal awal" autocomplete="off">
             </div>
-
             <div class="col-md-2">
-                <input
-                    id="akhir"
-                    class="form-control tanggal-picker"
-                    placeholder="Tanggal akhir"
-                    autocomplete="off">
+                <input id="akhir" class="form-control tanggal-picker" placeholder="Tanggal akhir" autocomplete="off">
             </div>
-
             <div class="col-md-2">
-                <input
-                    id="user"
-                    class="form-control"
-                    placeholder="Pengguna">
+                <input id="user" class="form-control" placeholder="Pengguna">
             </div>
 
             <div class="col-md-3">
@@ -58,17 +45,11 @@
 
         <div class="row g-2 align-items-end mb-3">
             <div class="col-md-10">
-                <input
-                    id="q"
-                    class="form-control"
-                    placeholder="Kata kunci / referensi">
+                <input id="q" class="form-control" placeholder="Kata kunci / referensi">
             </div>
 
             <div class="col-md-2 d-grid">
-                <button
-                    type="button"
-                    id="cari"
-                    class="btn btn-primary">
+                <button type="button" id="cari" class="btn btn-primary">
                     <i class="ti ti-search me-1"></i>Cari
                 </button>
             </div>
@@ -100,18 +81,14 @@
 
         <div
             class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-3">
-            <ul
-                class="pagination pagination-sm pagination-boxed mb-0"
-                id="pagination"></ul>
+            <ul class="pagination pagination-sm pagination-boxed mb-0" id="pagination"></ul>
 
             <div class="d-flex align-items-center gap-2">
                 <label for="dt-length-0" class="mb-0">
                     Tampilkan
                 </label>
 
-                <select
-                    class="form-select form-select-sm"
-                    id="dt-length-0">
+                <select class="form-select form-select-sm" id="dt-length-0">
                     <option value="10" selected>10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
@@ -129,19 +106,19 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detail Log</h5>
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body" id="detail"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         flatpickr('.tanggal-picker', {
             dateFormat: 'd-m-Y',
             allowInput: true,
@@ -150,21 +127,21 @@
 
         log_aktivitas();
 
-        $('#cari').click(function() {
+        $('#cari').click(function () {
             log_aktivitas();
         });
 
-        $('#q, #user').keyup(function(event) {
+        $('#q, #user').keyup(function (event) {
             if (event.key === 'Enter') {
                 log_aktivitas();
             }
         });
 
-        $('#aksi, #modul').change(function() {
+        $('#aksi, #modul').change(function () {
             log_aktivitas();
         });
 
-        $('#dt-length-0').on('change', function() {
+        $('#dt-length-0').on('change', function () {
             const jumlah = parseInt($(this).val());
 
             paging(
@@ -173,7 +150,7 @@
             );
         });
 
-        $('#export').click(function() {
+        $('#export').click(function () {
             var params = filter();
 
             this.href =
@@ -181,7 +158,7 @@
                 new URLSearchParams(params).toString();
         });
 
-        $(document).on('click', '.detail', function() {
+        $(document).on('click', '.detail', function () {
             var id = $(this).data('id');
 
             detail_log(id);
@@ -224,7 +201,7 @@
                 q: data_filter.q
             },
             dataType: 'JSON',
-            success: function(data) {
+            success: function (data) {
                 var table = '';
 
                 if (!Array.isArray(data) || data.length == 0) {
@@ -238,7 +215,7 @@
                     </tr>
                 `;
                 } else {
-                    data.forEach(function(item) {
+                    data.forEach(function (item) {
                         table += `
                         <tr class="data-log">
                             <td>
@@ -300,7 +277,7 @@
                     jumlah_awal
                 );
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 ajaxError(xhr);
             }
         });
@@ -320,7 +297,7 @@
                 id: id
             },
             dataType: 'JSON',
-            success: function(data) {
+            success: function (data) {
                 function pretty(value) {
                     try {
                         return `
@@ -348,10 +325,10 @@
                         <br>
 
                         ${escapeHtml(
-                            (data.tanggal || '-') +
-                            ' ' +
-                            (data.waktu || '-')
-                        )}
+                    (data.tanggal || '-') +
+                    ' ' +
+                    (data.waktu || '-')
+                )}
                         <br>
 
                         Pengguna:
@@ -400,7 +377,7 @@
                     )
                     .show();
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 ajaxError(xhr);
             }
         });

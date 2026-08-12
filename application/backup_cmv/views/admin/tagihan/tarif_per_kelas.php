@@ -4,7 +4,7 @@
     </div>
     <div class="card-body">
         <div class="row g-2 align-items-end mb-0">
-            <div class="col-md-10">
+            <div class="col-md-8">
                 <label for="tagihan" class="form-label">Tagihan</label>
                 <select id="tagihan" class="form-select">
                     <option value="">Pilih tagihan</option>
@@ -16,7 +16,13 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="button" id="btn_tampilkan" class="btn btn-primary w-100">Tampilkan</button>
+                <label for="filter_kelas" class="form-label">Kelas</label>
+                <select id="filter_kelas" class="form-select" disabled>
+                    <option value="">Pilih Kelas</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="button" id="btn_tampilkan" class="btn btn-primary">Tampilkan</button>
             </div>
         </div>
     </div>
@@ -26,11 +32,8 @@
     <div class="card-header app-card-header">
         <div>
             <h4 class="header-title">Daftar Tarif Kelas</h4>
-            <small class="text-muted">Tarif kelas hanya dipakai jika siswa tidak memiliki tarif khusus.</small>
+            <small class="text-muted">Tarif kelas hanya berlaku jika siswa tidak memiliki tarif khusus.</small>
         </div>
-        <button type="button" class="btn btn-primary" id="btn_simpan">
-            <i class="ri-save-line me-1"></i>Simpan Tarif Per Kelas
-        </button>
     </div>
     <div class="card-body">
         <form id="form_tarif">
@@ -43,18 +46,20 @@
                             <th class="text-end">Tarif Umum</th>
                             <th style="min-width:180px">Tarif Kelas</th>
                             <th class="text-center">Jumlah Siswa</th>
-                            <th class="text-end">Pembayaran Masuk</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="kelas_rows">
-                        <tr><td colspan="6"><div class="empty-state">Pilih tagihan terlebih dahulu.</div></td></tr>
+                        <tr><td colspan="5"><div class="empty-state">Pilih tagihan terlebih dahulu.</div></td></tr>
                     </tbody>
                 </table>
             </div>
-            <div class="mt-3">
+            <div class="d-flex flex-wrap justify-content-end gap-2 mt-3">
                 <button type="button" class="btn btn-outline-primary" id="btn_terapkan_umum">
                     Terapkan Tarif Umum ke Semua
+                </button>
+                <button type="button" class="btn btn-primary" id="btn_simpan">
+                    <i class="ri-save-line me-1"></i>Simpan Tarif Per Kelas
                 </button>
             </div>
         </form>
@@ -65,70 +70,246 @@
 var tarifMaster = null;
 
 $(document).ready(function () {
-    $('#btn_tampilkan').on('click', loadTarifKelas);
-    // $('#tagihan').on('change', loadTarifKelas);
+    $('#tagihan').on('change', function () {
+        loadFilterKelas();
+    });
+
+    $('#btn_tampilkan').on('click', function () {
+        loadTarifKelas();
+    });
+
     $('#btn_simpan').on('click', simpanTarifKelas);
+
     $('#btn_terapkan_umum').on('click', function () {
         if (!tarifMaster) return;
-        $('.input-tarif-kelas').val(formatMoneyInput(tarifMaster.nominal_default || 0));
+
+        $('.input-tarif-kelas:visible')
+            .val(formatMoneyInput(tarifMaster.nominal_default || 0));
     });
+
     $(document).on('click', '.btn-salin-tarif', function () {
         var nominal = $(this).data('nominal');
-        $(this).closest('tr').find('.input-tarif-kelas').val(formatMoneyInput(nominal));
+
+        $(this)
+            .closest('tr')
+            .find('.input-tarif-kelas')
+            .val(formatMoneyInput(nominal));
     });
 
-    if ($('#tagihan').val()) loadTarifKelas();
+    /*
+     * Jika halaman dibuka dengan tagihan yang sudah terpilih,
+     * cukup isi filter Kelas terlebih dahulu.
+     * Tabel tarif tetap baru ditampilkan setelah tombol Tampilkan diklik.
+     */
+    if ($('#tagihan').val()) {
+        loadFilterKelas();
+    }
 });
 
-function loadTarifKelas() {
-    var id = $('#tagihan').val();
-    if (!id) {
-        $('#card_tarif').addClass('d-none');
+function resetFilterKelas() {
+    $('#filter_kelas')
+        .prop('disabled', true)
+        .html('<option value="">Pilih Kelas</option>');
+}
+
+function loadFilterKelas() {
+    var idTagihan = $('#tagihan').val();
+
+    tarifMaster = null;
+    $('#card_tarif').addClass('d-none');
+    $('#form_tarif [name="id_tagihan"]').val('');
+    $('#kelas_rows').html(
+        '<tr><td colspan="5"><div class="empty-state">Pilih tagihan dan kelas, lalu klik Tampilkan.</div></td></tr>'
+    );
+
+    if (!idTagihan) {
+        resetFilterKelas();
         return;
     }
 
-    $('#kelas_rows').html('<tr><td colspan="6"><div class="empty-state">Memuat tarif kelas...</div></td></tr>');
-    $.post('<?= base_url('admin/tagihan/tarif_per_kelas/result') ?>', {id_tagihan: id}, function (response) {
-        if (response.result !== 'true') {
-            Swal.fire('Gagal', response.message, 'error');
-            return;
+    $('#filter_kelas')
+        .prop('disabled', true)
+        .html('<option value="">Memuat kelas...</option>');
+
+    $.ajax({
+        url: '<?= base_url('admin/tagihan/tarif_per_kelas/result') ?>',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            id_tagihan: idTagihan
+        },
+        success: function (response) {
+            if (response.result !== 'true') {
+                resetFilterKelas();
+                Swal.fire('Gagal', response.message || 'Data kelas gagal dimuat.', 'error');
+                return;
+            }
+
+            var rows = response.classes || [];
+
+            if (!rows.length) {
+                $('#filter_kelas')
+                    .prop('disabled', true)
+                    .html('<option value="">Tidak ada kelas</option>');
+                return;
+            }
+
+            var kelasOptions = '<option value="">Semua Kelas</option>';
+
+            rows.forEach(function (row) {
+                kelasOptions +=
+                    '<option value="' + Number(row.id_kelas_setting || 0) + '">' +
+                        escapeHtml(row.nama_kelas || '-') +
+                    '</option>';
+            });
+
+            $('#filter_kelas')
+                .html(kelasOptions)
+                .prop('disabled', false);
+        },
+        error: function (xhr, status, error) {
+            resetFilterKelas();
+            ajaxError(xhr, status, error);
         }
+    });
+}
 
-        tarifMaster = response.master || {};
-        $('#card_tarif').removeClass('d-none');
-        $('#form_tarif [name="id_tagihan"]').val(id);
+function loadTarifKelas() {
+    var idTagihan = $('#tagihan').val();
+    var idKelas = String($('#filter_kelas').val() || '');
 
-        var rows = response.classes || [];
-        if (!rows.length) {
-            $('#kelas_rows').html('<tr><td colspan="6"><div class="empty-state"><div class="empty-state-title">Belum ada target kelas</div><div>Tambahkan target kelas pada tagihan terlebih dahulu.</div></div></td></tr>');
-            return;
+    if (!idTagihan) {
+        return Swal.fire('Perhatian', 'Pilih tagihan terlebih dahulu.', 'warning');
+    }
+
+    if ($('#filter_kelas').prop('disabled')) {
+        return Swal.fire('Perhatian', 'Kelas belum tersedia untuk tagihan yang dipilih.', 'warning');
+    }
+
+    $('#card_tarif').removeClass('d-none');
+    $('#kelas_rows').html(
+        '<tr><td colspan="5"><div class="empty-state">Memuat tarif kelas...</div></td></tr>'
+    );
+
+    $.ajax({
+        url: '<?= base_url('admin/tagihan/tarif_per_kelas/result') ?>',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            id_tagihan: idTagihan
+        },
+        success: function (response) {
+            if (response.result !== 'true') {
+                $('#card_tarif').addClass('d-none');
+                Swal.fire('Gagal', response.message || 'Data tarif kelas gagal dimuat.', 'error');
+                return;
+            }
+
+            tarifMaster = response.master || {};
+            $('#form_tarif [name="id_tagihan"]').val(idTagihan);
+
+            var rows = response.classes || [];
+
+            /*
+             * Filter kelas dilakukan setelah tombol Tampilkan diklik.
+             * Perubahan pilihan dropdown Kelas sendiri tidak menjalankan AJAX
+             * dan tidak langsung mengubah hasil.
+             */
+            if (idKelas) {
+                rows = rows.filter(function (row) {
+                    return String(Number(row.id_kelas_setting || 0)) === idKelas;
+                });
+            }
+
+            if (!rows.length) {
+                $('#kelas_rows').html(
+                    '<tr><td colspan="5"><div class="empty-state">' +
+                        '<div class="empty-state-title">Tidak ada data tarif kelas</div>' +
+                        '<div>Tidak ada kelas yang sesuai dengan filter yang dipilih.</div>' +
+                    '</div></td></tr>'
+                );
+                return;
+            }
+
+            var html = rows.map(function (row) {
+                var value = formatMoneyInput(
+                    row.nominal_kelas || tarifMaster.nominal_default || 0
+                );
+
+                return '<tr>' +
+                    '<td><strong>' + escapeHtml(row.nama_kelas || '-') + '</strong></td>' +
+                    '<td class="text-end">' +
+                        formatRupiah(tarifMaster.nominal_default || 0) +
+                    '</td>' +
+                    '<td>' +
+                        '<input type="text" ' +
+                            'inputmode="numeric" ' +
+                            'autocomplete="off" ' +
+                            'class="form-control money-input input-tarif-kelas" ' +
+                            'name="tarif[' + row.id + ']" ' +
+                            'value="' + value + '">' +
+                    '</td>' +
+                    '<td class="text-center">' +
+                        Number(row.jumlah_siswa || 0).toLocaleString('id-ID') +
+                    '</td>' +
+                    '<td>' +
+                        '<button type="button" ' +
+                            'class="btn btn-sm btn-outline-primary btn-salin-tarif" ' +
+                            'data-nominal="' + Number(tarifMaster.nominal_default || 0) + '">' +
+                            'Salin' +
+                        '</button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+
+            $('#kelas_rows').html(html);
+        },
+        error: function (xhr, status, error) {
+            $('#card_tarif').addClass('d-none');
+            ajaxError(xhr, status, error);
         }
-
-        var html = rows.map(function (row) {
-            var value = formatMoneyInput(row.nominal_kelas || tarifMaster.nominal_default || 0);
-            return '<tr>' +
-                '<td><strong>' + escapeHtml(row.nama_kelas || '-') + '</strong><br><small class="text-muted">' + escapeHtml(row.semester || '-') + '</small></td>' +
-                '<td class="text-end">' + formatRupiah(tarifMaster.nominal_default || 0) + '</td>' +
-                '<td><input type="text" inputmode="numeric" autocomplete="off" class="form-control money-input input-tarif-kelas" name="tarif[' + row.id + ']" value="' + value + '"></td>' +
-                '<td class="text-center">' + Number(row.jumlah_siswa || 0).toLocaleString('id-ID') + '</td>' +
-                '<td class="text-end">' + formatRupiah(row.total_dibayar || 0) + '</td>' +
-                '<td><button type="button" class="btn btn-sm btn-outline-primary btn-salin-tarif" data-nominal="' + Number(tarifMaster.nominal_default || 0) + '">Salin Umum</button></td>' +
-            '</tr>';
-        }).join('');
-        $('#kelas_rows').html(html);
-    }, 'json').fail(ajaxError);
+    });
 }
 
 function simpanTarifKelas() {
-    confirmAction('Simpan tarif per kelas?', 'Perubahan akan diterapkan pada siswa tanpa tarif khusus dan dicatat pada log aktivitas.', function () {
-        var button = $('#btn_simpan').prop('disabled', true);
-        $.post('<?= base_url('admin/tagihan/tarif_per_kelas/simpan') ?>', serializeMoneyForm('#form_tarif'), function (response) {
-            var ok = response.result === 'true';
-            Swal.fire(ok ? 'Berhasil' : 'Gagal', response.message, ok ? 'success' : 'error');
-            if (ok) loadTarifKelas();
-        }, 'json').fail(ajaxError).always(function () {
-            button.prop('disabled', false);
-        });
-    });
+    if (!$('#form_tarif [name="id_tagihan"]').val()) {
+        return Swal.fire(
+            'Perhatian',
+            'Tampilkan data tarif terlebih dahulu.',
+            'warning'
+        );
+    }
+
+    confirmAction(
+        'Simpan tarif per kelas?',
+        'Perubahan diterapkan pada tarif normal siswa. Tarif khusus siswa tetap memiliki prioritas tertinggi dan perubahan dicatat pada log aktivitas.',
+        function () {
+            var button = $('#btn_simpan').prop('disabled', true);
+
+            $.ajax({
+                url: '<?= base_url('admin/tagihan/tarif_per_kelas/simpan') ?>',
+                type: 'POST',
+                dataType: 'json',
+                data: serializeMoneyForm('#form_tarif'),
+                success: function (response) {
+                    var ok = response.result === 'true';
+
+                    Swal.fire(
+                        ok ? 'Berhasil' : 'Gagal',
+                        response.message,
+                        ok ? 'success' : 'error'
+                    );
+
+                    if (ok) {
+                        loadTarifKelas();
+                    }
+                },
+                error: ajaxError,
+                complete: function () {
+                    button.prop('disabled', false);
+                }
+            });
+        }
+    );
 }
 </script>

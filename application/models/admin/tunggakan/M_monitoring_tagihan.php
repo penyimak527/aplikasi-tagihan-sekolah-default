@@ -8,7 +8,7 @@ class M_monitoring_tagihan extends CI_Model
     }
     public function kelas_list()
     {
-        return $this->db->select('k.id,k.nama_kelas,k.id_periode,k.semester')->from('kelas_setting k')->order_by('k.id_periode', 'DESC')->order_by('k.nama_kelas')->get()->result_array();
+        return $this->db->select('k.id,k.nama_kelas,k.id_periode')->from('kelas_setting k')->order_by('k.id_periode', 'DESC')->order_by('k.nama_kelas')->get()->result_array();
     }
     public function jenis_list()
     {

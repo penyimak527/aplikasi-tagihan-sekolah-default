@@ -9,7 +9,7 @@ class Tarif_per_kelas extends CI_Controller
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
-        $this->load->model('admin/tagihan/M_tarif_tagihan', 'model');
+        $this->load->model('admin/tagihan/M_tarif_per_kelas', 'model');
     }
 
     public function index()
@@ -31,6 +31,6 @@ class Tarif_per_kelas extends CI_Controller
 
     public function simpan()
     {
-        json_response($this->model->simpan_kelas());
+        json_response($this->model->simpan());
     }
 }
