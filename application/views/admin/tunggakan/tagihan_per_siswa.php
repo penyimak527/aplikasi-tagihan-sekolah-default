@@ -9,16 +9,14 @@
                 <input
                     id="q"
                     class="form-control"
-                    placeholder="Nama / NIS / NISN"
-                >
+                    placeholder="Nama / NIS / NISN">
             </div>
 
             <div class="col-md-2 d-grid">
                 <button
                     type="button"
                     id="cari"
-                    class="btn btn-primary"
-                >
+                    class="btn btn-primary">
                     <i class="ti ti-search me-1"></i>Cari
                 </button>
             </div>
@@ -28,25 +26,21 @@
 
         <div
             id="pagination_siswa_area"
-            class="d-none flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2"
-        >
+            class="d-none flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2">
             <ul
                 class="pagination pagination-sm pagination-boxed mb-0"
-                id="pagination-siswa"
-            ></ul>
+                id="pagination-siswa"></ul>
 
             <div class="d-flex align-items-center gap-2">
                 <label
                     for="dt-length-siswa"
-                    class="mb-0"
-                >
+                    class="mb-0">
                     Tampilkan
                 </label>
 
                 <select
                     class="form-select form-select-sm"
-                    id="dt-length-siswa"
-                >
+                    id="dt-length-siswa">
                     <option value="10" selected>10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
@@ -59,13 +53,11 @@
 
         <div
             id="identitas"
-            class="alert alert-primary mt-3 d-none"
-        ></div>
+            class="alert alert-primary mt-3 d-none"></div>
 
         <div
             id="filter"
-            class="row g-2 mt-1 d-none"
-        >
+            class="row g-2 mt-1 d-none">
             <div class="col-md-3">
                 <select id="periode" class="form-select">
                     <option value="">Semua Tahun Ajaran</option>
@@ -90,8 +82,7 @@
             <div class="col-md-3">
                 <select
                     id="filter_status_tagihan_siswa"
-                    class="form-select"
-                >
+                    class="form-select">
                     <option value="">Semua Status</option>
                     <option>Belum Dibayar</option>
                     <option>Dibayar Sebagian</option>
@@ -117,8 +108,7 @@
                 <button
                     type="button"
                     id="tampil"
-                    class="btn btn-primary"
-                >
+                    class="btn btn-primary">
                     <i class="ti ti-filter"></i>
                 </button>
             </div>
@@ -128,16 +118,14 @@
 
 <div
     id="summary"
-    class="row g-3 d-none mb-3"
->
+    class="row g-3 d-none mb-3">
     <div class="col-md-4">
         <div class="card summary-card">
             <div class="card-body">
                 <small>Total Tagihan Wajib</small>
                 <div
                     id="swajib"
-                    class="summary-value"
-                ></div>
+                    class="summary-value"></div>
             </div>
         </div>
     </div>
@@ -148,8 +136,7 @@
                 <small>Total Dibayar</small>
                 <div
                     id="sdibayar"
-                    class="summary-value text-success"
-                ></div>
+                    class="summary-value text-success"></div>
             </div>
         </div>
     </div>
@@ -160,8 +147,7 @@
                 <small>Total Tunggakan</small>
                 <div
                     id="stunggakan"
-                    class="summary-value text-danger"
-                ></div>
+                    class="summary-value text-danger"></div>
             </div>
         </div>
     </div>
@@ -174,8 +160,7 @@
         <div class="action-buttons">
             <a
                 id="bayar"
-                class="btn btn-success disabled"
-            >
+                class="btn btn-success disabled">
                 <i class="ti ti-cash"></i>
                 Bayar Tagihan
             </a>
@@ -183,16 +168,14 @@
             <button
                 type="button"
                 onclick="window.print()"
-                class="btn btn-secondary no-print"
-            >
+                class="btn btn-secondary no-print">
                 <i class="ti ti-printer"></i>
                 Cetak Rekap
             </button>
 
             <a
                 id="surat"
-                class="btn btn-warning disabled"
-            >
+                class="btn btn-warning disabled">
                 <i class="ti ti-mail"></i>
                 Buat Surat
             </a>
@@ -226,25 +209,21 @@
 
         <div
             id="pagination_tagihan_area"
-            class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2"
-        >
+            class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2">
             <ul
                 class="pagination pagination-sm pagination-boxed mb-0"
-                id="pagination-tagihan"
-            ></ul>
+                id="pagination-tagihan"></ul>
 
             <div class="d-flex align-items-center gap-2">
                 <label
                     for="dt-length-tagihan"
-                    class="mb-0"
-                >
+                    class="mb-0">
                     Tampilkan
                 </label>
 
                 <select
                     class="form-select form-select-sm"
-                    id="dt-length-tagihan"
-                >
+                    id="dt-length-tagihan">
                     <option value="10" selected>10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
@@ -258,39 +237,39 @@
 </div>
 
 <style>
-/*
+    /*
  * Tetap menggunakan Pagination JS.
  * Fallback hanya untuk memastikan arrow bawaan terlihat
  * apabila Font Awesome tidak termuat.
  */
-#pagination-siswa .fa-angle-double-left::before,
-#pagination-tagihan .fa-angle-double-left::before {
-    content: "\00AB" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-siswa .fa-angle-double-left::before,
+    #pagination-tagihan .fa-angle-double-left::before {
+        content: "\00AB" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-siswa .fa-angle-left::before,
-#pagination-tagihan .fa-angle-left::before {
-    content: "\2039" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-siswa .fa-angle-left::before,
+    #pagination-tagihan .fa-angle-left::before {
+        content: "\2039" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-siswa .fa-angle-right::before,
-#pagination-tagihan .fa-angle-right::before {
-    content: "\203A" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-siswa .fa-angle-right::before,
+    #pagination-tagihan .fa-angle-right::before {
+        content: "\203A" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-siswa .fa-angle-double-right::before,
-#pagination-tagihan .fa-angle-double-right::before {
-    content: "\00BB" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-siswa .fa-angle-double-right::before,
+    #pagination-tagihan .fa-angle-double-right::before {
+        content: "\00BB" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-siswa .page-link i,
-#pagination-tagihan .page-link i {
-    font-style: normal;
-}
+    #pagination-siswa .page-link i,
+    #pagination-tagihan .page-link i {
+        font-style: normal;
+    }
 </style>
 
 <script>
@@ -299,24 +278,24 @@
     const money = n =>
         'Rp' +
         Number(n || 0)
-            .toLocaleString('id-ID');
+        .toLocaleString('id-ID');
 
-    $(document).ready(function () {
-        $('#cari').on('click', function () {
+    $(document).ready(function() {
+        $('#cari').on('click', function() {
             search();
         });
 
-        $('#q').on('keypress', function (event) {
+        $('#q').on('keypress', function(event) {
             if (event.which === 13) {
                 search();
             }
         });
 
-        $('#tampil').on('click', function () {
+        $('#tampil').on('click', function() {
             load();
         });
 
-        $('#dt-length-siswa').on('change', function () {
+        $('#dt-length-siswa').on('change', function() {
             const jumlah = parseInt(
                 $(this).val()
             );
@@ -328,7 +307,7 @@
             );
         });
 
-        $('#dt-length-tagihan').on('change', function () {
+        $('#dt-length-tagihan').on('change', function() {
             const jumlah = parseInt(
                 $(this).val()
             );
@@ -343,7 +322,7 @@
         $(document).on(
             'click',
             '.pilih',
-            function () {
+            function() {
                 id = $(this).data('id');
 
                 /*
@@ -422,7 +401,7 @@
 
             dataType: 'JSON',
 
-            beforeSend: function () {
+            beforeSend: function() {
                 button
                     .prop('disabled', true)
                     .html(
@@ -445,11 +424,11 @@
                     .addClass('d-flex');
             },
 
-            success: function (data) {
+            success: function(data) {
                 var rows =
-                    Array.isArray(data)
-                        ? data
-                        : [];
+                    Array.isArray(data) ?
+                    data :
+                    [];
 
                 var html = '';
 
@@ -466,7 +445,7 @@
                         '<div class="list-group">';
 
                     rows.forEach(
-                        function (row) {
+                        function(row) {
                             const info =
                                 (row.nis || '-') +
                                 ' | ' +
@@ -521,7 +500,7 @@
                 let jumlah_awal =
                     parseInt(
                         $('#dt-length-siswa')
-                            .val()
+                        .val()
                     );
 
                 paging(
@@ -531,7 +510,7 @@
                 );
             },
 
-            error: function (
+            error: function(
                 xhr,
                 status,
                 error
@@ -552,7 +531,7 @@
                 );
             },
 
-            complete: function () {
+            complete: function() {
                 button
                     .prop('disabled', false)
                     .html(
@@ -575,26 +554,21 @@
             type: 'POST',
 
             data: {
-                id_siswa:
-                    id,
+                id_siswa: id,
 
-                id_periode:
-                    $('#periode').val(),
+                id_periode: $('#periode').val(),
 
-                tipe:
-                    $('#tipe').val(),
+                tipe: $('#tipe').val(),
 
-                status:
-                    $('#filter_status_tagihan_siswa')
-                        .val(),
+                status: $('#filter_status_tagihan_siswa')
+                    .val(),
 
-                sampai_bulan:
-                    $('#bulan').val()
+                sampai_bulan: $('#bulan').val()
             },
 
             dataType: 'JSON',
 
-            beforeSend: function () {
+            beforeSend: function() {
                 button
                     .prop('disabled', true)
                     .html(
@@ -616,7 +590,7 @@
                     .empty();
             },
 
-            success: function (response) {
+            success: function(response) {
                 if (
                     response.result !==
                     'true'
@@ -624,8 +598,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal',
-                        text:
-                            response.message ||
+                        text: response.message ||
                             'Data gagal dimuat.'
                     });
 
@@ -644,7 +617,7 @@
                         $('#data .data-tagihan-siswa'),
                         parseInt(
                             $('#dt-length-tagihan')
-                                .val()
+                            .val()
                         ),
                         '#pagination-tagihan'
                     );
@@ -676,9 +649,9 @@
                 var rows =
                     Array.isArray(
                         response.rows
-                    )
-                        ? response.rows
-                        : [];
+                    ) ?
+                    response.rows :
+                    [];
 
                 var html = '';
 
@@ -695,11 +668,11 @@
                     `;
                 } else {
                     rows.forEach(
-                        function (row) {
+                        function(row) {
                             const wajib =
-                                row.dianggap_tunggakan === 'Ya'
-                                    ? '<span class="badge bg-warning-subtle text-warning">Ya</span>'
-                                    : '<span class="badge bg-info-subtle text-info">Tidak</span>';
+                                row.dianggap_tunggakan === 'Ya' ?
+                                '<span class="badge bg-warning-subtle text-warning">Ya</span>' :
+                                '<span class="badge bg-info-subtle text-info">Tidak</span>';
 
                             var status =
                                 row.status_pembayaran || '-';
@@ -795,7 +768,7 @@
                 let jumlah_awal =
                     parseInt(
                         $('#dt-length-tagihan')
-                            .val()
+                        .val()
                     );
 
                 paging(
@@ -805,7 +778,7 @@
                 );
             },
 
-            error: function (
+            error: function(
                 xhr,
                 status,
                 error
@@ -831,7 +804,7 @@
                 );
             },
 
-            complete: function () {
+            complete: function() {
                 button
                     .prop('disabled', false)
                     .html(
@@ -853,44 +826,38 @@
     ) {
         window.tp =
             new Pagination(
-                pagination_selector,
-                {
-                    itemsCount:
-                        $selector.length,
+                pagination_selector, {
+                    itemsCount: $selector.length,
 
-                    pageSize:
-                        parseInt(
-                            jumlah_tampil
-                        ),
+                    pageSize: parseInt(
+                        jumlah_tampil
+                    ),
 
-                    onPageChange:
-                        function (paging) {
-                            let start =
-                                paging.pageSize *
-                                (
-                                    paging.currentPage -
-                                    1
-                                );
+                    onPageChange: function(paging) {
+                        let start =
+                            paging.pageSize *
+                            (
+                                paging.currentPage -
+                                1
+                            );
 
-                            let end =
-                                start +
-                                paging.pageSize;
+                        let end =
+                            start +
+                            paging.pageSize;
 
-                            let $rows =
-                                $selector;
+                        let $rows =
+                            $selector;
 
-                            $rows.hide();
+                        $rows.hide();
 
-                            for (
-                                let i = start;
-                                i < end;
-                                i++
-                            ) {
-                                $rows
-                                    .eq(i)
-                                    .show();
-                            }
+                        for (
+                            let i = start; i < end; i++
+                        ) {
+                            $rows
+                                .eq(i)
+                                .show();
                         }
+                    }
                 }
             );
     }

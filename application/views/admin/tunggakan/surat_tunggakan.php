@@ -11,8 +11,7 @@
                         <input
                             id="q"
                             class="form-control"
-                            placeholder="Cari siswa nama / NIS / NISN"
-                        >
+                            placeholder="Cari siswa nama / NIS / NISN">
                     </div>
 
                     <div class="col-md-2 d-grid">
@@ -26,12 +25,10 @@
 
                 <div
                     id="pagination_siswa_area"
-                    class="d-none flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2"
-                >
+                    class="d-none flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2">
                     <ul
                         class="pagination pagination-sm pagination-boxed mb-0"
-                        id="pagination-siswa"
-                    ></ul>
+                        id="pagination-siswa"></ul>
 
                     <div class="d-flex align-items-center gap-2">
                         <label for="dt-length-siswa" class="mb-0">
@@ -40,8 +37,7 @@
 
                         <select
                             class="form-select form-select-sm"
-                            id="dt-length-siswa"
-                        >
+                            id="dt-length-siswa">
                             <option value="10" selected>10</option>
                             <option value="25">25</option>
                             <option value="50">50</option>
@@ -54,8 +50,7 @@
 
                 <div
                     id="identitas"
-                    class="alert alert-primary mt-3 d-none"
-                ></div>
+                    class="alert alert-primary mt-3 d-none"></div>
 
                 <div id="formArea" class="d-none">
                     <div class="row g-2 mb-3">
@@ -76,8 +71,7 @@
                                 <?php for ($i = 1; $i <= 12; $i++): ?>
                                     <option
                                         value="<?= $i ?>"
-                                        <?= $i == date('n') ? 'selected' : '' ?>
-                                    >
+                                        <?= $i == date('n') ? 'selected' : '' ?>>
                                         Sampai <?= nama_bulan($i) ?>
                                     </option>
                                 <?php endfor ?>
@@ -87,8 +81,7 @@
                         <div class="col-md-3">
                             <select
                                 id="batasTahun"
-                                class="form-select"
-                            >
+                                class="form-select">
                                 <option value="">Pilih Tahun</option>
 
                                 <?php
@@ -98,8 +91,7 @@
                                 ?>
                                     <option
                                         value="<?= $a ?>"
-                                        <?= $a == $now ? 'selected' : '' ?>
-                                    >
+                                        <?= $a == $now ? 'selected' : '' ?>>
                                         <?= $a ?>
                                     </option>
                                 <?php endfor; ?>
@@ -110,8 +102,7 @@
                             <button
                                 type="button"
                                 id="muat"
-                                class="btn btn-secondary"
-                            >
+                                class="btn btn-secondary">
                                 Muat
                             </button>
                         </div>
@@ -124,8 +115,7 @@
                                     <th>
                                         <input
                                             type="checkbox"
-                                            id="all"
-                                        >
+                                            id="all">
                                     </th>
                                     <th>Tagihan</th>
                                     <th>Periode</th>
@@ -139,8 +129,7 @@
                                 <tr>
                                     <td
                                         colspan="6"
-                                        class="empty-state"
-                                    >
+                                        class="empty-state">
                                         Muat tagihan.
                                     </td>
                                 </tr>
@@ -163,8 +152,7 @@
                     <strong>Total dalam Surat</strong>
                     <strong
                         class="text-danger fs-18"
-                        id="total"
-                    >
+                        id="total">
                         Rp0
                     </strong>
                 </div>
@@ -175,8 +163,7 @@
                         id="tanggal"
                         class="form-control tanggal-picker"
                         value="<?= date('d-m-Y') ?>"
-                        autocomplete="off"
-                    >
+                        autocomplete="off">
                 </div>
 
                 <div class="mb-2">
@@ -186,8 +173,7 @@
                     <input
                         id="namaTtd"
                         class="form-control"
-                        value="Bendahara Sekolah"
-                    >
+                        value="Bendahara Sekolah">
                 </div>
 
                 <div class="mb-2">
@@ -195,8 +181,7 @@
                     <input
                         id="jabatanTtd"
                         class="form-control"
-                        value="Bendahara"
-                    >
+                        value="Bendahara">
                 </div>
 
                 <div class="mb-3">
@@ -204,8 +189,7 @@
                     <textarea
                         id="catatan"
                         class="form-control"
-                        rows="3"
-                    ></textarea>
+                        rows="3"></textarea>
                 </div>
 
                 <div class="d-grid">
@@ -213,8 +197,7 @@
                         type="button"
                         id="simpan"
                         class="btn btn-success"
-                        disabled
-                    >
+                        disabled>
                         Simpan & Preview Surat
                     </button>
                 </div>
@@ -248,25 +231,21 @@
         </div>
 
         <div
-            class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2"
-        >
+            class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-2">
             <ul
                 class="pagination pagination-sm pagination-boxed mb-0"
-                id="pagination-riwayat"
-            ></ul>
+                id="pagination-riwayat"></ul>
 
             <div class="d-flex align-items-center gap-2">
                 <label
                     for="dt-length-riwayat"
-                    class="mb-0"
-                >
+                    class="mb-0">
                     Tampilkan
                 </label>
 
                 <select
                     class="form-select form-select-sm"
-                    id="dt-length-riwayat"
-                >
+                    id="dt-length-riwayat">
                     <option value="10" selected>10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
@@ -281,7 +260,7 @@
 
 
 <style>
-/*
+    /*
  * Pagination JS bawaan menggunakan icon Font Awesome:
  * fa-angle-double-left, fa-angle-left, fa-angle-right, fa-angle-double-right.
  *
@@ -289,41 +268,41 @@
  * Pagination tetap memakai Pagination JS; CSS berikut hanya memberikan
  * fallback karakter pada icon bawaan agar arrow terlihat.
  */
-#pagination-siswa .fa-angle-double-left::before,
-#pagination-riwayat .fa-angle-double-left::before {
-    content: "\00AB" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-siswa .fa-angle-double-left::before,
+    #pagination-riwayat .fa-angle-double-left::before {
+        content: "\00AB" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-siswa .fa-angle-left::before,
-#pagination-riwayat .fa-angle-left::before {
-    content: "\2039" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-siswa .fa-angle-left::before,
+    #pagination-riwayat .fa-angle-left::before {
+        content: "\2039" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-siswa .fa-angle-right::before,
-#pagination-riwayat .fa-angle-right::before {
-    content: "\203A" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-siswa .fa-angle-right::before,
+    #pagination-riwayat .fa-angle-right::before {
+        content: "\203A" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-siswa .fa-angle-double-right::before,
-#pagination-riwayat .fa-angle-double-right::before {
-    content: "\00BB" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-siswa .fa-angle-double-right::before,
+    #pagination-riwayat .fa-angle-double-right::before {
+        content: "\00BB" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-siswa .page-link i,
-#pagination-riwayat .page-link i {
-    font-style: normal;
-}
+    #pagination-siswa .page-link i,
+    #pagination-riwayat .page-link i {
+        font-style: normal;
+    }
 </style>
 
 <script>
     let siswa = null;
     let rows = [];
 
-    $(document).ready(function () {
+    $(document).ready(function() {
         flatpickr('.tanggal-picker', {
             dateFormat: 'd-m-Y',
             allowInput: true,
@@ -332,17 +311,17 @@
 
         history();
 
-        $('#cari').on('click', function () {
+        $('#cari').on('click', function() {
             search();
         });
 
-        $('#q').on('keypress', function (e) {
+        $('#q').on('keypress', function(e) {
             if (e.which === 13) {
                 search();
             }
         });
 
-        $('#dt-length-siswa').on('change', function () {
+        $('#dt-length-siswa').on('change', function() {
             const jumlah = parseInt($(this).val());
 
             paging(
@@ -352,7 +331,7 @@
             );
         });
 
-        $('#dt-length-riwayat').on('change', function () {
+        $('#dt-length-riwayat').on('change', function() {
             const jumlah = parseInt($(this).val());
 
             paging(
@@ -362,9 +341,11 @@
             );
         });
 
-        $(document).on('click', '.pilih', function () {
+        $(document).on('click', '.pilih', function() {
             siswa = JSON.parse(
-                $(this).attr('data-json')
+                decodeURIComponent(
+                    $(this).attr('data-json')
+                )
             );
 
             /*
@@ -404,11 +385,11 @@
             loadBills();
         });
 
-        $('#muat').on('click', function () {
+        $('#muat').on('click', function() {
             loadBills();
         });
 
-        $('#all').on('change', function () {
+        $('#all').on('change', function() {
             $('.cek').prop(
                 'checked',
                 this.checked
@@ -420,19 +401,19 @@
         $(document).on(
             'change',
             '.cek',
-            function () {
+            function() {
                 calc();
             }
         );
 
-        $('#simpan').on('click', function () {
+        $('#simpan').on('click', function() {
             saveLetter();
         });
 
         $(document).on(
             'click',
             '.wa',
-            function () {
+            function() {
                 openWhatsapp($(this));
             }
         );
@@ -450,7 +431,7 @@
     function money(n) {
         return 'Rp' +
             Number(n || 0)
-                .toLocaleString('id-ID');
+            .toLocaleString('id-ID');
     }
 
     function search() {
@@ -480,7 +461,7 @@
 
             dataType: 'JSON',
 
-            beforeSend: function () {
+            beforeSend: function() {
                 button
                     .prop('disabled', true)
                     .html(
@@ -502,11 +483,11 @@
                     .addClass('d-flex');
             },
 
-            success: function (data) {
+            success: function(data) {
                 var dataSiswa =
-                    Array.isArray(data)
-                        ? data
-                        : [];
+                    Array.isArray(data) ?
+                    data :
+                    [];
 
                 var html = '';
 
@@ -523,12 +504,12 @@
                         '<div class="list-group">';
 
                     dataSiswa.forEach(
-                        function (item) {
+                        function(item) {
                             html += `
                                 <button
                                     type="button"
                                     class="list-group-item list-group-item-action pilih data-siswa-surat"
-                                    data-json='${escapeHtml(JSON.stringify(item))}'
+                                    data-json="${encodeURIComponent(JSON.stringify(item))}"
                                 >
                                     <strong>
                                         ${escapeHtml(item.nama_lengkap)}
@@ -573,7 +554,7 @@
                 );
             },
 
-            error: function (
+            error: function(
                 xhr,
                 status,
                 error
@@ -593,7 +574,7 @@
                 );
             },
 
-            complete: function () {
+            complete: function() {
                 button
                     .prop('disabled', false)
                     .html(
@@ -624,17 +605,14 @@
 
             data: {
                 id_siswa: siswa.id,
-                id_periode:
-                    $('#periode').val(),
-                batas_bulan:
-                    $('#batasBulan').val(),
-                batas_tahun:
-                    $('#batasTahun').val()
+                id_periode: $('#periode').val(),
+                batas_bulan: $('#batasBulan').val(),
+                batas_tahun: $('#batasTahun').val()
             },
 
             dataType: 'JSON',
 
-            beforeSend: function () {
+            beforeSend: function() {
                 $('#tagihan').html(`
                     <tr>
                         <td
@@ -648,11 +626,11 @@
                 `);
             },
 
-            success: function (data) {
+            success: function(data) {
                 rows =
-                    Array.isArray(data)
-                        ? data
-                        : [];
+                    Array.isArray(data) ?
+                    data :
+                    [];
 
                 var html = '';
 
@@ -669,7 +647,7 @@
                     `;
                 } else {
                     rows.forEach(
-                        function (item) {
+                        function(item) {
                             html += `
                                 <tr>
                                     <td>
@@ -733,7 +711,7 @@
                 calc();
             },
 
-            error: function (
+            error: function(
                 xhr,
                 status,
                 error
@@ -765,30 +743,30 @@
     function calc() {
         let ids =
             $('.cek:checked')
-                .map(
-                    (_, item) =>
-                        Number(
-                            item.value
-                        )
+            .map(
+                (_, item) =>
+                Number(
+                    item.value
                 )
-                .get();
+            )
+            .get();
 
         let total =
             rows
-                .filter(
-                    item =>
-                        ids.includes(
-                            Number(item.id)
-                        )
+            .filter(
+                item =>
+                ids.includes(
+                    Number(item.id)
                 )
-                .reduce(
-                    (total, item) =>
-                        total +
-                        Number(
-                            item.sisa_tagihan
-                        ),
-                    0
-                );
+            )
+            .reduce(
+                (total, item) =>
+                total +
+                Number(
+                    item.sisa_tagihan
+                ),
+                0
+            );
 
         $('#total').text(
             money(total)
@@ -814,13 +792,13 @@
 
         let ids =
             $('.cek:checked')
-                .map(
-                    (_, item) =>
-                        Number(
-                            item.value
-                        )
+            .map(
+                (_, item) =>
+                Number(
+                    item.value
                 )
-                .get();
+            )
+            .get();
 
         if (!ids.length) {
             Swal.fire({
@@ -849,34 +827,26 @@
             type: 'POST',
 
             data: {
-                id_siswa:
-                    siswa.id,
+                id_siswa: siswa.id,
 
-                tagihan:
-                    JSON.stringify(ids),
+                tagihan: JSON.stringify(ids),
 
-                tanggal_surat:
-                    $('#tanggal').val(),
+                tanggal_surat: $('#tanggal').val(),
 
-                batas_bulan:
-                    $('#batasBulan').val(),
+                batas_bulan: $('#batasBulan').val(),
 
-                batas_tahun:
-                    $('#batasTahun').val(),
+                batas_tahun: $('#batasTahun').val(),
 
-                nama_penandatangan:
-                    $('#namaTtd').val(),
+                nama_penandatangan: $('#namaTtd').val(),
 
-                jabatan_penandatangan:
-                    $('#jabatanTtd').val(),
+                jabatan_penandatangan: $('#jabatanTtd').val(),
 
-                catatan:
-                    $('#catatan').val()
+                catatan: $('#catatan').val()
             },
 
             dataType: 'JSON',
 
-            beforeSend: function () {
+            beforeSend: function() {
                 button
                     .prop('disabled', true)
                     .html(
@@ -884,7 +854,7 @@
                     );
             },
 
-            success: function (data) {
+            success: function(data) {
                 if (
                     data.result !==
                     'true'
@@ -903,7 +873,7 @@
                     title: 'Berhasil',
                     text: data.message
                 }).then(
-                    function () {
+                    function() {
                         window.open(
                             '<?= base_url('admin/tunggakan/surat_tunggakan/cetak/'); ?>' +
                             data.id,
@@ -915,7 +885,7 @@
                 history();
             },
 
-            error: function (
+            error: function(
                 xhr,
                 status,
                 error
@@ -927,7 +897,7 @@
                 );
             },
 
-            complete: function () {
+            complete: function() {
                 button.html(
                     'Simpan & Preview Surat'
                 );
@@ -946,7 +916,7 @@
 
             dataType: 'JSON',
 
-            beforeSend: function () {
+            beforeSend: function() {
                 $('#riwayat').html(`
                     <tr>
                         <td
@@ -962,11 +932,11 @@
                     .empty();
             },
 
-            success: function (data) {
+            success: function(data) {
                 var dataRiwayat =
-                    Array.isArray(data)
-                        ? data
-                        : [];
+                    Array.isArray(data) ?
+                    data :
+                    [];
 
                 var html = '';
 
@@ -986,7 +956,7 @@
                     `;
                 } else {
                     dataRiwayat.forEach(
-                        function (item) {
+                        function(item) {
                             html += `
                                 <tr class="data-riwayat-surat">
                                     <td>
@@ -1034,7 +1004,7 @@
                                             <button
                                                 type="button"
                                                 class="btn btn-sm btn-success wa"
-                                                data-json='${escapeHtml(JSON.stringify(item))}'
+                                                data-json="${encodeURIComponent(JSON.stringify(item))}"
                                             >
                                                 WhatsApp
                                             </button>
@@ -1053,7 +1023,7 @@
                 let jumlah_awal =
                     parseInt(
                         $('#dt-length-riwayat')
-                            .val()
+                        .val()
                     );
 
                 paging(
@@ -1063,7 +1033,7 @@
                 );
             },
 
-            error: function (
+            error: function(
                 xhr,
                 status,
                 error
@@ -1102,12 +1072,11 @@
         pagination_selector = '#pagination'
     ) {
         window.tp = new Pagination(
-            pagination_selector,
-            {
+            pagination_selector, {
                 itemsCount: $selector.length,
                 pageSize: parseInt(jumlah_tampil),
 
-                onPageChange: function (paging) {
+                onPageChange: function(paging) {
                     let start =
                         paging.pageSize *
                         (paging.currentPage - 1);
@@ -1133,63 +1102,176 @@
     ) {
         let item =
             JSON.parse(
-                $button.attr(
-                    'data-json'
+                decodeURIComponent(
+                    $button.attr(
+                        'data-json'
+                    )
                 )
             );
 
-        let no =
+        /*
+         * Pilihan penerima hanya berlaku untuk Surat Tunggakan:
+         * Ayah  -> nama_ayah + telepon_ayah
+         * Ibu   -> nama_ibu + telepon_ibu
+         * Lainnya -> diisi manual
+         */
+        function dataPenerima(
+            hubungan
+        ) {
+            if (hubungan === 'Ayah') {
+                return {
+                    nama: item.nama_ayah ||
+                        '',
+                    nomor: item.telepon_ayah ||
+                        ''
+                };
+            }
+
+            if (hubungan === 'Ibu') {
+                return {
+                    nama: item.nama_ibu ||
+                        '',
+                    nomor: item.telepon_ibu ||
+                        ''
+                };
+            }
+
+            return {
+                nama: '',
+                nomor: ''
+            };
+        }
+
+        let hubunganAwal =
             item.telepon_ayah ||
-            item.telepon_ibu ||
-            '';
+            item.nama_ayah ?
+            'Ayah' :
+            (
+                item.telepon_ibu ||
+                item.nama_ibu ?
+                'Ibu' :
+                'Lainnya'
+            );
+
+        let penerimaAwal =
+            dataPenerima(
+                hubunganAwal
+            );
 
         Swal.fire({
-            title:
-                'Kirim Surat WhatsApp',
+            title: 'Kirim Surat WhatsApp',
 
             html: `
                 <select
                     id="hub"
                     class="form-select mb-2"
                 >
-                    <option>Ayah</option>
-                    <option>Ibu</option>
-                    <option>Lainnya</option>
+                    <option
+                        value="Ayah"
+                        ${hubunganAwal === 'Ayah' ? 'selected' : ''}
+                    >
+                        Ayah
+                    </option>
+
+                    <option
+                        value="Ibu"
+                        ${hubunganAwal === 'Ibu' ? 'selected' : ''}
+                    >
+                        Ibu
+                    </option>
+
+                    <option
+                        value="Lainnya"
+                        ${hubunganAwal === 'Lainnya' ? 'selected' : ''}
+                    >
+                        Lainnya
+                    </option>
                 </select>
 
                 <input
                     id="nama"
                     class="form-control mb-2"
+                    value="${escapeHtml(penerimaAwal.nama)}"
                     placeholder="Nama penerima"
                 >
 
                 <input
                     id="no"
                     class="form-control"
-                    value="${escapeHtml(no)}"
+                    value="${escapeHtml(penerimaAwal.nomor)}"
                     placeholder="Nomor WhatsApp"
                 >
             `,
 
             showCancelButton: true,
 
-            confirmButtonText:
-                'Buka WhatsApp',
+            confirmButtonText: 'Buka WhatsApp',
 
-            preConfirm: function () {
-                return {
-                    hubungan:
-                        $('#hub').val(),
+            didOpen: function() {
+                /*
+                 * Saat Ayah/Ibu/Lainnya diganti,
+                 * nama dan nomor ikut diganti.
+                 * Setelah itu user tetap boleh mengedit manual.
+                 */
+                $('#hub').on(
+                    'change',
+                    function() {
+                        let penerima =
+                            dataPenerima(
+                                $(this).val()
+                            );
 
-                    nama_penerima:
-                        $('#nama').val(),
+                        $('#nama').val(
+                            penerima.nama
+                        );
 
-                    nomor:
+                        $('#no').val(
+                            penerima.nomor
+                        );
+                    }
+                );
+            },
+
+            preConfirm: function() {
+                let hubungan =
+                    $('#hub').val();
+
+                let namaPenerima =
+                    $.trim(
+                        $('#nama').val()
+                    );
+
+                let nomor =
+                    $.trim(
                         $('#no').val()
+                    );
+
+                if (!namaPenerima) {
+                    Swal.showValidationMessage(
+                        'Nama penerima wajib diisi.'
+                    );
+
+                    return false;
+                }
+
+                if (!nomor) {
+                    Swal.showValidationMessage(
+                        'Nomor WhatsApp wajib diisi.'
+                    );
+
+                    return false;
+                }
+
+                return {
+                    hubungan: hubungan,
+
+                    nama_penerima: namaPenerima,
+
+                    nomor: nomor
                 };
             }
         }).then(
-            function (result) {
+            function(result) {
                 if (
                     !result.isConfirmed
                 ) {
@@ -1201,57 +1283,50 @@
                     type: 'POST',
 
                     data: {
-                        id:
-                            item.id,
+                        id: item.id,
 
-                        hubungan:
-                            result.value.hubungan,
+                        hubungan: result.value.hubungan,
 
-                        nama_penerima:
-                            result.value.nama_penerima,
+                        nama_penerima: result.value.nama_penerima,
 
-                        nomor:
-                            result.value.nomor
+                        nomor: result.value.nomor
                     },
 
-                    dataType:
-                        'JSON',
+                    dataType: 'JSON',
 
-                    success:
-                        function (
-                            data
+                    success: function(
+                        data
+                    ) {
+                        if (
+                            data.result ===
+                            'true'
                         ) {
-                            if (
-                                data.result ===
-                                'true'
-                            ) {
-                                window.open(
-                                    data.url,
-                                    '_blank'
-                                );
+                            window.open(
+                                data.url,
+                                '_blank'
+                            );
 
-                                history();
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Gagal',
-                                    text: data.message
-                                });
-                            }
-                        },
+                            history();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: data.message
+                            });
+                        }
+                    },
 
-                    error:
-                        function (
+                    error: function(
+                        xhr,
+                        status,
+                        error
+                    ) {
+                        ajaxError(
                             xhr,
                             status,
                             error
-                        ) {
-                            ajaxError(
-                                xhr,
-                                status,
-                                error
-                            );
-                        }
+                        );
+                    }
                 });
             }
         );
@@ -1261,54 +1336,53 @@
         preset
     ) {
         $.ajax({
-            url:
-                '<?= base_url('admin/tunggakan/surat_tunggakan/siswa/'); ?>' +
+            url: '<?= base_url('admin/tunggakan/surat_tunggakan/siswa/'); ?>' +
                 encodeURIComponent(preset),
 
             type: 'GET',
 
             dataType: 'JSON',
 
-            success:
-                function (data) {
-                    if (
-                        data.result !==
-                        'true'
-                    ) {
-                        return;
-                    }
+            success: function(data) {
+                if (
+                    data.result !==
+                    'true'
+                ) {
+                    return;
+                }
 
-                    let button =
-                        $(
-                            '<button type="button" class="pilih d-none"></button>'
-                        ).attr(
-                            'data-json',
+                let button =
+                    $(
+                        '<button type="button" class="pilih d-none"></button>'
+                    ).attr(
+                        'data-json',
+                        encodeURIComponent(
                             JSON.stringify(
                                 data.siswa
                             )
-                        );
-
-                    $('#hasil').append(
-                        button
+                        )
                     );
 
-                    button.trigger(
-                        'click'
-                    );
-                },
+                $('#hasil').append(
+                    button
+                );
 
-            error:
-                function (
+                button.trigger(
+                    'click'
+                );
+            },
+
+            error: function(
+                xhr,
+                status,
+                error
+            ) {
+                ajaxError(
                     xhr,
                     status,
                     error
-                ) {
-                    ajaxError(
-                        xhr,
-                        status,
-                        error
-                    );
-                }
+                );
+            }
         });
     }
 </script>
