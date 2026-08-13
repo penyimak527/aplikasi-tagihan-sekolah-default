@@ -118,7 +118,7 @@
 </div>
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         flatpickr('.tanggal-picker', {
             dateFormat: 'd-m-Y',
             allowInput: true,
@@ -127,21 +127,21 @@
 
         log_aktivitas();
 
-        $('#cari').click(function () {
+        $('#cari').click(function() {
             log_aktivitas();
         });
 
-        $('#q, #user').keyup(function (event) {
+        $('#q, #user').keyup(function(event) {
             if (event.key === 'Enter') {
                 log_aktivitas();
             }
         });
 
-        $('#aksi, #modul').change(function () {
+        $('#aksi, #modul').change(function() {
             log_aktivitas();
         });
 
-        $('#dt-length-0').on('change', function () {
+        $('#dt-length-0').on('change', function() {
             const jumlah = parseInt($(this).val());
 
             paging(
@@ -150,7 +150,7 @@
             );
         });
 
-        $('#export').click(function () {
+        $('#export').click(function() {
             var params = filter();
 
             this.href =
@@ -158,7 +158,7 @@
                 new URLSearchParams(params).toString();
         });
 
-        $(document).on('click', '.detail', function () {
+        $(document).on('click', '.detail', function() {
             var id = $(this).data('id');
 
             detail_log(id);
@@ -201,7 +201,7 @@
                 q: data_filter.q
             },
             dataType: 'JSON',
-            success: function (data) {
+            success: function(data) {
                 var table = '';
 
                 if (!Array.isArray(data) || data.length == 0) {
@@ -215,7 +215,7 @@
                     </tr>
                 `;
                 } else {
-                    data.forEach(function (item) {
+                    data.forEach(function(item) {
                         table += `
                         <tr class="data-log">
                             <td>
@@ -277,7 +277,7 @@
                     jumlah_awal
                 );
             },
-            error: function (xhr, status, error) {
+            error: function(xhr, status, error) {
                 ajaxError(xhr);
             }
         });
@@ -297,7 +297,7 @@
                 id: id
             },
             dataType: 'JSON',
-            success: function (data) {
+            success: function(data) {
                 function pretty(value) {
                     try {
                         return `
@@ -377,7 +377,7 @@
                     )
                     .show();
             },
-            error: function (xhr, status, error) {
+            error: function(xhr, status, error) {
                 ajaxError(xhr);
             }
         });
