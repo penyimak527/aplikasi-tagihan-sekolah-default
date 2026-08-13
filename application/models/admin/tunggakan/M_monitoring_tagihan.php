@@ -51,26 +51,268 @@ class M_monitoring_tagihan extends CI_Model
         $periode = (int)$this->input->post('id_periode');
         $kelas = (int)$this->input->post('id_kelas_setting');
         $sampai = (int)$this->input->post('sampai_bulan');
-        $sql = "SELECT s.id id_siswa,s.nis,s.nisn,s.nama_lengkap nama_siswa,k.id id_kelas_setting,k.nama_kelas,COALESCE(SUM(CASE WHEN ts.dianggap_tunggakan='Ya' AND ts.status_tagihan='Aktif' THEN ts.nominal_tagihan ELSE 0 END),0) total_wajib,COALESCE(SUM(CASE WHEN ts.status_tagihan='Aktif' THEN ts.nominal_dibayar ELSE 0 END),0) dibayar,COALESCE(SUM(CASE WHEN ts.dianggap_tunggakan='Ya' AND ts.status_tagihan='Aktif' AND ts.status_pembayaran NOT IN ('Lunas','Dibebaskan','Dibatalkan') THEN ts.sisa_tagihan ELSE 0 END),0) tunggakan FROM kelas_siswa ks JOIN siswa s ON s.id=CAST(ks.id_siswa AS UNSIGNED) JOIN kelas_setting k ON k.id=CAST(ks.id_kelas_setting AS UNSIGNED) LEFT JOIN tagihan_siswa ts ON ts.id_siswa=s.id AND ts.id_periode=CAST(k.id_periode AS UNSIGNED)";
-        $where = array("ks.status_aktif='1'");
+
         $params = array();
+
+        /*
+         * Penentuan kelas siswa:
+         *
+         * 1. Jika siswa masih mempunyai kelas_siswa aktif pada tahun ajaran
+         *    yang dipilih, gunakan kelas aktif tersebut.
+         *
+         * 2. Jika sudah tidak aktif pada tahun itu karena Naik Kelas,
+         *    Pindah Kelas, Lulus, Berhenti, atau Pindah Sekolah,
+         *    gunakan SATU riwayat kelas terakhir yang masih sah
+         *    (status_riwayat = Aktif).
+         *
+         * Untuk Pindah Kelas dalam tahun yang sama, kelas tujuan pada riwayat
+         * terakhir yang digunakan. Dengan begitu siswa tidak muncul sekaligus
+         * di kelas-kelas yang pernah dilewati.
+         */
+        if ($periode) {
+            $periodeSql = (int)$periode;
+
+            $penempatanSql = "
+                (
+                    SELECT DISTINCT
+                        CAST(ks.id_siswa AS UNSIGNED) AS id_siswa,
+                        CAST(ks.id_kelas_setting AS UNSIGNED) AS id_kelas_setting
+                    FROM kelas_siswa ks
+                    INNER JOIN kelas_setting ka
+                        ON ka.id=CAST(ks.id_kelas_setting AS UNSIGNED)
+                    WHERE ks.status_aktif='1'
+                      AND CAST(ka.id_periode AS UNSIGNED)={$periodeSql}
+
+                    UNION
+
+                    SELECT
+                        r.id_siswa,
+                        CASE
+                            WHEN r.id_periode_tujuan={$periodeSql}
+                             AND COALESCE(r.id_kelas_setting_tujuan,0)>0
+                            THEN r.id_kelas_setting_tujuan
+
+                            WHEN r.id_periode_asal={$periodeSql}
+                             AND COALESCE(r.id_kelas_setting_asal,0)>0
+                            THEN r.id_kelas_setting_asal
+
+                            ELSE 0
+                        END AS id_kelas_setting
+                    FROM tagihan_riwayat_kelas_siswa r
+                    WHERE r.status_riwayat='Aktif'
+
+                      AND (
+                            (
+                                r.id_periode_tujuan={$periodeSql}
+                                AND COALESCE(r.id_kelas_setting_tujuan,0)>0
+                            )
+                            OR
+                            (
+                                r.id_periode_asal={$periodeSql}
+                                AND COALESCE(r.id_kelas_setting_asal,0)>0
+                            )
+                      )
+
+                      /*
+                       * Ambil hanya kejadian kelas TERAKHIR siswa
+                       * yang berhubungan dengan tahun ajaran ini.
+                       */
+                      AND r.id=(
+                            SELECT MAX(r2.id)
+                            FROM tagihan_riwayat_kelas_siswa r2
+                            WHERE r2.id_siswa=r.id_siswa
+                              AND r2.status_riwayat='Aktif'
+                              AND (
+                                    (
+                                        r2.id_periode_tujuan={$periodeSql}
+                                        AND COALESCE(r2.id_kelas_setting_tujuan,0)>0
+                                    )
+                                    OR
+                                    (
+                                        r2.id_periode_asal={$periodeSql}
+                                        AND COALESCE(r2.id_kelas_setting_asal,0)>0
+                                    )
+                              )
+                      )
+
+                      /*
+                       * Jika pada periode yang dipilih masih ada kelas_siswa
+                       * aktif, kelas aktif menjadi sumber utama dan riwayat
+                       * tidak perlu ditambahkan lagi.
+                       */
+                      AND NOT EXISTS (
+                            SELECT 1
+                            FROM kelas_siswa ks2
+                            INNER JOIN kelas_setting k2
+                                ON k2.id=CAST(ks2.id_kelas_setting AS UNSIGNED)
+                            WHERE CAST(ks2.id_siswa AS UNSIGNED)=r.id_siswa
+                              AND ks2.status_aktif='1'
+                              AND CAST(k2.id_periode AS UNSIGNED)={$periodeSql}
+                      )
+                ) pk
+            ";
+        } else {
+            /*
+             * Jika Tahun Ajaran tidak dipilih, pertahankan perilaku lama:
+             * tampilkan kelas siswa yang aktif saat ini.
+             */
+            $penempatanSql = "
+                (
+                    SELECT DISTINCT
+                        CAST(ks.id_siswa AS UNSIGNED) AS id_siswa,
+                        CAST(ks.id_kelas_setting AS UNSIGNED) AS id_kelas_setting
+                    FROM kelas_siswa ks
+                    WHERE ks.status_aktif='1'
+                ) pk
+            ";
+        }
+
+        $sql = "
+            SELECT
+                s.id AS id_siswa,
+                s.nis,
+                s.nisn,
+                s.nama_lengkap AS nama_siswa,
+                k.id AS id_kelas_setting,
+                k.nama_kelas,
+
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN ts.dianggap_tunggakan='Ya'
+                             AND ts.status_tagihan='Aktif'
+                            THEN ts.nominal_tagihan
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS total_wajib,
+
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN ts.dianggap_tunggakan='Ya'
+                             AND ts.status_tagihan='Aktif'
+                            THEN ts.nominal_dibayar
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS dibayar,
+
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN ts.dianggap_tunggakan='Ya'
+                             AND ts.status_tagihan='Aktif'
+                             AND ts.status_pembayaran NOT IN (
+                                'Lunas',
+                                'Dibebaskan',
+                                'Dibatalkan'
+                             )
+                            THEN ts.sisa_tagihan
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS tunggakan,
+
+                COUNT(
+                    DISTINCT CASE
+                        WHEN ts.dianggap_tunggakan='Ya'
+                         AND ts.status_tagihan='Aktif'
+                        THEN ts.id
+                        ELSE NULL
+                    END
+                ) AS jumlah_tagihan_wajib
+
+            FROM {$penempatanSql}
+
+            INNER JOIN siswa s
+                ON s.id=pk.id_siswa
+
+            INNER JOIN kelas_setting k
+                ON k.id=pk.id_kelas_setting
+
+            /*
+             * Tagihan sengaja dicocokkan dengan siswa + tahun ajaran,
+             * BUKAN id_kelas_setting.
+             *
+             * Contoh:
+             * siswa menerima tagihan ketika masih Kelas 10 B,
+             * lalu pindah ke Kelas 10 C pada tahun ajaran yang sama.
+             * Tagihan lama tetap menjadi tagihan siswa pada tahun tersebut
+             * dan harus tetap terbaca ketika siswa sekarang ditampilkan
+             * pada Kelas 10 C.
+             */
+            LEFT JOIN tagihan_siswa ts
+                ON ts.id_siswa=s.id
+               AND ts.id_periode=CAST(k.id_periode AS UNSIGNED)
+        ";
+
+        /*
+         * Sampai Bulan diletakkan pada JOIN agar siswa yang belum memiliki
+         * tagihan tetap muncul dengan nilai 0 / Belum Ada Tagihan.
+         */
+        if ($sampai) {
+            $sql .= " AND (ts.bulan IS NULL OR ts.bulan<=?)";
+            $params[] = $sampai;
+        }
+
+        $where = array();
+
         if ($periode) {
             $where[] = 'CAST(k.id_periode AS UNSIGNED)=?';
             $params[] = $periode;
         }
+
         if ($kelas) {
             $where[] = 'k.id=?';
             $params[] = $kelas;
         }
-        if ($sampai) {
-            $where[] = '(ts.bulan IS NULL OR ts.bulan<=?)';
-            $params[] = $sampai;
+
+        if ($where) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
         }
-        $sql .= ' WHERE ' . implode(' AND ', $where) . ' GROUP BY s.id,k.id ORDER BY k.nama_kelas,s.nama_lengkap';
+
+        $sql .= "
+            GROUP BY
+                s.id,
+                s.nis,
+                s.nisn,
+                s.nama_lengkap,
+                k.id,
+                k.nama_kelas
+
+            ORDER BY
+                k.nama_kelas,
+                s.nama_lengkap
+        ";
+
         $rows = $this->db->query($sql, $params)->result_array();
-        foreach ($rows as &$r) $r['status'] = (float)$r['tunggakan'] > 0 ? 'Kurang' : 'Lunas';
+
+        foreach ($rows as &$r) {
+            $jumlahTagihanWajib = (int)$r['jumlah_tagihan_wajib'];
+            $tunggakan = (float)$r['tunggakan'];
+
+            /*
+             * Status Tagihan Per Kelas hanya berdasarkan tagihan wajib.
+             * Tagihan tidak wajib tidak boleh membuat siswa dianggap
+             * mempunyai kewajiban ataupun dianggap Lunas.
+             */
+            if ($jumlahTagihanWajib <= 0) {
+                $r['status'] = 'Belum Ada Tagihan';
+            } elseif ($tunggakan > 0) {
+                $r['status'] = 'Kurang';
+            } else {
+                $r['status'] = 'Lunas';
+            }
+        }
+        unset($r);
+
         return $rows;
     }
+
     public function per_jenis()
     {
         $periode = (int)$this->input->post('id_periode');

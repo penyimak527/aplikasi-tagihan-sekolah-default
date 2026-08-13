@@ -206,23 +206,14 @@
         .toLocaleString('id-ID');
 
     $(document).ready(function() {
+        filterKelasByPeriode();
+
         $('#tampil').on('click', function() {
             load();
         });
 
         $('#periode').on('change', function() {
-            let periode = this.value;
-
-            $('#kelas option').each(function() {
-                $(this).toggle(
-                    !this.value ||
-                    !periode ||
-                    String($(this).data('period')) ===
-                    String(periode)
-                );
-            });
-
-            $('#kelas').val('');
+            filterKelasByPeriode();
         });
 
         $('#dt-length-0').on('change', function() {
@@ -259,6 +250,31 @@
             }
         );
     });
+
+    function filterKelasByPeriode() {
+        let periode = String(
+            $('#periode').val() || ''
+        );
+
+        $('#kelas option').each(function() {
+            let optionPeriode = String(
+                $(this).data('period') || ''
+            );
+
+            let visible =
+                !this.value ||
+                (
+                    periode !== '' &&
+                    optionPeriode === periode
+                );
+
+            $(this)
+                .prop('hidden', !visible)
+                .prop('disabled', !visible);
+        });
+
+        $('#kelas').val('');
+    }
 
     function load() {
         var button = $('#tampil');
@@ -328,7 +344,11 @@
                             var statusClass =
                                 item.status === 'Lunas' ?
                                 'success' :
-                                'warning';
+                                (
+                                    item.status === 'Belum Ada Tagihan' ?
+                                    'secondary' :
+                                    'warning'
+                                );
 
                             table += `
                                 <tr class="data-tagihan-kelas">
