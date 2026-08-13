@@ -13,7 +13,7 @@
                         class="text-muted">→</span><span class="badge bg-light text-dark p-2">4. Import</span></div>
                 <form id="form_preview" enctype="multipart/form-data">
                     <div class="row g-3">
-                        <div class="col-md-3"><label class="form-label">Tahun Ajaran Penempatan</label><select
+                        <div class="col-md-4"><label class="form-label">Tahun Ajaran Penempatan</label><select
                                 name="id_periode" id="id_periode" class="form-select" required>
                                 <option value="">Pilih Tahun Ajaran</option><?php foreach ($periode as $r): ?>
                                     <option value="<?= $r['id'] ?>"><?= html_escape($r['periode']) ?></option>
@@ -25,7 +25,7 @@
                                     <option value="<?= $r['id'] ?>" data-periode="<?= $r['id_periode'] ?>">
                                         <?= html_escape($r['nama_kelas']) ?></option><?php endforeach; ?>
                             </select></div>
-                        <div class="col-md-3"><label class="form-label">File Excel (.xlsx)</label><input type="file"
+                        <div class="col-md-4"><label class="form-label">File Excel (.xlsx)</label><input type="file"
                                 name="file_excel" class="form-control" accept=".xlsx" required></div>
                         <div class="col-12"><button class="btn btn-primary" id="btn_preview"><i
                                     class="ri-eye-line me-1"></i>Upload dan Preview</button></div>
@@ -92,10 +92,86 @@
     </div>
 </div>
 <script>
-    $(function () { loadRiwayat(); $('#id_periode').change(filterKelas); $('#form_preview').submit(previewData); $('#btn_import').click(importData); $('#dt-length-riwayat-import').on('change', refreshRiwayatImportPagination); });
-    function filterKelas() { var p = $('#id_periode').val(); $('#id_kelas_setting option').each(function () { var v = $(this).data('periode'); var visible = !v || String(v) === String(p); $(this).prop('hidden', !visible).prop('disabled', !visible); }); $('#id_kelas_setting').val(''); }
-    function previewData(e) { e.preventDefault(); var fd = new FormData(this); $('#btn_preview').prop('disabled', true); $.ajax({ url: '<?= base_url('admin/master_data/import_siswa/preview') ?>', type: 'POST', data: fd, processData: false, contentType: false, dataType: 'json', success: function (r) { if (r.result !== 'true') return Swal.fire('Gagal', r.message, 'error'); $('#token').val(r.token); $('#sum_total').text(r.total); $('#sum_valid').text(r.valid); $('#sum_gagal').text(r.gagal); var h = ''; r.rows.forEach(function (x) { h += '<tr class="' + (x.status === 'Valid' ? 'table-success' : 'table-danger') + '"><td>' + x.baris + '</td><td>' + escapeHtml(x.nis) + '</td><td>' + escapeHtml(x.nisn) + '</td><td>' + escapeHtml(x.nama) + '</td><td>' + escapeHtml(x.jk) + '</td><td>' + escapeHtml(x.kelas) + '</td><td><strong>' + x.status + '</strong><br><small>' + escapeHtml(x.pesan) + '</small></td></tr>'; }); $('#preview_rows').html(h); $('#preview_area').removeClass('d-none'); }, error: ajaxError, complete: function () { $('#btn_preview').prop('disabled', false); } }); }
-    function importData() { confirmAction('Import data valid?', 'Baris gagal tidak akan disimpan.', function () { $('#btn_import').prop('disabled', true); $.post('<?= base_url('admin/master_data/import_siswa/proses') ?>', { token: $('#token').val() }, function (r) { Swal.fire(r.result === 'true' ? 'Berhasil' : 'Gagal', r.message, r.result === 'true' ? 'success' : 'error'); if (r.result === 'true') { $('#preview_area').addClass('d-none'); $('#form_preview')[0].reset(); loadRiwayat(); } }, 'json').fail(ajaxError).always(function () { $('#btn_import').prop('disabled', false); }); }); }
-    function loadRiwayat() { $.post('<?= base_url('admin/master_data/import_siswa/riwayat') ?>', {}, function (rows) { var h = ''; if (!rows.length) h = '<div class="empty-state">Belum ada riwayat import.</div>'; rows.forEach(function (r) { h += '<div class="riwayat-import-item border-bottom py-3"><div class="d-flex justify-content-between"><strong>' + escapeHtml(r.kode_import) + '</strong><span class="badge bg-' + (r.status_import === 'Selesai' ? 'success' : 'warning') + '">' + escapeHtml(r.status_import) + '</span></div><small class="text-muted">' + escapeHtml(r.nama_file) + '<br>' + escapeHtml(r.nama_kelas) + ' | Berhasil ' + Number(r.jumlah_berhasil || 0) + ' / ' + Number(r.jumlah_data || 0) + '</small></div>'; }); $('#riwayat').html(h); refreshRiwayatImportPagination(); }, 'json'); }
-    function refreshRiwayatImportPagination() { paging($('#riwayat .riwayat-import-item'), parseInt($('#dt-length-riwayat-import').val(), 10) || 10, '#pagination-riwayat-import'); }
+    $(function() {
+        loadRiwayat();
+        $('#id_periode').change(filterKelas);
+        $('#form_preview').submit(previewData);
+        $('#btn_import').click(importData);
+        $('#dt-length-riwayat-import').on('change', refreshRiwayatImportPagination);
+    });
+
+    function filterKelas() {
+        var p = $('#id_periode').val();
+        $('#id_kelas_setting option').each(function() {
+            var v = $(this).data('periode');
+            var visible = !v || String(v) === String(p);
+            $(this).prop('hidden', !visible).prop('disabled', !visible);
+        });
+        $('#id_kelas_setting').val('');
+    }
+
+    function previewData(e) {
+        e.preventDefault();
+        var fd = new FormData(this);
+        $('#btn_preview').prop('disabled', true);
+        $.ajax({
+            url: '<?= base_url('admin/master_data/import_siswa/preview') ?>',
+            type: 'POST',
+            data: fd,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function(r) {
+                if (r.result !== 'true') return Swal.fire('Gagal', r.message, 'error');
+                $('#token').val(r.token);
+                $('#sum_total').text(r.total);
+                $('#sum_valid').text(r.valid);
+                $('#sum_gagal').text(r.gagal);
+                var h = '';
+                r.rows.forEach(function(x) {
+                    h += '<tr class="' + (x.status === 'Valid' ? 'table-success' : 'table-danger') + '"><td>' + x.baris + '</td><td>' + escapeHtml(x.nis) + '</td><td>' + escapeHtml(x.nisn) + '</td><td>' + escapeHtml(x.nama) + '</td><td>' + escapeHtml(x.jk) + '</td><td>' + escapeHtml(x.kelas) + '</td><td><strong>' + x.status + '</strong><br><small>' + escapeHtml(x.pesan) + '</small></td></tr>';
+                });
+                $('#preview_rows').html(h);
+                $('#preview_area').removeClass('d-none');
+            },
+            error: ajaxError,
+            complete: function() {
+                $('#btn_preview').prop('disabled', false);
+            }
+        });
+    }
+
+    function importData() {
+        confirmAction('Import data valid?', 'Baris gagal tidak akan disimpan.', function() {
+            $('#btn_import').prop('disabled', true);
+            $.post('<?= base_url('admin/master_data/import_siswa/proses') ?>', {
+                token: $('#token').val()
+            }, function(r) {
+                Swal.fire(r.result === 'true' ? 'Berhasil' : 'Gagal', r.message, r.result === 'true' ? 'success' : 'error');
+                if (r.result === 'true') {
+                    $('#preview_area').addClass('d-none');
+                    $('#form_preview')[0].reset();
+                    loadRiwayat();
+                }
+            }, 'json').fail(ajaxError).always(function() {
+                $('#btn_import').prop('disabled', false);
+            });
+        });
+    }
+
+    function loadRiwayat() {
+        $.post('<?= base_url('admin/master_data/import_siswa/riwayat') ?>', {}, function(rows) {
+            var h = '';
+            if (!rows.length) h = '<div class="empty-state">Belum ada riwayat import.</div>';
+            rows.forEach(function(r) {
+                h += '<div class="riwayat-import-item border-bottom py-3"><div class="d-flex justify-content-between"><strong>' + escapeHtml(r.kode_import) + '</strong><span class="badge bg-' + (r.status_import === 'Selesai' ? 'success' : 'warning') + '">' + escapeHtml(r.status_import) + '</span></div><small class="text-muted">' + escapeHtml(r.nama_file) + '<br>' + escapeHtml(r.nama_kelas) + ' | Berhasil ' + Number(r.jumlah_berhasil || 0) + ' / ' + Number(r.jumlah_data || 0) + '</small></div>';
+            });
+            $('#riwayat').html(h);
+            refreshRiwayatImportPagination();
+        }, 'json');
+    }
+
+    function refreshRiwayatImportPagination() {
+        paging($('#riwayat .riwayat-import-item'), parseInt($('#dt-length-riwayat-import').val(), 10) || 10, '#pagination-riwayat-import');
+    }
 </script>

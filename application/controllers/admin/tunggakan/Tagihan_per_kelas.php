@@ -11,7 +11,11 @@ class Tagihan_per_kelas extends CI_Controller
     }
     public function index()
     {
-        $data = array('title' => 'Tagihan Per Kelas', 'periode' => $this->model->periode_list(), 'kelas' => $this->model->kelas_list());
+        $data = array(
+            'title' => 'Tagihan Per Kelas', 
+            'periode' => $this->model->periode_list(), 
+            'kelas' => $this->model->kelas_list()
+        );
         $this->load->view('admin/template/header', $data);
         $this->load->view('admin/tunggakan/tagihan_per_kelas', $data);
         $this->load->view('admin/template/footer');
