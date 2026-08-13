@@ -8,7 +8,6 @@
             <div class="col-md-3">
                 <select id="periode" class="form-select">
                     <option value="">Tahun Ajaran</option>
-
                     <?php foreach ($periode as $p): ?>
                         <option value="<?= $p['id'] ?>">
                             <?= html_escape($p['periode']) ?>
@@ -31,7 +30,7 @@
                 </select>
             </div>
 
-            <div class="col-md-3">
+            <!-- <div class="col-md-3">
                 <select id="bulan" class="form-select">
                     <option value="">Sampai Semua Bulan</option>
 
@@ -41,7 +40,7 @@
                         </option>
                     <?php endforeach ?>
                 </select>
-            </div>
+            </div> -->
 
             <div class="col-md-3 d-grid">
                 <button

@@ -21,7 +21,7 @@
 
     <!-- Plugin yang dipakai oleh view. Flatpickr sudah tersedia di vendor.min.js Adminto. -->
     <script src="<?= base_url('assets/js/pagination.js') ?>"></script>
-
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <!-- App Js resmi Adminto. -->
     <script src="<?= base_url('assets/js/app.js') ?>"></script>
 
