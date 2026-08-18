@@ -1,11 +1,12 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class Wali_murid extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -26,66 +27,76 @@ class Wali_murid extends CI_Controller
 
     public function result()
     {
-        json_response($this->model->result());
+        $this->json_response($this->model->result());
     }
 
     public function detail()
     {
-        json_response($this->model->detail());
+        $this->json_response($this->model->detail());
     }
 
     public function kelas_result()
     {
-        json_response($this->model->kelas_result());
+        $this->json_response($this->model->kelas_result());
     }
 
     public function siswa_result()
     {
-        json_response($this->model->siswa_result());
+        $this->json_response($this->model->siswa_result());
     }
 
     public function generate_username()
     {
-        json_response($this->model->generate_username());
+        $this->json_response($this->model->generate_username());
     }
 
     public function generate_password()
     {
-        json_response($this->model->generate_password());
+        $this->json_response($this->model->generate_password());
     }
 
     public function simpan()
     {
-        json_response($this->model->simpan());
+        $this->json_response($this->model->simpan());
     }
 
     public function update()
     {
-        json_response($this->model->update());
+        $this->json_response($this->model->update());
     }
 
     public function status()
     {
-        json_response($this->model->status());
+        $this->json_response($this->model->status());
     }
 
     public function tambah_relasi()
     {
-        json_response($this->model->tambah_relasi());
+        $this->json_response($this->model->tambah_relasi());
     }
 
     public function ubah_relasi()
     {
-        json_response($this->model->ubah_relasi());
+        $this->json_response($this->model->ubah_relasi());
     }
 
     public function status_relasi()
     {
-        json_response($this->model->status_relasi());
+        $this->json_response($this->model->status_relasi());
     }
 
     public function reset_password()
     {
-        json_response($this->model->reset_password());
+        $this->json_response($this->model->reset_password());
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
     }
 }

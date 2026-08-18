@@ -1,3 +1,9 @@
+<?php
+$nama_bulan_lokal = function ($bulan) {
+    $list = array(1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember');
+    return isset($list[(int) $bulan]) ? $list[(int) $bulan] : '-';
+};
+?>
 <div class="card">
     <div class="card-header">
         <h5 class="mb-0">Cari dan Tinjau Tagihan Siswa</h5>
@@ -98,7 +104,7 @@
 
                     <?php for ($i = 1; $i <= 12; $i++): ?>
                         <option value="<?= $i ?>">
-                            <?= nama_bulan($i) ?>
+                            <?= $nama_bulan_lokal($i) ?>
                         </option>
                     <?php endfor ?>
                 </select>
@@ -167,8 +173,9 @@
 
             <button
                 type="button"
-                onclick="window.print()"
-                class="btn btn-secondary no-print">
+                id="btnCetak"
+                class="btn btn-secondary no-print"
+                disabled>
                 <i class="ti ti-printer"></i>
                 Cetak Rekap
             </button>
@@ -295,6 +302,10 @@
             load();
         });
 
+        $('#btnCetak').on('click', function() {
+            cetakData();
+        });
+
         $('#dt-length-siswa').on('change', function() {
             const jumlah = parseInt(
                 $(this).val()
@@ -366,6 +377,9 @@
                         '<?= base_url('admin/tunggakan/surat_tunggakan'); ?>?siswa=' +
                         id
                     );
+
+                $('#btnCetak')
+                    .prop('disabled', false);
 
                 load();
             }
@@ -812,6 +826,30 @@
                     );
             }
         });
+    }
+
+    function cetakData() {
+        if (!id) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Perhatian',
+                text: 'Pilih siswa terlebih dahulu.'
+            });
+            return;
+        }
+
+        var params = new URLSearchParams({
+            id_siswa: id,
+            id_periode: $('#periode').val() || '',
+            tipe: $('#tipe').val() || '',
+            status: $('#filter_status_tagihan_siswa').val() || '',
+            sampai_bulan: $('#bulan').val() || ''
+        });
+
+        window.open(
+            '<?= base_url('admin/tunggakan/tagihan_per_siswa/cetak'); ?>?' + params.toString(),
+            '_blank'
+        );
     }
 
     /*

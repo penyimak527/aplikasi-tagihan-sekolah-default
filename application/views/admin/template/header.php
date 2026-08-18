@@ -1,7 +1,11 @@
 <?php
+$app_admin = $this->session->userdata('admin');
+$app_admin = is_array($app_admin) ? $app_admin : array();
+?>
+<?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-$user = app_user();
+$user = $app_admin;
 $user_name = isset($user['nama']) && $user['nama'] !== '' ? $user['nama'] : 'Administrator';
 $user_role = isset($user['role']) && $user['role'] !== '' ? $user['role'] : 'Admin';
 $page_title = isset($title) && $title !== '' ? $title : 'Aplikasi Tagihan Sekolah';
@@ -71,7 +75,7 @@ $kesiswaan_open = $is_group_active($menuKesiswaan);
 $tagihan_open = $is_group_active($menuTagihan);
 $transaksi_open = $is_group_active($menuTransaksi);
 $tunggakan_open = $is_group_active($menuTunggakan);
-$laporan_open = $is_group_active($menuLaporan);
+$laporan_open = $is_menu_active('admin/laporan');
 $pengaturan_open = $is_group_active($menuPengaturan);
 ?>
 <!DOCTYPE html>
@@ -142,235 +146,226 @@ $pengaturan_open = $is_group_active($menuPengaturan);
             </button>
 
             <div data-simplebar>
-                <div class="sidenav-user">
-                    <div class="dropdown-center text-center">
-                        <a class="topbar-link dropdown-toggle text-reset drop-arrow-none px-2" data-bs-toggle="dropdown"
-                            type="button" aria-haspopup="false" aria-expanded="false">
-                            <img src="<?= base_url('assets/user.png') ?>" width="46" class="rounded-circle"
-                                alt="Foto pengguna">
-                            <span class="d-flex gap-1 sidenav-user-name my-2">
-                                <span>
-                                    <span class="mb-0 fw-semibold lh-base fs-15"><?= html_escape($user_name) ?></span>
-                                    <p class="my-0 fs-13 text-muted"><?= html_escape($user_role) ?></p>
+                <div class="sidenav-scroll-content">
+                    <div class="sidenav-user">
+                        <div class="dropdown-center text-center">
+                            <a class="topbar-link dropdown-toggle text-reset drop-arrow-none px-2"
+                                data-bs-toggle="dropdown" type="button" aria-haspopup="false" aria-expanded="false">
+                                <img src="<?= base_url('assets/user.png') ?>" width="46" class="rounded-circle"
+                                    alt="Foto pengguna">
+                                <span class="d-flex gap-1 sidenav-user-name my-2">
+                                    <span>
+                                        <span
+                                            class="mb-0 fw-semibold lh-base fs-15"><?= html_escape($user_name) ?></span>
+                                        <p class="my-0 fs-13 text-muted"><?= html_escape($user_role) ?></p>
+                                    </span>
+                                    <i class="ri-arrow-down-s-line d-block sidenav-user-arrow align-middle"></i>
                                 </span>
-                                <i class="ri-arrow-down-s-line d-block sidenav-user-arrow align-middle"></i>
-                            </span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <div class="dropdown-header noti-title">
-                                <h6 class="text-overflow m-0">Aplikasi Tagihan Sekolah</h6>
-                            </div>
-                            <?php $log_menu = array_values(array_filter($menuPengaturan, function ($m) {
-                                return isset($m['name']) && $m['name'] === 'Log Aktivitas'; })); ?>
-                            <?php if (!empty($log_menu)): ?>
-                                <a href="<?= base_url($log_menu[0]['path']) ?>" class="dropdown-item">
-                                    <i class="ri-history-line me-1 fs-16 align-middle"></i>
-                                    <span class="align-middle">Log Aktivitas</span>
-                                </a>
-                                <div class="dropdown-divider"></div>
-                            <?php endif; ?>
-                            <a href="<?= base_url('login/logout') ?>"
-                                class="dropdown-item active fw-semibold text-danger">
-                                <i class="ri-logout-box-line me-1 fs-16 align-middle"></i>
-                                <span class="align-middle">Keluar</span>
                             </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <div class="dropdown-header noti-title">
+                                    <h6 class="text-overflow m-0">Aplikasi Tagihan Sekolah</h6>
+                                </div>
+                                <?php $log_menu = array_values(array_filter($menuPengaturan, function ($m) {
+                                    return isset($m['name']) && $m['name'] === 'Log Aktivitas';
+                                })); ?>
+                                <?php if (!empty($log_menu)): ?>
+                                    <a href="<?= base_url($log_menu[0]['path']) ?>" class="dropdown-item">
+                                        <i class="ri-history-line me-1 fs-16 align-middle"></i>
+                                        <span class="align-middle">Log Aktivitas</span>
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                <?php endif; ?>
+                                <a href="<?= base_url('login/logout') ?>"
+                                    class="dropdown-item active fw-semibold text-danger">
+                                    <i class="ri-logout-box-line me-1 fs-16 align-middle"></i>
+                                    <span class="align-middle">Keluar</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
+
+                    <ul class="side-nav">
+                        <?php if ($menuDashboard): ?>
+                            <li class="side-nav-item">
+                                <a href="<?= base_url($menuDashboard['path']) ?>"
+                                    class="side-nav-link <?= $is_menu_active($menuDashboard['path']) ? 'active' : '' ?>">
+                                    <span class="menu-icon"><i class="ti ti-dashboard"></i></span>
+                                    <span class="menu-text"><?= html_escape($menuDashboard['name']) ?></span>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php if ($menuMaster || $menuKesiswaan): ?>
+                            <li class="side-nav-title mt-2">Data dan Akademik</li>
+                        <?php endif; ?>
+
+                        <?php if ($menuMaster): ?>
+                            <li class="side-nav-item">
+                                <a data-bs-toggle="collapse" href="#menuMaster"
+                                    aria-expanded="<?= $master_open ? 'true' : 'false' ?>" aria-controls="menuMaster"
+                                    class="side-nav-link <?= $master_open ? 'active' : '' ?>">
+                                    <span class="menu-icon"><i class="ti ti-database"></i></span>
+                                    <span class="menu-text">Master Data</span>
+                                    <span class="menu-arrow"></span>
+                                </a>
+                                <div class="collapse <?= $master_open ? 'show' : '' ?>" id="menuMaster">
+                                    <ul class="sub-menu">
+                                        <?php foreach ($menuMaster as $menu): ?>
+                                            <li class="side-nav-item">
+                                                <a href="<?= base_url($menu['path']) ?>"
+                                                    class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                    <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php if ($menuKesiswaan): ?>
+                            <li class="side-nav-item">
+                                <a data-bs-toggle="collapse" href="#menuKesiswaan"
+                                    aria-expanded="<?= $kesiswaan_open ? 'true' : 'false' ?>" aria-controls="menuKesiswaan"
+                                    class="side-nav-link <?= $kesiswaan_open ? 'active' : '' ?>">
+                                    <span class="menu-icon"><i class="ti ti-users-group"></i></span>
+                                    <span class="menu-text">Kesiswaan</span>
+                                    <span class="menu-arrow"></span>
+                                </a>
+                                <div class="collapse <?= $kesiswaan_open ? 'show' : '' ?>" id="menuKesiswaan">
+                                    <ul class="sub-menu">
+                                        <?php foreach ($menuKesiswaan as $menu): ?>
+                                            <li class="side-nav-item">
+                                                <a href="<?= base_url($menu['path']) ?>"
+                                                    class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                    <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php if ($menuTagihan || $menuTransaksi || $menuTunggakan): ?>
+                            <li class="side-nav-title mt-2">Tagihan dan Pembayaran</li>
+                        <?php endif; ?>
+
+                        <?php if ($menuTagihan): ?>
+                            <li class="side-nav-item">
+                                <a data-bs-toggle="collapse" href="#menuTagihan"
+                                    aria-expanded="<?= $tagihan_open ? 'true' : 'false' ?>" aria-controls="menuTagihan"
+                                    class="side-nav-link <?= $tagihan_open ? 'active' : '' ?>">
+                                    <span class="menu-icon"><i class="ti ti-file-invoice"></i></span>
+                                    <span class="menu-text">Tagihan</span>
+                                    <span class="menu-arrow"></span>
+                                </a>
+                                <div class="collapse <?= $tagihan_open ? 'show' : '' ?>" id="menuTagihan">
+                                    <ul class="sub-menu">
+                                        <?php foreach ($menuTagihan as $menu): ?>
+                                            <li class="side-nav-item">
+                                                <a href="<?= base_url($menu['path']) ?>"
+                                                    class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                    <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php if ($menuTransaksi): ?>
+                            <li class="side-nav-item">
+                                <a data-bs-toggle="collapse" href="#menuTransaksi"
+                                    aria-expanded="<?= $transaksi_open ? 'true' : 'false' ?>" aria-controls="menuTransaksi"
+                                    class="side-nav-link <?= $transaksi_open ? 'active' : '' ?>">
+                                    <span class="menu-icon"><i class="ti ti-cash"></i></span>
+                                    <span class="menu-text">Transaksi</span>
+                                    <span class="menu-arrow"></span>
+                                </a>
+                                <div class="collapse <?= $transaksi_open ? 'show' : '' ?>" id="menuTransaksi">
+                                    <ul class="sub-menu">
+                                        <?php foreach ($menuTransaksi as $menu): ?>
+                                            <li class="side-nav-item">
+                                                <a href="<?= base_url($menu['path']) ?>"
+                                                    class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                    <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php if ($menuTunggakan): ?>
+                            <li class="side-nav-item">
+                                <a data-bs-toggle="collapse" href="#menuTunggakan"
+                                    aria-expanded="<?= $tunggakan_open ? 'true' : 'false' ?>" aria-controls="menuTunggakan"
+                                    class="side-nav-link <?= $tunggakan_open ? 'active' : '' ?>">
+                                    <span class="menu-icon"><i class="ti ti-alert-circle"></i></span>
+                                    <span class="menu-text">Tagihan &amp; Tunggakan</span>
+                                    <span class="menu-arrow"></span>
+                                </a>
+                                <div class="collapse <?= $tunggakan_open ? 'show' : '' ?>" id="menuTunggakan">
+                                    <ul class="sub-menu">
+                                        <?php foreach ($menuTunggakan as $menu): ?>
+                                            <li class="side-nav-item">
+                                                <a href="<?= base_url($menu['path']) ?>"
+                                                    class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                    <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php if ($menuLaporan || $menuPengaturan): ?>
+                            <li class="side-nav-title mt-2">Monitoring</li>
+                        <?php endif; ?>
+
+                        <?php if ($menuLaporan): ?>
+                            <li class="side-nav-item">
+                                <a href="<?= base_url('admin/laporan') ?>"
+                                    class="side-nav-link <?= $laporan_open ? 'active' : '' ?>">
+                                    <span class="menu-icon"><i class="ti ti-report-analytics"></i></span>
+                                    <span class="menu-text">Laporan</span>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php if ($menuPengaturan): ?>
+                            <li class="side-nav-item">
+                                <a data-bs-toggle="collapse" href="#menuPengaturan"
+                                    aria-expanded="<?= $pengaturan_open ? 'true' : 'false' ?>"
+                                    aria-controls="menuPengaturan"
+                                    class="side-nav-link <?= $pengaturan_open ? 'active' : '' ?>">
+                                    <span class="menu-icon"><i class="ti ti-settings"></i></span>
+                                    <span class="menu-text">Pengaturan</span>
+                                    <span class="menu-arrow"></span>
+                                </a>
+                                <div class="collapse <?= $pengaturan_open ? 'show' : '' ?>" id="menuPengaturan">
+                                    <ul class="sub-menu">
+                                        <?php foreach ($menuPengaturan as $menu): ?>
+                                            <li class="side-nav-item">
+                                                <a href="<?= base_url($menu['path']) ?>"
+                                                    class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                    <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
+
+                    <div class="clearfix"></div>
                 </div>
-
-                <ul class="side-nav">
-                    <?php if ($menuDashboard): ?>
-                        <li class="side-nav-item">
-                            <a href="<?= base_url($menuDashboard['path']) ?>"
-                                class="side-nav-link <?= $is_menu_active($menuDashboard['path']) ? 'active' : '' ?>">
-                                <span class="menu-icon"><i class="ti ti-dashboard"></i></span>
-                                <span class="menu-text"><?= html_escape($menuDashboard['name']) ?></span>
-                            </a>
-                        </li>
-                    <?php endif; ?>
-
-                    <?php if ($menuMaster || $menuKesiswaan): ?>
-                        <li class="side-nav-title mt-2">Data dan Akademik</li>
-                    <?php endif; ?>
-
-                    <?php if ($menuMaster): ?>
-                        <li class="side-nav-item">
-                            <a data-bs-toggle="collapse" href="#menuMaster"
-                                aria-expanded="<?= $master_open ? 'true' : 'false' ?>" aria-controls="menuMaster"
-                                class="side-nav-link <?= $master_open ? 'active' : '' ?>">
-                                <span class="menu-icon"><i class="ti ti-database"></i></span>
-                                <span class="menu-text">Master Data</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse <?= $master_open ? 'show' : '' ?>" id="menuMaster">
-                                <ul class="sub-menu">
-                                    <?php foreach ($menuMaster as $menu): ?>
-                                        <li class="side-nav-item">
-                                            <a href="<?= base_url($menu['path']) ?>"
-                                                class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
-                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
-                                            </a>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        </li>
-                    <?php endif; ?>
-
-                    <?php if ($menuKesiswaan): ?>
-                        <li class="side-nav-item">
-                            <a data-bs-toggle="collapse" href="#menuKesiswaan"
-                                aria-expanded="<?= $kesiswaan_open ? 'true' : 'false' ?>" aria-controls="menuKesiswaan"
-                                class="side-nav-link <?= $kesiswaan_open ? 'active' : '' ?>">
-                                <span class="menu-icon"><i class="ti ti-users-group"></i></span>
-                                <span class="menu-text">Kesiswaan</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse <?= $kesiswaan_open ? 'show' : '' ?>" id="menuKesiswaan">
-                                <ul class="sub-menu">
-                                    <?php foreach ($menuKesiswaan as $menu): ?>
-                                        <li class="side-nav-item">
-                                            <a href="<?= base_url($menu['path']) ?>"
-                                                class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
-                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
-                                            </a>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        </li>
-                    <?php endif; ?>
-
-                    <?php if ($menuTagihan || $menuTransaksi || $menuTunggakan): ?>
-                        <li class="side-nav-title mt-2">Tagihan dan Pembayaran</li>
-                    <?php endif; ?>
-
-                    <?php if ($menuTagihan): ?>
-                        <li class="side-nav-item">
-                            <a data-bs-toggle="collapse" href="#menuTagihan"
-                                aria-expanded="<?= $tagihan_open ? 'true' : 'false' ?>" aria-controls="menuTagihan"
-                                class="side-nav-link <?= $tagihan_open ? 'active' : '' ?>">
-                                <span class="menu-icon"><i class="ti ti-file-invoice"></i></span>
-                                <span class="menu-text">Tagihan</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse <?= $tagihan_open ? 'show' : '' ?>" id="menuTagihan">
-                                <ul class="sub-menu">
-                                    <?php foreach ($menuTagihan as $menu): ?>
-                                        <li class="side-nav-item">
-                                            <a href="<?= base_url($menu['path']) ?>"
-                                                class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
-                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
-                                            </a>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        </li>
-                    <?php endif; ?>
-
-                    <?php if ($menuTransaksi): ?>
-                        <li class="side-nav-item">
-                            <a data-bs-toggle="collapse" href="#menuTransaksi"
-                                aria-expanded="<?= $transaksi_open ? 'true' : 'false' ?>" aria-controls="menuTransaksi"
-                                class="side-nav-link <?= $transaksi_open ? 'active' : '' ?>">
-                                <span class="menu-icon"><i class="ti ti-cash"></i></span>
-                                <span class="menu-text">Transaksi</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse <?= $transaksi_open ? 'show' : '' ?>" id="menuTransaksi">
-                                <ul class="sub-menu">
-                                    <?php foreach ($menuTransaksi as $menu): ?>
-                                        <li class="side-nav-item">
-                                            <a href="<?= base_url($menu['path']) ?>"
-                                                class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
-                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
-                                            </a>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        </li>
-                    <?php endif; ?>
-
-                    <?php if ($menuTunggakan): ?>
-                        <li class="side-nav-item">
-                            <a data-bs-toggle="collapse" href="#menuTunggakan"
-                                aria-expanded="<?= $tunggakan_open ? 'true' : 'false' ?>" aria-controls="menuTunggakan"
-                                class="side-nav-link <?= $tunggakan_open ? 'active' : '' ?>">
-                                <span class="menu-icon"><i class="ti ti-alert-circle"></i></span>
-                                <span class="menu-text">Tagihan &amp; Tunggakan</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse <?= $tunggakan_open ? 'show' : '' ?>" id="menuTunggakan">
-                                <ul class="sub-menu">
-                                    <?php foreach ($menuTunggakan as $menu): ?>
-                                        <li class="side-nav-item">
-                                            <a href="<?= base_url($menu['path']) ?>"
-                                                class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
-                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
-                                            </a>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        </li>
-                    <?php endif; ?>
-
-                    <?php if ($menuLaporan || $menuPengaturan): ?>
-                        <li class="side-nav-title mt-2">Monitoring</li>
-                    <?php endif; ?>
-
-                    <?php if ($menuLaporan): ?>
-                        <li class="side-nav-item">
-                            <a data-bs-toggle="collapse" href="#menuLaporan"
-                                aria-expanded="<?= $laporan_open ? 'true' : 'false' ?>" aria-controls="menuLaporan"
-                                class="side-nav-link <?= $laporan_open ? 'active' : '' ?>">
-                                <span class="menu-icon"><i class="ti ti-report-analytics"></i></span>
-                                <span class="menu-text">Laporan</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse <?= $laporan_open ? 'show' : '' ?>" id="menuLaporan">
-                                <ul class="sub-menu">
-                                    <?php foreach ($menuLaporan as $menu): ?>
-                                        <li class="side-nav-item">
-                                            <a href="<?= base_url($menu['path']) ?>"
-                                                class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
-                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
-                                            </a>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        </li>
-                    <?php endif; ?>
-
-                    <?php if ($menuPengaturan): ?>
-                        <li class="side-nav-item">
-                            <a data-bs-toggle="collapse" href="#menuPengaturan"
-                                aria-expanded="<?= $pengaturan_open ? 'true' : 'false' ?>" aria-controls="menuPengaturan"
-                                class="side-nav-link <?= $pengaturan_open ? 'active' : '' ?>">
-                                <span class="menu-icon"><i class="ti ti-settings"></i></span>
-                                <span class="menu-text">Pengaturan</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse <?= $pengaturan_open ? 'show' : '' ?>" id="menuPengaturan">
-                                <ul class="sub-menu">
-                                    <?php foreach ($menuPengaturan as $menu): ?>
-                                        <li class="side-nav-item">
-                                            <a href="<?= base_url($menu['path']) ?>"
-                                                class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
-                                                <span class="menu-text"><?= html_escape($menu['name']) ?></span>
-                                            </a>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-
-                <div class="clearfix"></div>
             </div>
         </div>
         <!-- Sidenav Menu End -->
@@ -430,7 +425,8 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                     <h6 class="text-overflow m-0"><?= html_escape($user_role) ?></h6>
                                 </div>
                                 <?php $log_menu = array_values(array_filter($menuPengaturan, function ($m) {
-                                    return isset($m['name']) && $m['name'] === 'Log Aktivitas'; })); ?>
+                                    return isset($m['name']) && $m['name'] === 'Log Aktivitas';
+                                })); ?>
                                 <?php if (!empty($log_menu)): ?>
                                     <a href="<?= base_url($log_menu[0]['path']) ?>" class="dropdown-item">
                                         <i class="ri-history-line me-1 fs-16 align-middle"></i>

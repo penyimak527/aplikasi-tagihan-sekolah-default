@@ -6,6 +6,7 @@ class Level extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -22,16 +23,26 @@ class Level extends CI_Controller
 
     public function level_result()
     {
-        json_response($this->model->level_result());
+        $this->json_response($this->model->level_result());
     }
 
     public function simpan()
     {
-        json_response($this->model->simpan());
+        $this->json_response($this->model->simpan());
     }
 
     public function hapus()
     {
-        json_response($this->model->hapus());
+        $this->json_response($this->model->hapus());
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
     }
 }

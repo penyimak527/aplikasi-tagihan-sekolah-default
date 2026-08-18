@@ -5,6 +5,7 @@ class Keringanan extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -19,22 +20,32 @@ class Keringanan extends CI_Controller
     }
     public function cari_siswa()
     {
-        json_response($this->model->cari_siswa());
+        $this->json_response($this->model->cari_siswa());
     }
     public function tagihan_siswa()
     {
-        json_response($this->model->tagihan_siswa());
+        $this->json_response($this->model->tagihan_siswa());
     }
     public function simpan()
     {
-        json_response($this->model->simpan());
+        $this->json_response($this->model->simpan());
     }
     public function riwayat()
     {
-        json_response($this->model->riwayat());
+        $this->json_response($this->model->riwayat());
     }
     public function batalkan()
     {
-        json_response($this->model->batalkan());
+        $this->json_response($this->model->batalkan());
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
     }
 }

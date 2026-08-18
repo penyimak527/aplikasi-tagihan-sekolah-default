@@ -5,6 +5,7 @@ class Penempatan_siswa extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -19,14 +20,24 @@ class Penempatan_siswa extends CI_Controller
     }
     public function result()
     {
-        json_response($this->model->result());
+        $this->json_response($this->model->result());
     }
     public function proses()
     {
-        json_response($this->model->proses());
+        $this->json_response($this->model->proses());
     }
     public function keluarkan()
     {
-        json_response($this->model->keluarkan());
+        $this->json_response($this->model->keluarkan());
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
     }
 }

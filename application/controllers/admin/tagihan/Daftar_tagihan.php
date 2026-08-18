@@ -5,6 +5,7 @@ class Daftar_tagihan extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -19,33 +20,43 @@ class Daftar_tagihan extends CI_Controller
     }
     public function result()
     {
-        json_response($this->model->result());
+        $this->json_response($this->model->result());
     }
     public function detail()
     {
-        json_response($this->model->detail());
+        $this->json_response($this->model->detail());
     }
     public function draft_detail()
     {
-        json_response($this->model->draft_detail());
+        $this->json_response($this->model->draft_detail());
     }
 
     public function update_draft()
     {
-        json_response($this->model->update_draft());
+        $this->json_response($this->model->update_draft());
     }
 
     public function hapus_draft()
     {
-        json_response($this->model->hapus_draft());
+        $this->json_response($this->model->hapus_draft());
     }
 
     public function terbitkan()
     {
-        json_response($this->model->terbitkan());
+        $this->json_response($this->model->terbitkan());
     }
     public function batalkan_sisa()
     {
-        json_response($this->model->batalkan_sisa());
+        $this->json_response($this->model->batalkan_sisa());
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
     }
 }

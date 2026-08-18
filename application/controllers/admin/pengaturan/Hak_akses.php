@@ -6,6 +6,7 @@ class Hak_akses extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -26,24 +27,34 @@ class Hak_akses extends CI_Controller
 
     public function hak_akses_result()
     {
-        json_response($this->model->hak_akses_result());
+        $this->json_response($this->model->hak_akses_result());
     }
 
     public function menu_result()
     {
-        json_response($this->model->menu_belum_dipilih());
+        $this->json_response($this->model->menu_belum_dipilih());
     }
 
     public function tambah()
     {
         $result = $this->model->tambah();
-        json_response($result);
+        $this->json_response($result);
     }
 
     public function hapus()
     {
         $result = $this->model->hapus();
-        json_response($result);
+        $this->json_response($result);
     }
 
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
+    }
 }

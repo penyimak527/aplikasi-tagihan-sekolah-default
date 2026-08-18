@@ -6,6 +6,7 @@ class Pembayaran extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -30,7 +31,7 @@ class Pembayaran extends CI_Controller
 
     public function cari_siswa()
     {
-        json_response($this->model->cari_siswa());
+        $this->json_response($this->model->cari_siswa());
     }
 
     public function siswa($id = 0)
@@ -39,22 +40,22 @@ class Pembayaran extends CI_Controller
             $id = (int) $this->input->post('id');
         }
 
-        json_response($this->model->siswa_by_id((int) $id));
+        $this->json_response($this->model->siswa_by_id((int) $id));
     }
 
     public function tagihan_siswa()
     {
-        json_response($this->model->tagihan_siswa());
+        $this->json_response($this->model->tagihan_siswa());
     }
 
     public function simpan()
     {
-        json_response($this->model->simpan());
+        $this->json_response($this->model->simpan());
     }
 
     public function detail()
     {
-        json_response(
+        $this->json_response(
             $this->model->detail(
                 (int) $this->input->post('id')
             )
@@ -75,12 +76,12 @@ class Pembayaran extends CI_Controller
 
     public function preview_whatsapp()
     {
-        json_response($this->model->preview_whatsapp());
+        $this->json_response($this->model->preview_whatsapp());
     }
 
     public function siapkan_whatsapp()
     {
-        json_response($this->model->siapkan_whatsapp());
+        $this->json_response($this->model->siapkan_whatsapp());
     }
 
     public function cetak_kartu($id = 0)
@@ -98,11 +99,21 @@ class Pembayaran extends CI_Controller
 
     public function cek_baris_kartu()
     {
-        json_response($this->model->cek_baris_kartu());
+        $this->json_response($this->model->cek_baris_kartu());
     }
 
     public function catat_cetak_kartu()
     {
-        json_response($this->model->catat_cetak_kartu());
+        $this->json_response($this->model->catat_cetak_kartu());
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
     }
 }

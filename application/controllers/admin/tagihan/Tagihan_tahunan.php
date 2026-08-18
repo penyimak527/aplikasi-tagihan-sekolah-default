@@ -5,6 +5,7 @@ class Tagihan_tahunan extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -19,14 +20,24 @@ class Tagihan_tahunan extends CI_Controller
     }
     public function preview()
     {
-        json_response($this->model->preview('Tahunan'));
+        $this->json_response($this->model->preview('Tahunan'));
     }
     public function simpan()
     {
-        json_response($this->model->simpan('Tahunan'));
+        $this->json_response($this->model->simpan('Tahunan'));
     }
     public function cari_siswa()
     {
-        json_response($this->model->cari_siswa());
+        $this->json_response($this->model->cari_siswa());
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
     }
 }

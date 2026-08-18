@@ -5,6 +5,7 @@ class Surat_tunggakan extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -19,27 +20,27 @@ class Surat_tunggakan extends CI_Controller
     }
     public function cari_siswa()
     {
-        json_response($this->model->cari_siswa());
+        $this->json_response($this->model->cari_siswa());
     }
     public function siswa($id = 0)
     {
-        json_response($this->model->siswa_by_id((int)$id));
+        $this->json_response($this->model->siswa_by_id((int)$id));
     }
     public function tagihan()
     {
-        json_response($this->model->tagihan());
+        $this->json_response($this->model->tagihan());
     }
     public function simpan()
     {
-        json_response($this->model->simpan());
+        $this->json_response($this->model->simpan());
     }
     public function riwayat()
     {
-        json_response($this->model->riwayat());
+        $this->json_response($this->model->riwayat());
     }
     public function detail()
     {
-        json_response($this->model->detail((int)$this->input->post('id')));
+        $this->json_response($this->model->detail((int)$this->input->post('id')));
     }
     public function cetak($id = 0)
     {
@@ -49,6 +50,16 @@ class Surat_tunggakan extends CI_Controller
     }
     public function siapkan_whatsapp()
     {
-        json_response($this->model->siapkan_whatsapp());
+        $this->json_response($this->model->siapkan_whatsapp());
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
     }
 }

@@ -69,7 +69,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Realisasi Per Siswa</h5>
         <div class="d-flex gap-2 no-print">
-            <button type="button" class="btn btn-secondary" onclick="window.print()">Cetak</button>
+            <button type="button" class="btn btn-secondary" id="btnCetak">Cetak</button>
             <button type="button" class="btn btn-success" id="btnExport">Ekspor Excel</button>
         </div>
     </div>
@@ -87,12 +87,12 @@
                         <th class="text-end">Dibayar</th>
                         <th class="text-end">Sisa</th>
                         <th>Status</th>
-                        <th>Aksi</th>
+                        <!-- <th>Aksi</th> -->
                     </tr>
                 </thead>
                 <tbody id="data">
                     <tr>
-                        <td colspan="9" class="empty-state">Pilih filter.</td>
+                        <td colspan="8" class="empty-state">Pilih filter.</td>
                     </tr>
                 </tbody>
             </table>
@@ -179,6 +179,10 @@
                 $('#data .data-tagihan-jenis'),
                 jumlah
             );
+        });
+
+        $('#btnCetak').on('click', function () {
+            cetakData();
         });
 
         $('#btnExport').on('click', function () {
@@ -271,7 +275,7 @@
 
                 $('#data').html(`
                     <tr>
-                        <td colspan="9" class="empty-state">Memuat data...</td>
+                        <td colspan="8" class="empty-state">Memuat data...</td>
                     </tr>
                 `);
 
@@ -292,7 +296,7 @@
                 if (rows.length == 0) {
                     table += `
                         <tr class="data-tagihan-jenis">
-                            <td colspan="9" class="empty-state">Tidak ada data</td>
+                            <td colspan="8" class="empty-state">Tidak ada data</td>
                         </tr>
                     `;
                 } else {
@@ -351,16 +355,16 @@
                                         ${escapeHtml(status)}
                                     </span>
                                 </td>
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-primary detail-jenis" data-id="${Number(item.id_siswa)}">
-                                        Detail
-                                    </button>
-                                </td>
+                                
                             </tr>
                         `;
                     });
                 }
-
+// <td>
+//                                     <button type="button" class="btn btn-sm btn-primary detail-jenis" data-id="${Number(item.id_siswa)}">
+//                                         Detail
+//                                     </button>
+//                                 </td>
                 $('#data').html(table);
 
                 let jumlah_awal = parseInt($('#dt-length-0').val());
@@ -379,7 +383,7 @@
 
                 $('#data').html(`
                     <tr>
-                        <td colspan="9" class="empty-state text-danger">
+                        <td colspan="8" class="empty-state text-danger">
                             Data tagihan per jenis gagal dimuat.
                         </td>
                     </tr>
@@ -396,6 +400,21 @@
                     .html('<i class="ti ti-search"></i>');
             }
         });
+    }
+
+
+    function cetakData() {
+        var params = new URLSearchParams({
+            id_periode: $('#periode').val() || '',
+            id_jenis: $('#jenis').val() || '',
+            id_master: $('#master').val() || '',
+            id_kelas_setting: $('#kelas').val() || ''
+        });
+
+        window.open(
+            '<?= base_url('admin/tunggakan/tagihan_per_jenis/cetak'); ?>?' + params.toString(),
+            '_blank'
+        );
     }
 
     function exportData() {

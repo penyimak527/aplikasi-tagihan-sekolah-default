@@ -1,10 +1,11 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 class Import_siswa extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -19,15 +20,15 @@ class Import_siswa extends CI_Controller
     }
     public function preview()
     {
-        json_response($this->model->preview());
+        $this->json_response($this->model->preview());
     }
     public function proses()
     {
-        json_response($this->model->proses());
+        $this->json_response($this->model->proses());
     }
     public function riwayat()
     {
-        json_response($this->model->riwayat());
+        $this->json_response($this->model->riwayat());
     }
     public function template()
     {
@@ -74,5 +75,14 @@ class Import_siswa extends CI_Controller
         fclose($output);
         exit;
     }
-}
 
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
+    }
+}

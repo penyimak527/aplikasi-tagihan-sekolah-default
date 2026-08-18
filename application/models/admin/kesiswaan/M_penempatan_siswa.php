@@ -32,15 +32,18 @@ class M_penempatan_siswa extends CI_Model
         $idPeriode = (int) $kelas['id_periode'];
 
         /*
-         * Siswa dianggap sudah pernah ditempatkan pada tahun ajaran terpilih jika:
-         * 1. masih memiliki kelas_siswa aktif pada tahun ajaran tersebut; atau
-         * 2. memiliki riwayat kelas yang masih sah (status_riwayat = Aktif), baik
-         *    sebagai periode asal maupun periode tujuan.
+         * Penempatan Siswa hanya digunakan untuk PENEMPATAN AWAL.
+         * Siswa tidak ditampilkan lagi di "Belum Ditempatkan" jika sudah pernah
+         * mempunyai penempatan yang masih sah pada tahun ajaran mana pun.
          *
-         * Dengan aturan ini, kelas lama yang menjadi status_aktif=0 karena
-         * kenaikan/pindah/tinggal kelas tidak muncul kembali sebagai siswa belum
-         * ditempatkan. Penempatan yang benar-benar dikeluarkan dapat muncul lagi
-         * setelah riwayat terkait ditandai Dibatalkan oleh fungsi keluarkan().
+         * Penempatan dianggap masih sah jika:
+         * 1. masih ada kelas_siswa aktif; atau
+         * 2. masih ada riwayat kelas dengan status_riwayat = Aktif.
+         *
+         * Jika penempatan awal dikoreksi melalui Keluarkan, kelas_siswa dibuat
+         * tidak aktif dan riwayat terkait menjadi Dibatalkan. Karena sudah tidak
+         * ada penempatan/riwayat yang sah, siswa dapat muncul kembali di daftar
+         * "Belum Ditempatkan" untuk ditempatkan ulang dengan benar.
          */
         $unplaced = $this->db->query(
             "SELECT s.id,s.nis,s.nisn,s.nama_lengkap,s.jk,s.status_pendaftaran
@@ -50,25 +53,18 @@ class M_penempatan_siswa extends CI_Model
                AND NOT EXISTS(
                     SELECT 1
                     FROM kelas_siswa x
-                    INNER JOIN kelas_setting k
-                        ON k.id=CAST(x.id_kelas_setting AS UNSIGNED)
                     WHERE CAST(x.id_siswa AS UNSIGNED)=s.id
                       AND x.status_aktif='1'
-                      AND CAST(k.id_periode AS UNSIGNED)=?
                )
                AND NOT EXISTS(
                     SELECT 1
                     FROM tagihan_riwayat_kelas_siswa r
                     WHERE r.id_siswa=s.id
                       AND r.status_riwayat='Aktif'
-                      AND (
-                          r.id_periode_asal=?
-                          OR r.id_periode_tujuan=?
-                      )
                )
              ORDER BY s.nama_lengkap
              LIMIT 500",
-            array($q, $q, $q, $idPeriode, $idPeriode, $idPeriode)
+            array($q, $q, $q)
         )->result_array();
 
         $placed = $this->db->query(
@@ -99,7 +95,7 @@ class M_penempatan_siswa extends CI_Model
 
         $kelas = $this->db->where('id', $idKelas)->get('kelas_setting')->row_array();
         if (!$kelas || !$ids) {
-            return model_response(false, 'Pilih kelas dan minimal satu siswa.');
+            return $this->model_response(false, 'Pilih kelas dan minimal satu siswa.');
         }
 
         $idPeriode = (int) $kelas['id_periode'];
@@ -117,27 +113,31 @@ class M_penempatan_siswa extends CI_Model
                 continue;
             }
 
+            /*
+             * Validasi backend harus sama dengan daftar "Belum Ditempatkan".
+             * Jangan hanya mengecek tahun ajaran tujuan karena siswa yang sudah
+             * pernah masuk Kesiswaan harus melanjutkan melalui Kenaikan/Pindah/
+             * Tinggal Kelas, bukan ditempatkan ulang dari menu ini.
+             */
+            if ($s['status_pendaftaran'] !== 'Aktif') {
+                $skip++;
+                continue;
+            }
+
             $activePlacement = (int) $this->db->query(
                 "SELECT COUNT(*) total
                  FROM kelas_siswa x
-                 INNER JOIN kelas_setting k
-                    ON k.id=CAST(x.id_kelas_setting AS UNSIGNED)
                  WHERE CAST(x.id_siswa AS UNSIGNED)=?
-                   AND x.status_aktif='1'
-                   AND CAST(k.id_periode AS UNSIGNED)=?",
-                array($sid, $idPeriode)
+                   AND x.status_aktif='1'",
+                array($sid)
             )->row()->total;
 
             $validHistory = (int) $this->db->query(
                 "SELECT COUNT(*) total
                  FROM tagihan_riwayat_kelas_siswa r
                  WHERE r.id_siswa=?
-                   AND r.status_riwayat='Aktif'
-                   AND (
-                       r.id_periode_asal=?
-                       OR r.id_periode_tujuan=?
-                   )",
-                array($sid, $idPeriode, $idPeriode)
+                   AND r.status_riwayat='Aktif'",
+                array($sid)
             )->row()->total;
 
             if ($activePlacement || $validHistory) {
@@ -168,17 +168,17 @@ class M_penempatan_siswa extends CI_Model
                 'jenis_proses' => 'Penempatan',
                 'status_sebelum' => 'Belum Ditempatkan',
                 'status_setelah' => 'Aktif',
-                'tanggal_proses' => tanggal_sekarang(),
-                'waktu_proses' => waktu_sekarang(),
-                'id_user' => app_user_id(),
-                'nama_user' => app_user_name(),
+                'tanggal_proses' => $this->tanggal_sekarang(),
+                'waktu_proses' => $this->waktu_sekarang(),
+                'id_user' => $this->app_user_id(),
+                'nama_user' => $this->app_user_name(),
                 'status_riwayat' => 'Aktif'
             ));
 
             $success++;
         }
 
-        tagihan_log_activity(
+        $this->tagihan_log_activity(
             'Penempatan Siswa',
             'Kesiswaan',
             'Tambah',
@@ -190,7 +190,7 @@ class M_penempatan_siswa extends CI_Model
             array('id_siswa' => $ids)
         );
 
-        return tagihan_transaction_result(
+        return $this->tagihan_transaction_result(
             $success . ' siswa berhasil ditempatkan' . ($skip ? ' dan ' . $skip . ' dilewati.' : '.')
         );
     }
@@ -209,11 +209,11 @@ class M_penempatan_siswa extends CI_Model
         )->row_array();
 
         if (!$row) {
-            return model_response(false, 'Penempatan tidak ditemukan.');
+            return $this->model_response(false, 'Penempatan tidak ditemukan.');
         }
 
         if ($row['status_aktif'] !== '1') {
-            return model_response(false, 'Penempatan siswa sudah tidak aktif.');
+            return $this->model_response(false, 'Penempatan siswa sudah tidak aktif.');
         }
 
         $sudahDipakaiTagihan = $this->db
@@ -222,7 +222,7 @@ class M_penempatan_siswa extends CI_Model
             ->count_all_results('tagihan_siswa');
 
         if ($sudahDipakaiTagihan) {
-            return model_response(
+            return $this->model_response(
                 false,
                 'Penempatan sudah digunakan pada tagihan dan tidak dapat dikeluarkan langsung.'
             );
@@ -254,15 +254,15 @@ class M_penempatan_siswa extends CI_Model
                 ->where('id', (int) $riwayat['id'])
                 ->update('tagihan_riwayat_kelas_siswa', array(
                     'status_riwayat' => 'Dibatalkan',
-                    'tanggal_batal' => tanggal_sekarang(),
-                    'waktu_batal' => waktu_sekarang(),
-                    'id_user_batal' => app_user_id(),
-                    'nama_user_batal' => app_user_name(),
+                    'tanggal_batal' => $this->tanggal_sekarang(),
+                    'waktu_batal' => $this->waktu_sekarang(),
+                    'id_user_batal' => $this->app_user_id(),
+                    'nama_user_batal' => $this->app_user_name(),
                     'alasan_batal' => 'Dikeluarkan melalui koreksi Penempatan Siswa'
                 ));
         }
 
-        tagihan_log_activity(
+        $this->tagihan_log_activity(
             'Koreksi Penempatan',
             'Kesiswaan',
             'Batal',
@@ -277,6 +277,81 @@ class M_penempatan_siswa extends CI_Model
             )
         );
 
-        return tagihan_transaction_result('Penempatan siswa berhasil dikeluarkan.');
+        return $this->tagihan_transaction_result('Penempatan siswa berhasil dikeluarkan.');
+    }
+
+    private function app_user_id()
+    {
+        $user = $this->session->userdata('admin');
+        return is_array($user) && isset($user['id']) ? (int) $user['id'] : 0;
+    }
+
+
+    private function app_user_name()
+    {
+        $user = $this->session->userdata('admin');
+        return is_array($user) && isset($user['nama']) && $user['nama'] !== '' ? $user['nama'] : 'Administrator';
+    }
+
+
+    private function tanggal_sekarang()
+    {
+        return date('d-m-Y');
+    }
+
+
+    private function waktu_sekarang()
+    {
+        return date('H:i:s');
+    }
+
+
+    private function model_response($success, $message = '', $extra = array())
+    {
+        return array_merge(array(
+            'result' => $success ? 'true' : 'false',
+            'message' => $message
+        ), $extra);
+    }
+
+
+    private function tagihan_transaction_result($success_message = 'Data berhasil disimpan.')
+    {
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            return array(
+                'result' => 'false',
+                'message' => 'Proses database gagal. Tidak ada perubahan yang disimpan.'
+            );
+        }
+
+        $this->db->trans_commit();
+        return array(
+            'result' => 'true',
+            'message' => $success_message
+        );
+    }
+
+
+    private function tagihan_log_activity($jenis, $modul, $aksi, $table, $id, $nomor, $keterangan, $before = null, $after = null)
+    {
+        $user = $this->session->userdata('admin');
+        $this->db->insert('tagihan_log_aktivitas', array(
+            'jenis_aktivitas' => $jenis,
+            'modul' => $modul,
+            'aksi' => $aksi,
+            'nama_tabel' => $table,
+            'id_referensi' => (string) $id,
+            'nomor_referensi' => $nomor,
+            'keterangan' => $keterangan,
+            'data_sebelum' => $before === null ? null : json_encode($before, JSON_UNESCAPED_UNICODE),
+            'data_sesudah' => $after === null ? null : json_encode($after, JSON_UNESCAPED_UNICODE),
+            'ip_address' => $this->input->ip_address(),
+            'user_agent' => $this->input->user_agent(),
+            'tanggal' => date('d-m-Y'),
+            'waktu' => date('H:i:s'),
+            'id_user' => is_array($user) && isset($user['id']) ? (int) $user['id'] : 0,
+            'nama_user' => is_array($user) && isset($user['nama']) && $user['nama'] !== '' ? $user['nama'] : 'Administrator'
+        ));
     }
 }

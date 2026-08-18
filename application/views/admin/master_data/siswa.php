@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-header app-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
         <h4 class="header-title mb-0">Data Siswa</h4>
-        <button type="button" class="btn btn-outline-primary" onclick="openForm()">
+        <button type="button" class="btn btn-outline-primary" onclick="tambah()">
             <i class="ri-add-line me-1"></i>Tambah
         </button>
     </div>
@@ -37,12 +37,14 @@
                 </select>
             </div>
             <div class="col-lg-2 col-md-6 d-grid">
-                <button type="button" class="btn btn-primary" onclick="loadData()">
+                <button type="button" class="btn btn-primary" onclick="siswa()">
                     <i class="ri-search-line me-1"></i>Cari
                 </button>
             </div>
         </div>
-        <div id="data" class="crud-list"></div>
+
+        <div id="data_siswa" class="crud-list"></div>
+
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-center flex-wrap gap-2 mt-3">
             <ul class="pagination pagination-sm pagination-boxed mb-0" id="pagination"></ul>
             <div class="d-flex align-items-center gap-2">
@@ -59,28 +61,28 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalForm" tabindex="-1" aria-hidden="true">
+<!-- Modal Tambah -->
+<div class="modal fade" id="tambah" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal_title">Tambah Siswa</h5>
+                <h5 class="modal-title">Tambah Siswa</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
             <div class="modal-body">
-                <form id="form">
-                    <input type="hidden" name="id">
+                <form id="form-tambah">
                     <ul class="nav nav-tabs nav-bordered mb-4" role="tablist">
-                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabIdentitas">Identitas</a></li>
-                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabAlamat">Alamat</a></li>
-                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabAyah">Data Ayah</a></li>
-                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabIbu">Data Ibu</a></li>
+                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabTambahIdentitas">Identitas</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabTambahAlamat">Alamat</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabTambahAyah">Data Ayah</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabTambahIbu">Data Ibu</a></li>
                     </ul>
                     <div class="tab-content">
-                        <div class="tab-pane show active" id="tabIdentitas">
+                        <div class="tab-pane show active" id="tabTambahIdentitas">
                             <div class="row">
                                 <div class="col-md-4 mb-3"><label class="form-label">NIS</label><input name="nis" class="form-control" placeholder="NIS ..." required></div>
                                 <div class="col-md-4 mb-3"><label class="form-label">NISN</label><input name="nisn" class="form-control" placeholder="NISN ..." required></div>
-                                <div class="col-md-4 mb-3"><label class="form-label">Status</label><select name="status_pendaftaran" class="form-select"><option>Aktif</option><option>Lulus</option><option>Pindah Sekolah</option><option>Berhenti</option><option>Nonaktif</option></select></div>
+                                <div class="col-md-4 mb-3"><label class="form-label">Status</label><select name="status_pendaftaran" class="form-select"><option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option></select></div>
                                 <div class="col-md-8 mb-3"><label class="form-label">Nama Lengkap</label><input name="nama_lengkap" class="form-control" placeholder="Nama lengkap ..." required></div>
                                 <div class="col-md-4 mb-3"><label class="form-label">Jenis Kelamin</label><select name="jk" class="form-select"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
                                 <div class="col-md-4 mb-3"><label class="form-label">Tempat Lahir</label><input name="tempat_lahir" class="form-control" placeholder="Tempat lahir ..."></div>
@@ -88,156 +90,312 @@
                                 <div class="col-md-4 mb-3"><label class="form-label">Tanggal Awal Masuk</label><input name="tanggal_awal_masuk" class="form-control tanggal" placeholder="dd-mm-yyyy"></div>
                             </div>
                         </div>
-                        <div class="tab-pane" id="tabAlamat">
-                            <label class="form-label">Alamat Siswa</label>
-                            <textarea name="alamat_siswa" class="form-control" rows="5" placeholder="Alamat siswa ..."></textarea>
-                        </div>
-                        <div class="tab-pane" id="tabAyah">
-                            <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Nama Ayah</label><input name="nama_ayah" class="form-control" placeholder="Nama ayah ..."></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Pekerjaan Ayah</label><input name="pekerjaan_ayah" class="form-control" placeholder="Pekerjaan ayah ..."></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Telepon Ayah</label><input name="telepon_ayah" class="form-control" placeholder="Nomor telepon ayah ..."></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Alamat Ayah</label><textarea name="alamat_ayah" class="form-control" placeholder="Alamat ayah ..."></textarea></div>
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="tabIbu">
-                            <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label">Nama Ibu</label><input name="nama_ibu" class="form-control" placeholder="Nama ibu ..."></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Pekerjaan Ibu</label><input name="pekerjaan_ibu" class="form-control" placeholder="Pekerjaan ibu ..."></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Telepon Ibu</label><input name="telepon_ibu" class="form-control" placeholder="Nomor telepon ibu ..."></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">Alamat Ibu</label><textarea name="alamat_ibu" class="form-control" placeholder="Alamat ibu ..."></textarea></div>
-                            </div>
-                        </div>
+                        <div class="tab-pane" id="tabTambahAlamat"><label class="form-label">Alamat Siswa</label><textarea name="alamat_siswa" class="form-control" rows="5" placeholder="Alamat siswa ..."></textarea></div>
+                        <div class="tab-pane" id="tabTambahAyah"><div class="row"><div class="col-md-6 mb-3"><label class="form-label">Nama Ayah</label><input name="nama_ayah" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Pekerjaan Ayah</label><input name="pekerjaan_ayah" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Telepon Ayah</label><input name="telepon_ayah" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Alamat Ayah</label><textarea name="alamat_ayah" class="form-control"></textarea></div></div></div>
+                        <div class="tab-pane" id="tabTambahIbu"><div class="row"><div class="col-md-6 mb-3"><label class="form-label">Nama Ibu</label><input name="nama_ibu" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Pekerjaan Ibu</label><input name="pekerjaan_ibu" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Telepon Ibu</label><input name="telepon_ibu" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Alamat Ibu</label><textarea name="alamat_ibu" class="form-control"></textarea></div></div></div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
-                <button type="button" id="btn_simpan" class="btn btn-primary">Simpan</button>
+                <button type="button" class="btn btn-primary" id="btn-simpan">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit / Detail -->
+<div class="modal fade" id="edit" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="judul-edit">Edit Siswa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-edit">
+                    <input type="hidden" name="id">
+                    <ul class="nav nav-tabs nav-bordered mb-4" role="tablist">
+                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabEditIdentitas">Identitas</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabEditAlamat">Alamat</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabEditAyah">Data Ayah</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabEditIbu">Data Ibu</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane show active" id="tabEditIdentitas">
+                            <div class="row">
+                                <div class="col-md-4 mb-3"><label class="form-label">NIS</label><input name="nis" class="form-control" required></div>
+                                <div class="col-md-4 mb-3"><label class="form-label">NISN</label><input name="nisn" class="form-control" required></div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select name="status_pendaftaran" class="form-select"><option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option></select>
+                                    <input type="text" id="status-readonly" class="form-control" readonly style="display:none;">
+                                    <small id="status-keterangan" class="text-muted" style="display:none;">Status tidak dapat diubah dari Master Data karena siswa sudah memiliki data Kesiswaan.</small>
+                                </div>
+                                <div class="col-md-8 mb-3"><label class="form-label">Nama Lengkap</label><input name="nama_lengkap" class="form-control" required></div>
+                                <div class="col-md-4 mb-3"><label class="form-label">Jenis Kelamin</label><select name="jk" class="form-select"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
+                                <div class="col-md-4 mb-3"><label class="form-label">Tempat Lahir</label><input name="tempat_lahir" class="form-control"></div>
+                                <div class="col-md-4 mb-3"><label class="form-label">Tanggal Lahir</label><input name="tanggal_lahir" class="form-control tanggal"></div>
+                                <div class="col-md-4 mb-3"><label class="form-label">Tanggal Awal Masuk</label><input name="tanggal_awal_masuk" class="form-control tanggal"></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tabEditAlamat"><label class="form-label">Alamat Siswa</label><textarea name="alamat_siswa" class="form-control" rows="5"></textarea></div>
+                        <div class="tab-pane" id="tabEditAyah"><div class="row"><div class="col-md-6 mb-3"><label class="form-label">Nama Ayah</label><input name="nama_ayah" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Pekerjaan Ayah</label><input name="pekerjaan_ayah" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Telepon Ayah</label><input name="telepon_ayah" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Alamat Ayah</label><textarea name="alamat_ayah" class="form-control"></textarea></div></div></div>
+                        <div class="tab-pane" id="tabEditIbu"><div class="row"><div class="col-md-6 mb-3"><label class="form-label">Nama Ibu</label><input name="nama_ibu" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Pekerjaan Ibu</label><input name="pekerjaan_ibu" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Telepon Ibu</label><input name="telepon_ibu" class="form-control"></div><div class="col-md-6 mb-3"><label class="form-label">Alamat Ibu</label><textarea name="alamat_ibu" class="form-control"></textarea></div></div></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" id="btn-update">Simpan</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-let modalForm;
-
-$(document).ready(function () {
-    modalForm = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalForm'));
-    flatpickr('.tanggal', {dateFormat: 'd-m-Y'});
-    loadData();
-
-    $('#periode_filter').on('change', function () {
+    $(document).ready(function() {
+        siswa();
         filterKelas();
-    });
-    $('#search').on('keyup', function (event) {
-        if (event.key === 'Enter') loadData();
-    });
-    $('#btn_simpan').on('click', saveData);
-    $('#dt-length-0').on('change', refreshPagination);
-});
 
-function filterKelas() {
-    const periode = $('#periode_filter').val();
-    $('#kelas_filter option').each(function () {
-        const optionPeriode = $(this).data('periode');
-        $(this).toggle(!optionPeriode || periode === '0' || String(optionPeriode) === String(periode));
-    });
-    $('#kelas_filter').val('0');
-}
-
-function loadData() {
-    $.post('<?= base_url('admin/master_data/siswa/result') ?>', {
-        search: $('#search').val(),
-        id_periode: $('#periode_filter').val(),
-        id_kelas_setting: $('#kelas_filter').val(),
-        status: $('#status_filter').val()
-    }, function (rows) {
-        if (!rows.length) {
-            $('#data').html('<div class="empty-state">Data siswa tidak ditemukan.</div>');
-            refreshPagination();
-            return;
-        }
-
-        const html = rows.map(function (row, index) {
-            const aktif = row.status_pendaftaran === 'Aktif';
-            return `
-                <div class="crud-list-item">
-                    <div class="crud-content">
-                        <div class="crud-status">Status: <span class="badge ${aktif ? 'bg-success' : 'bg-secondary'}">${escapeHtml(row.status_pendaftaran)}</span></div>
-                        <div class="crud-title">${index + 1}. ${escapeHtml(row.nama_lengkap)}</div>
-                        <div class="crud-meta">NIS: ${escapeHtml(row.nis)} | NISN: ${escapeHtml(row.nisn)} | ${escapeHtml(row.jk || '-')}</div>
-                        <div class="crud-note">Kelas aktif: ${escapeHtml(row.nama_kelas || 'Belum ditempatkan')} | ${escapeHtml(row.periode || '-')}</div>
-                    </div>
-                    <div class="crud-actions">
-                        <button type="button" class="btn btn-outline-primary btn-icon" title="Detail" onclick="detail(${row.id}, false)"><i class="ri-eye-line"></i></button>
-                        <button type="button" class="btn btn-outline-warning btn-icon" title="Edit" onclick="detail(${row.id}, true)"><i class="ri-edit-line"></i></button>
-                        <a class="btn btn-outline-info btn-icon" title="Riwayat Kelas" href="<?= base_url('admin/kesiswaan/riwayat_kelas?id_siswa=') ?>${row.id}"><i class="ri-history-line"></i></a>
-                        <a class="btn btn-outline-primary btn-icon" title="Riwayat Tagihan" href="<?= base_url('admin/tunggakan/tagihan_per_siswa?id_siswa=') ?>${row.id}"><i class="ri-file-list-3-line"></i></a>
-                    </div>
-                </div>`;
-        }).join('');
-
-        $('#data').html(html);
-        refreshPagination();
-    }, 'json').fail(ajaxError);
-}
-
-function resetFormState() {
-    $('#form')[0].reset();
-    $('#form :input').prop('disabled', false);
-    $('#btn_simpan').show().prop('disabled', false);
-    $('#form [name="id"]').val('');
-    bootstrap.Tab.getOrCreateInstance(document.querySelector('a[href="#tabIdentitas"]')).show();
-}
-
-function openForm() {
-    resetFormState();
-    $('#modal_title').text('Tambah Siswa');
-    modalForm.show();
-}
-
-function detail(id, editMode) {
-    $.post('<?= base_url('admin/master_data/siswa/detail') ?>', {id: id}, function (row) {
-        if (!row || !row.id) {
-            Swal.fire('Gagal', 'Data siswa tidak ditemukan.', 'error');
-            return;
-        }
-
-        resetFormState();
-        Object.keys(row).forEach(function (key) {
-            $('#form [name="' + key + '"]').val(row[key]);
+        flatpickr('.tanggal', {
+            dateFormat: 'd-m-Y'
         });
 
-        $('#modal_title').text(editMode ? 'Edit Siswa' : 'Detail Siswa');
-        if (!editMode) {
-            $('#form :input').prop('disabled', true);
-            $('#btn_simpan').hide();
-        }
-        modalForm.show();
-    }, 'json').fail(ajaxError);
-}
+        $('#periode_filter').on('change', function() {
+            filterKelas();
+        });
 
-$('#modalForm').on('hidden.bs.modal', resetFormState);
+        $('#search').on('keyup', function(event) {
+            if (event.key === 'Enter') siswa();
+        });
 
-function saveData() {
-    const button = $('#btn_simpan');
-    button.prop('disabled', true);
+        $('#btn-simpan').click(function() {
+            var form = $('#form-tambah');
+            var data = form.serialize();
+            $('#btn-simpan').prop('disabled', true);
+			$('#btn-simpan').html('Sedang Diproses');
+            $.ajax({
+                url: '<?= base_url('admin/master_data/siswa/tambah'); ?>',
+                type: 'POST',
+                data: data,
+                dataType: 'JSON',
+                success: function(data) {
+                    if (data.result == 'true') {
+                        $('#tambah').modal('hide');
+                        Swal.fire({icon: 'success', title: 'Berhasil', text: data.message || 'Data berhasil disimpan'});
+                        $('#form-tambah')[0].reset();
+                        $('#btn-simpan').prop('disabled', false);
+						$('#btn-simpan').html('Simpan');
+                        siswa();
+                    } else {
+                        Swal.fire({icon: 'error', title: 'Gagal', text: data.message || 'Data gagal disimpan'});
+                    }
+                    
+                },
+                error: function(xhr) {
+                    ajaxError(xhr);
+                }
+            });
+        });
 
-    $.post('<?= base_url('admin/master_data/siswa/simpan') ?>', $('#form').serialize(), function (response) {
-        const berhasil = response.result === 'true';
-        if (berhasil) {
-            modalForm.hide();
-            loadData();
-        }
-        Swal.fire(berhasil ? 'Berhasil' : 'Gagal', response.message, berhasil ? 'success' : 'error');
-    }, 'json').fail(ajaxError).always(function () {
-        button.prop('disabled', false);
+        $('#btn-update').click(function() {
+            var form = $('#form-edit');
+            var data = form.serialize();
+$('#btn-update').prop('disabled', true);
+			$('#btn-update').html('Sedang Diproses');
+            $.ajax({
+                url: '<?= base_url('admin/master_data/siswa/edit'); ?>',
+                type: 'POST',
+                data: data,
+                dataType: 'JSON',
+                success: function(data) {
+                    if (data.result == 'true') {
+                        $('#edit').modal('hide');
+                        Swal.fire({icon: 'success', title: 'Berhasil', text: data.message || 'Data berhasil diubah'});
+                        $('#btn-update').prop('disabled', false);
+						$('#btn-update').html('Simpan');
+                        siswa();
+                    } else {
+                        Swal.fire({icon: 'error', title: 'Gagal', text: data.message || 'Data gagal diubah'});
+                    }
+                },
+                error: function(xhr) {
+                    ajaxError(xhr);
+                }
+            });
+        });
+
+        $('#dt-length-0').on('change', function() {
+            var jumlah = parseInt($(this).val(), 10) || 10;
+            paging($('#data_siswa .crud-list-item'), jumlah);
+        });
     });
-}
 
-function refreshPagination() {
-    paging($('#data .crud-list-item'), parseInt($('#dt-length-0').val(), 10) || 10, '#pagination');
-}
+    function filterKelas() {
+        var periode = $('#periode_filter').val();
+        $('#kelas_filter option').each(function() {
+            var optionPeriode = $(this).data('periode');
+            $(this).toggle(!optionPeriode || periode === '0' || String(optionPeriode) === String(periode));
+        });
+        $('#kelas_filter').val('0');
+    }
 
+    function siswa() {
+        var search = $('#search').val();
+        var id_periode = $('#periode_filter').val();
+        var id_kelas_setting = $('#kelas_filter').val();
+        var status = $('#status_filter').val();
+
+        $.ajax({
+            url: '<?= base_url('admin/master_data/siswa/siswa_result'); ?>',
+            type: 'POST',
+            data: {
+                search: search,
+                id_periode: id_periode,
+                id_kelas_setting: id_kelas_setting,
+                status: status
+            },
+            dataType: 'JSON',
+            success: function(data) {
+                var no = 1;
+                var table = '';
+
+                if (data.length == 0) {
+                    table = '<div class="empty-state">Data siswa tidak ditemukan.</div>';
+                } else {
+                    data.forEach(function(item) {
+                        var detailData = btoa(unescape(encodeURIComponent(JSON.stringify(item))));
+                        var aktif = item.status_pendaftaran === 'Aktif';
+                        var tombolHapus = '';
+
+                        if (String(item.boleh_hapus) === '1') {
+                            tombolHapus = `<button type="button" class="btn btn-outline-danger btn-icon" title="Hapus" onclick="hapus('${item.id}')"><i class="ri-delete-bin-line"></i></button>`;
+                        }
+
+                        table += `
+                            <div class="crud-list-item">
+                                <div class="crud-content">
+                                    <div class="crud-status">Status: <span class="badge ${aktif ? 'bg-success' : 'bg-secondary'}">${escapeHtml(item.status_pendaftaran || '-')}</span></div>
+                                    <div class="crud-title">${no++}. ${escapeHtml(item.nama_lengkap || '-')}</div>
+                                    <div class="crud-meta">NIS: ${escapeHtml(item.nis || '-')} | NISN: ${escapeHtml(item.nisn || '-')} | ${escapeHtml(item.jk || '-')}</div>
+                                    <div class="crud-note">Kelas aktif: ${escapeHtml(item.nama_kelas || 'Belum ditempatkan')} | ${escapeHtml(item.periode || '-')}</div>
+                                </div>
+                                <div class="crud-actions">
+                                    <button type="button" class="btn btn-outline-primary btn-icon" title="Detail" onclick="detail('${detailData}')"><i class="ri-eye-line"></i></button>
+                                    <button type="button" class="btn btn-outline-warning btn-icon" title="Edit" onclick="edit('${detailData}')"><i class="ri-edit-line"></i></button>
+                                    <a class="btn btn-outline-info btn-icon" title="Riwayat Kelas" href="<?= base_url('admin/kesiswaan/riwayat_kelas?id_siswa=') ?>${item.id}"><i class="ri-history-line"></i></a>
+                                    <a class="btn btn-outline-primary btn-icon" title="Riwayat Tagihan" href="<?= base_url('admin/tunggakan/tagihan_per_siswa?id_siswa=') ?>${item.id}"><i class="ri-file-list-3-line"></i></a>
+                                    ${tombolHapus}
+                                </div>
+                            </div>`;
+                    });
+                }
+
+                $('#data_siswa').html(table);
+                var jumlah = parseInt($('#dt-length-0').val(), 10) || 10;
+                paging($('#data_siswa .crud-list-item'), jumlah);
+            },
+            error: function(xhr) {
+                ajaxError(xhr);
+            }
+        });
+    }
+
+    function tambah() {
+        $('#form-tambah')[0].reset();
+        $('#form-tambah select[name="status_pendaftaran"]').val('Aktif');
+        bootstrap.Tab.getOrCreateInstance(document.querySelector('a[href="#tabTambahIdentitas"]')).show();
+        $('#tambah').modal('show');
+    }
+
+    function isiFormEdit(item, detailMode) {
+        var form = $('#form-edit');
+        form[0].reset();
+        form.find(':input').prop('disabled', false);
+        $('#btn-update').show();
+        $('#status-readonly').hide();
+        $('#status-keterangan').hide();
+        form.find('select[name="status_pendaftaran"]').show().prop('disabled', false);
+
+        Object.keys(item).forEach(function(key) {
+            form.find('[name="' + key + '"]').val(item[key]);
+        });
+
+        if (String(item.status_boleh_diubah) !== '1') {
+            form.find('select[name="status_pendaftaran"]').hide().prop('disabled', true);
+            $('#status-readonly').val(item.status_pendaftaran || '-').show();
+            $('#status-keterangan').show();
+        }
+
+        if (detailMode) {
+            form.find(':input').prop('disabled', true);
+            $('#btn-update').hide();
+            $('#status-keterangan').hide();
+        }
+
+        bootstrap.Tab.getOrCreateInstance(document.querySelector('a[href="#tabEditIdentitas"]')).show();
+    }
+
+    function edit(detailData) {
+        var item = JSON.parse(decodeURIComponent(escape(atob(detailData))));
+        $('#judul-edit').text('Edit Siswa');
+        isiFormEdit(item, false);
+        $('#edit').modal('show');
+    }
+
+    function detail(detailData) {
+        var item = JSON.parse(decodeURIComponent(escape(atob(detailData))));
+        $('#judul-edit').text('Detail Siswa');
+        isiFormEdit(item, true);
+        $('#edit').modal('show');
+    }
+
+    function hapus(id) {
+        Swal.fire({
+            title: 'Hapus Data',
+            text: 'Siswa hanya dapat dihapus jika belum pernah ditempatkan dan belum memiliki riwayat Kesiswaan. Lanjutkan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Tidak'
+        }).then(function(result) {
+            if (result.isConfirmed || result.value) {
+                $.ajax({
+                    url: '<?= base_url('admin/master_data/siswa/hapus'); ?>',
+                    type: 'POST',
+                    data: {id: id},
+                    dataType: 'JSON',
+                    success: function(data) {
+                        if (data.result == 'true') {
+                            Swal.fire({icon: 'success', title: 'Berhasil', text: data.message || 'Data berhasil dihapus'});
+                            siswa();
+                        } else {
+                            Swal.fire({icon: 'error', title: 'Gagal', text: data.message || 'Data gagal dihapus'});
+                        }
+                    },
+                    error: function(xhr) {
+                        ajaxError(xhr);
+                    }
+                });
+            }
+        });
+    }
+
+    function paging($selector, jumlah_tampil = 10) {
+        window.tp = new Pagination('#pagination', {
+            itemsCount: $selector.length,
+            pageSize: parseInt(jumlah_tampil),
+            onPageChange: function(paging) {
+                var start = paging.pageSize * (paging.currentPage - 1);
+                var end = start + paging.pageSize;
+                var $rows = $selector;
+
+                $rows.hide();
+                for (var i = start; i < end; i++) {
+                    $rows.eq(i).show();
+                }
+            }
+        });
+    }
 </script>

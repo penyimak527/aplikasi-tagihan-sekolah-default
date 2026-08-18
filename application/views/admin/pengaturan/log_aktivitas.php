@@ -1,20 +1,20 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0">Audit Aktivitas Penting</h5>
-        <a id="export" class="btn btn-success">Ekspor</a>
+        <!-- <a id="export" class="btn btn-success">Ekspor</a> -->
     </div>
 
     <div class="card-body">
         <div class="row g-2 align-items-end mb-2">
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <input id="awal" class="form-control tanggal-picker" placeholder="Tanggal awal" autocomplete="off">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <input id="akhir" class="form-control tanggal-picker" placeholder="Tanggal akhir" autocomplete="off">
             </div>
-            <div class="col-md-2">
+            <!-- <div class="col-md-2">
                 <input id="user" class="form-control" placeholder="Pengguna">
-            </div>
+            </div> -->
 
             <div class="col-md-3">
                 <select id="aksi" class="form-select">

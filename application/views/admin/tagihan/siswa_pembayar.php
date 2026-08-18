@@ -7,7 +7,7 @@
     </div>
     <div class="card-body">
         <div class="row g-2 align-items-end">
-            <div class="col-lg-6">
+            <div class="col-lg-4 col-md-6">
                 <label class="form-label" for="tagihan">Tagihan</label>
                 <select id="tagihan" class="form-select">
                     <option value="">Pilih tagihan</option>
@@ -18,13 +18,27 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-2 col-md-6">
+                <label class="form-label" for="kelas_filter">Kelas</label>
+                <select id="kelas_filter" class="form-select">
+                    <option value="">Semua Kelas</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-6">
                 <label class="form-label" for="search">Nama/NIS/NISN</label>
                 <input id="search" class="form-control" placeholder="Cari siswa ...">
             </div>
-            <div class="col-lg-2 d-grid">
+            <!-- <div class="col-lg-2 col-md-6">
+                <label class="form-label" for="status_filter">Status Tagihan</label>
+                <select id="status_filter" class="form-select">
+                    <option value="">Semua Status</option>
+                    <option value="Aktif">Aktif</option>
+                    <option value="Belum Ditambahkan">Belum Ditambahkan</option>
+                </select>
+            </div> -->
+            <div class="col-lg-1 d-grid">
                 <button type="button" class="btn btn-primary" id="btn_tampilkan">
-                    <i class="ri-search-line me-1"></i>Tampilkan
+                    <i class="ri-search-line"></i>
                 </button>
             </div>
         </div>
@@ -33,18 +47,20 @@
 
 <div id="content" class="d-none">
     <div class="row g-3">
-        <div class="col-xl-6">
-            <div class="card ">
-                <div class="card-header app-card-header">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header app-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div>
                         <h4 class="header-title mb-1">Siswa Pembayar</h4>
                         <small class="text-muted">Siswa yang sudah menjadi penerima tagihan.</small>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
                         <span class="badge bg-primary" id="count_current">0</span>
-                        <a href="#" class="btn btn-sm btn-outline-success" id="btn_export_siswa">
+                        <!-- <button type="button" class="btn btn-sm btn-light" id="btn_pilih_semua_current">Pilih Semua Hasil Filter</button> -->
+                        <button type="button" class="btn btn-sm btn-outline-danger" id="btn_keluarkan_terpilih">Keluarkan Siswa Terpilih</button>
+                        <!-- <a href="#" class="btn btn-sm btn-outline-success" id="btn_export_siswa">
                             <i class="ri-file-excel-2-line me-1"></i>Ekspor Daftar
-                        </a>
+                        </a> -->
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -52,10 +68,14 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
+                                    <th width="42"><input type="checkbox" class="form-check-input" id="check_all_current" title="Pilih semua hasil filter"></th>
                                     <th>Siswa</th>
+                                    <th>NIS/NISN</th>
+                                    <th>Kelas</th>
                                     <th class="text-end">Tarif</th>
-                                    <th class="text-end">Dibayar</th>
-                                    <th class="text-center">Aksi</th>
+                                    <th>Status Pembayaran</th>
+                                    <th>Status Penerima</th>
+                                    <!-- <th class="text-center">Aksi</th> -->
                                 </tr>
                             </thead>
                             <tbody id="current"></tbody>
@@ -80,16 +100,16 @@
             </div>
         </div>
 
-        <div class="col-xl-6">
-            <div class="card ">
-                <div class="card-header app-card-header">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header app-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div>
                         <h4 class="header-title mb-1">Calon Siswa</h4>
                         <small class="text-muted">Siswa aktif pada tahun ajaran tagihan yang belum menjadi penerima.</small>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                        <button type="button" class="btn btn-sm btn-light" id="btn_pilih_semua">Pilih Semua</button>
-                        <button type="button" class="btn btn-sm btn-primary" id="btn_tambah">Tambah Terpilih</button>
+                        <!-- <button type="button" class="btn btn-sm btn-light" id="btn_pilih_semua">Pilih Semua Hasil Filter</button> -->
+                        <button type="button" class="btn btn-sm btn-primary" id="btn_tambah">Tambah Siswa Terpilih</button>
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -97,9 +117,13 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th width="42"></th>
+                                    <th width="42"><input type="checkbox" class="form-check-input" id="check_all_candidates" title="Pilih semua hasil filter"></th>
                                     <th>Siswa</th>
+                                    <th>NIS/NISN</th>
                                     <th>Kelas</th>
+                                    <th class="text-end">Tarif</th>
+                                    <th>Status Pembayaran</th>
+                                    <th>Status Penerima</th>
                                 </tr>
                             </thead>
                             <tbody id="candidates"></tbody>
@@ -130,14 +154,42 @@
 $(document).ready(function () {
     $('#btn_tampilkan').on('click', loadData);
     $('#btn_tambah').on('click', tambah);
+    $('#btn_keluarkan_terpilih').on('click', keluarkanTerpilih);
+
     $('#btn_pilih_semua').on('click', function () {
-        $('#candidates .candidate:visible').prop('checked', true);
+        $('#candidates .candidate').prop('checked', true);
+        $('#check_all_candidates').prop('checked', $('#candidates .candidate').length > 0);
     });
+
+    $('#btn_pilih_semua_current').on('click', function () {
+        $('#current .current-check:not(:disabled)').prop('checked', true);
+        $('#check_all_current').prop('checked', $('#current .current-check:not(:disabled)').length > 0);
+    });
+
+    $('#check_all_candidates').on('change', function () {
+        $('#candidates .candidate').prop('checked', this.checked);
+    });
+
+    $('#check_all_current').on('change', function () {
+        $('#current .current-check:not(:disabled)').prop('checked', this.checked);
+    });
+
+    $('#tagihan').on('change', function () {
+        $('#kelas_filter').html('<option value="">Semua Kelas</option>');
+        $('#status_filter').val('');
+        $('#content').addClass('d-none');
+        if ($(this).val()) {
+            loadData();
+        }
+    });
+
     $('#search').on('keyup', function (event) {
         if (event.key === 'Enter') loadData();
     });
+
     $('#dt-length-current').on('change', refreshCurrentPagination);
     $('#dt-length-candidates').on('change', refreshCandidatePagination);
+
     $('#btn_export_siswa').on('click', function(event) {
         event.preventDefault();
         var id = $('#tagihan').val();
@@ -145,8 +197,10 @@ $(document).ready(function () {
             Swal.fire('Perhatian', 'Pilih tagihan terlebih dahulu.', 'warning');
             return;
         }
+
         this.href = '<?= base_url('admin/tagihan/siswa_pembayar/export') ?>' +
             '?id_tagihan=' + encodeURIComponent(id) +
+            '&id_kelas_setting=' + encodeURIComponent($('#kelas_filter').val() || '') +
             '&search=' + encodeURIComponent($('#search').val() || '');
         window.location.href = this.href;
     });
@@ -172,7 +226,9 @@ function loadData() {
         type: 'POST',
         data: {
             id_tagihan: id,
-            search: $('#search').val()
+            id_kelas_setting: $('#kelas_filter').val(),
+            search: $('#search').val(),
+            status_tagihan: $('#status_filter').val()
         },
         dataType: 'JSON',
         success: function(response) {
@@ -182,6 +238,7 @@ function loadData() {
             }
 
             $('#content').removeClass('d-none');
+            updateKelasFilter(response.classes || []);
 
             var current = response.current || [];
             var candidates = response.candidates || [];
@@ -189,34 +246,49 @@ function loadData() {
             var candidateHtml = '';
 
             $('#count_current').text(current.length);
+            $('#check_all_current').prop('checked', false);
+            $('#check_all_candidates').prop('checked', false);
 
             if (!current.length) {
-                currentHtml = '<tr><td colspan="4"><div class="empty-state">Belum ada siswa pembayar.</div></td></tr>';
+                currentHtml = '<tr><td colspan="8"><div class="empty-state">Belum ada siswa pembayar sesuai filter.</div></td></tr>';
             } else {
                 current.forEach(function(row) {
+                    var bisaDikeluarkan = Number(row.bisa_dikeluarkan || 0) === 1;
+                    var statusPembayaran = row.status_pembayaran || '-';
+                    var badgePembayaran = 'secondary';
+
+                    if (statusPembayaran === 'Lunas') badgePembayaran = 'success';
+                    else if (statusPembayaran === 'Dibayar Sebagian') badgePembayaran = 'warning';
+                    else if (statusPembayaran === 'Belum Dibayar') badgePembayaran = 'danger';
+                    else if (statusPembayaran === 'Dibebaskan') badgePembayaran = 'info';
+
                     currentHtml +=
                         '<tr class="current-student-row">' +
-                            '<td><strong>' + escapeHtml(row.nama_siswa) + '</strong><br><small class="text-muted">' +
-                                escapeHtml(row.nis || '-') + ' | ' + escapeHtml(row.nama_kelas || '-') +
-                            '</small></td>' +
+                            '<td><input type="checkbox" class="form-check-input current-check" value="' + Number(row.id_siswa) + '" ' + (bisaDikeluarkan ? '' : 'disabled title="Sudah memiliki pembayaran"') + '></td>' +
+                            '<td><strong>' + escapeHtml(row.nama_siswa || '-') + '</strong></td>' +
+                            '<td>' + escapeHtml(row.nis || '-') + '<br><small class="text-muted">' + escapeHtml(row.nisn || '-') + '</small></td>' +
+                            '<td>' + escapeHtml(row.nama_kelas || '-') + '</td>' +
                             '<td class="text-end">' + formatRupiah(row.tarif || 0) + '</td>' +
-                            '<td class="text-end">' + formatRupiah(row.dibayar || 0) + '</td>' +
-                            '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger" onclick="keluarkan(' + Number(row.id_siswa) + ')">Keluarkan</button></td>' +
-                        '</tr>';
-                });
+                            '<td><span class="badge bg-' + badgePembayaran + '-subtle text-' + badgePembayaran + '">' + escapeHtml(statusPembayaran) + '</span></td>' +
+                            '<td><span class="badge bg-success-subtle text-success">' + escapeHtml(row.status_penerima || 'Aktif') + '</span></td>' +
+                            // '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger" onclick="keluarkan(' + Number(row.id_siswa) + ')" ' + (bisaDikeluarkan ? '' : 'disabled') + '>Keluarkan</button></td>' +
+                            '</tr>';
+                        });
             }
 
             if (!candidates.length) {
-                candidateHtml = '<tr><td colspan="3"><div class="empty-state">Tidak ada calon siswa.</div></td></tr>';
+                candidateHtml = '<tr><td colspan="7"><div class="empty-state">Tidak ada calon siswa sesuai filter.</div></td></tr>';
             } else {
                 candidates.forEach(function(row) {
                     candidateHtml +=
                         '<tr class="candidate-student-row">' +
                             '<td><input type="checkbox" class="form-check-input candidate" value="' + Number(row.id_siswa) + '"></td>' +
-                            '<td><strong>' + escapeHtml(row.nama_siswa) + '</strong><br><small class="text-muted">' +
-                                escapeHtml(row.nis || '-') + ' / ' + escapeHtml(row.nisn || '-') +
-                            '</small></td>' +
+                            '<td><strong>' + escapeHtml(row.nama_siswa || '-') + '</strong></td>' +
+                            '<td>' + escapeHtml(row.nis || '-') + '<br><small class="text-muted">' + escapeHtml(row.nisn || '-') + '</small></td>' +
                             '<td>' + escapeHtml(row.nama_kelas || '-') + '</td>' +
+                            '<td class="text-end">' + formatRupiah(row.tarif || 0) + '</td>' +
+                            '<td><span class="text-muted">-</span></td>' +
+                            '<td><span class="badge bg-secondary-subtle text-secondary">Belum Ditambahkan</span></td>' +
                         '</tr>';
                 });
             }
@@ -230,6 +302,20 @@ function loadData() {
             ajaxError(xhr);
         }
     });
+}
+
+function updateKelasFilter(classes) {
+    var selected = String($('#kelas_filter').val() || '');
+    var options = '<option value="">Semua Kelas</option>';
+
+    classes.forEach(function(row) {
+        options += '<option value="' + Number(row.id) + '">' + escapeHtml(row.nama_kelas || '-') + '</option>';
+    });
+
+    $('#kelas_filter').html(options);
+    if (selected !== '' && $('#kelas_filter option[value="' + selected + '"]').length) {
+        $('#kelas_filter').val(selected);
+    }
 }
 
 function refreshCurrentPagination() {
@@ -263,6 +349,40 @@ function tambah() {
         function () {
             $.ajax({
                 url: '<?= base_url('admin/tagihan/siswa_pembayar/tambah') ?>',
+                type: 'POST',
+                data: {
+                    id_tagihan: $('#tagihan').val(),
+                    id_siswa: ids
+                },
+                dataType: 'JSON',
+                success: function(response) {
+                    var berhasil = response.result === 'true';
+                    Swal.fire(berhasil ? 'Berhasil' : 'Gagal', response.message, berhasil ? 'success' : 'error');
+                    if (berhasil) loadData();
+                },
+                error: function(xhr, status, error) {
+                    ajaxError(xhr);
+                }
+            });
+        }
+    );
+}
+
+function keluarkanTerpilih() {
+    var ids = $('.current-check:checked:not(:disabled)').map(function () {
+        return this.value;
+    }).get();
+
+    if (!ids.length) {
+        return Swal.fire('Perhatian', 'Pilih siswa yang akan dikeluarkan.', 'warning');
+    }
+
+    confirmAction(
+        'Keluarkan siswa terpilih?',
+        'Siswa yang sudah memiliki pembayaran tidak dapat dikeluarkan.',
+        function () {
+            $.ajax({
+                url: '<?= base_url('admin/tagihan/siswa_pembayar/keluarkan') ?>',
                 type: 'POST',
                 data: {
                     id_tagihan: $('#tagihan').val(),

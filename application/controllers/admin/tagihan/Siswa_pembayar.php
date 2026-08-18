@@ -5,69 +5,167 @@ class Siswa_pembayar extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
         $this->load->model('admin/tagihan/M_siswa_pembayar', 'model');
     }
+
     public function index()
     {
-        $data = array('title' => 'Siswa Pembayar', 'tagihan' => $this->model->tagihan_list(), 'id_tagihan' => (int)$this->input->get('id_tagihan'));
+        $data = array(
+            'title' => 'Siswa Pembayar',
+            'tagihan' => $this->model->tagihan_list(),
+            'id_tagihan' => (int) $this->input->get('id_tagihan')
+        );
         $this->load->view('admin/template/header', $data);
         $this->load->view('admin/tagihan/siswa_pembayar', $data);
         $this->load->view('admin/template/footer');
     }
+
     public function result()
     {
-        json_response($this->model->result());
+        $this->json_response($this->model->result());
     }
+
     public function tambah()
     {
-        json_response($this->model->tambah());
+        $this->json_response($this->model->tambah());
     }
+
     public function keluarkan()
     {
-        json_response($this->model->keluarkan());
+        $this->json_response($this->model->keluarkan());
     }
 
     public function export()
     {
+        $this->load_phpspreadsheet();
+
         $id = (int) $this->input->get('id_tagihan');
+        $kelas = (int) $this->input->get('id_kelas_setting');
         $search = trim((string) $this->input->get('search', true));
-        $data = $this->model->export_rows($id, $search);
+        $data = $this->model->export_rows($id, $kelas, $search);
 
         if (!$data['master']) {
             show_404();
         }
 
-        $filename = 'siswa_pembayar_' . preg_replace('/[^A-Za-z0-9_-]/', '_', $data['master']['kode_tagihan']) . '.csv';
-        header('Content-Type: text/csv; charset=UTF-8');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Siswa Pembayar');
 
-        $output = fopen('php://output', 'w');
-        fwrite($output, "\xEF\xBB\xBF");
-        fwrite($output, "sep=;\r\n");
-        fputcsv($output, array('Daftar Siswa Pembayar'), ';');
-        fputcsv($output, array('Tagihan', $data['master']['nama_tagihan']), ';');
-        fputcsv($output, array('Tahun Ajaran', $data['master']['periode']), ';');
-        fputcsv($output, array(), ';');
-        fputcsv($output, array('No', 'NIS', 'NISN', 'Nama Siswa', 'Kelas', 'Tarif', 'Dibayar', 'Sisa', 'Status'), ';');
+        $sheet->mergeCells('A1:J1');
+        $sheet->setCellValue('A1', 'DAFTAR SISWA PEMBAYAR');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
+        $sheet->setCellValue('A3', 'Tagihan');
+        $sheet->setCellValue('B3', $data['master']['nama_tagihan']);
+        $sheet->setCellValue('A4', 'Tahun Ajaran');
+        $sheet->setCellValue('B4', $data['master']['periode']);
+        $sheet->setCellValue('A5', 'Kelas');
+        $sheet->setCellValue('B5', $data['kelas']);
+        $sheet->setCellValue('A6', 'Pencarian');
+        $sheet->setCellValue('B6', $search !== '' ? $search : '-');
+        $sheet->setCellValue('A7', 'Tanggal Ekspor');
+        $sheet->setCellValue('B7', date('d-m-Y H:i:s'));
+        $sheet->getStyle('A3:A7')->getFont()->setBold(true);
+
+        $headerRow = 9;
+        $headers = array(
+            'A' => 'No',
+            'B' => 'NIS',
+            'C' => 'NISN',
+            'D' => 'Nama Siswa',
+            'E' => 'Kelas',
+            'F' => 'Tarif',
+            'G' => 'Dibayar',
+            'H' => 'Sisa',
+            'I' => 'Status Pembayaran',
+            'J' => 'Status Penerima'
+        );
+        foreach ($headers as $column => $label) {
+            $sheet->setCellValue($column . $headerRow, $label);
+        }
+        $sheet->getStyle('A' . $headerRow . ':J' . $headerRow)->getFont()->setBold(true);
+
+        $rowNumber = $headerRow + 1;
         foreach ($data['rows'] as $index => $row) {
-            fputcsv($output, array(
-                $index + 1,
-                $row['nis'],
-                $row['nisn'],
-                $row['nama_siswa'],
-                $row['nama_kelas'],
-                (float) $row['tarif'],
-                (float) $row['dibayar'],
-                (float) $row['sisa'],
-                $row['status_tagihan']
-            ), ';');
+            $sheet->setCellValue('A' . $rowNumber, $index + 1);
+            $sheet->setCellValueExplicit('B' . $rowNumber, (string) $row['nis'], \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('C' . $rowNumber, (string) $row['nisn'], \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+            $sheet->setCellValue('D' . $rowNumber, $row['nama_siswa']);
+            $sheet->setCellValue('E' . $rowNumber, $row['nama_kelas']);
+            $sheet->setCellValue('F' . $rowNumber, (float) $row['tarif']);
+            $sheet->setCellValue('G' . $rowNumber, (float) $row['dibayar']);
+            $sheet->setCellValue('H' . $rowNumber, (float) $row['sisa']);
+            $sheet->setCellValue('I' . $rowNumber, $row['status_pembayaran']);
+            $sheet->setCellValue('J' . $rowNumber, $row['status_penerima']);
+            $rowNumber++;
         }
 
-        fclose($output);
+        if ($rowNumber > $headerRow + 1) {
+            $sheet->getStyle('F' . ($headerRow + 1) . ':H' . ($rowNumber - 1))
+                ->getNumberFormat()
+                ->setFormatCode('#,##0');
+        }
+
+        foreach (array(
+            'A' => 6,
+            'B' => 16,
+            'C' => 18,
+            'D' => 28,
+            'E' => 18,
+            'F' => 16,
+            'G' => 16,
+            'H' => 16,
+            'I' => 20,
+            'J' => 20
+        ) as $column => $width) {
+            $sheet->getColumnDimension($column)->setWidth($width);
+        }
+
+        $sheet->freezePane('A10');
+
+        $filename = 'siswa_pembayar_' . preg_replace('/[^A-Za-z0-9_-]/', '_', $data['master']['kode_tagihan']) . '_' . date('Ymd_His') . '.xlsx';
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
+        $spreadsheet->disconnectWorksheets();
+        exit;
+    }
+
+    private function load_phpspreadsheet()
+    {
+        if (class_exists('\\PhpOffice\\PhpSpreadsheet\\Spreadsheet')) {
+            return;
+        }
+
+        $autoload = dirname(APPPATH) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+        if (is_file($autoload)) {
+            require_once $autoload;
+        }
+
+        if (!class_exists('\\PhpOffice\\PhpSpreadsheet\\Spreadsheet')) {
+            show_error('Library PhpSpreadsheet belum tersedia.', 500);
+        }
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
         exit;
     }
 }

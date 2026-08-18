@@ -6,6 +6,7 @@ class Riwayat_kelas extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -26,16 +27,26 @@ class Riwayat_kelas extends CI_Controller
 
     public function cari()
     {
-        json_response($this->model->cari());
+        $this->json_response($this->model->cari());
     }
 
     public function result()
     {
-        json_response($this->model->result());
+        $this->json_response($this->model->result());
     }
 
     public function koreksi()
     {
-        json_response($this->model->koreksi());
+        $this->json_response($this->model->koreksi());
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
     }
 }

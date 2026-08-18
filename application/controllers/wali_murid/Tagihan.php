@@ -8,6 +8,7 @@ class Tagihan extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+           date_default_timezone_set('Asia/Jakarta');
         $this->load->model('wali_murid/M_portal', 'portal');
         $this->load->model('wali_murid/M_tagihan', 'model');
 
@@ -44,7 +45,7 @@ class Tagihan extends CI_Controller
     {
         $ctx = $this->portal->filter_context((int) $this->wali['id']);
         $ids = $this->portal->ids_dari_context((int) $this->wali['id'], $ctx);
-        json_response(array(
+        $this->json_response(array(
             'result' => 'true',
             'data' => $this->model->result($ids, $ctx['id_periode_filter'])
         ));
@@ -66,5 +67,15 @@ class Tagihan extends CI_Controller
         $this->load->view('wali_murid/template/header', $data);
         $this->load->view('wali_murid/detail_tagihan', $data);
         $this->load->view('wali_murid/template/footer');
+    }
+
+    private function json_response($data, $status = 200)
+    {
+        $this->output
+            ->set_status_header((int) $status)
+            ->set_content_type('application/json', 'utf-8')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT))
+            ->_display();
+        exit;
     }
 }

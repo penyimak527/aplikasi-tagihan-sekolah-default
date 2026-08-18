@@ -1,3 +1,9 @@
+<?php
+$nama_bulan_lokal = function ($bulan) {
+    $list = array(1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember');
+    return isset($list[(int) $bulan]) ? $list[(int) $bulan] : '-';
+};
+?>
 <div class="card">
     <div class="card-header">
         <h5 class="mb-0">Filter Tagihan Per Kelas</h5>
@@ -36,7 +42,7 @@
 
                     <?php foreach (array(7,8,9,10,11,12,1,2,3,4,5,6) as $i): ?>
                         <option value="<?= $i ?>">
-                            Sampai <?= nama_bulan($i) ?>
+                            Sampai <?= $nama_bulan_lokal($i) ?>
                         </option>
                     <?php endforeach ?>
                 </select>
@@ -59,14 +65,11 @@
         <h5 class="mb-0">Ringkasan Siswa</h5>
 
         <div class="d-flex gap-2 no-print">
-            <button type="button" onclick="window.print()" class="btn btn-secondary">
+            <button type="button" id="btnCetak" class="btn btn-secondary">
                 Cetak Rekap Kelas
             </button>
             <button type="button" id="btnExport" class="btn btn-success">
                 Ekspor Excel
-            </button>
-            <button type="button" id="btnSuratTerpilih" class="btn btn-warning">
-                Pilih Siswa untuk Surat
             </button>
         </div>
     </div>
@@ -76,9 +79,6 @@
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th class="no-print" style="width:40px;">
-                            <input type="checkbox" class="form-check-input" id="pilihSemuaSurat">
-                        </th>
                         <th>Siswa</th>
                         <th>Kelas</th>
                         <th class="text-end">Total Wajib</th>
@@ -91,7 +91,7 @@
 
                 <tbody id="data">
                     <tr>
-                        <td colspan="8" class="empty-state">
+                        <td colspan="7" class="empty-state">
                             Pilih filter.
                         </td>
                     </tr>
@@ -255,16 +255,12 @@
             }
         );
 
+        $('#btnCetak').on('click', function() {
+            cetakData();
+        });
+
         $('#btnExport').on('click', function() {
             exportData();
-        });
-
-        $('#pilihSemuaSurat').on('change', function() {
-            $('.pilih-surat').prop('checked', $(this).is(':checked'));
-        });
-
-        $('#btnSuratTerpilih').on('click', function() {
-            bukaSuratTerpilih();
         });
     });
 
@@ -320,7 +316,7 @@
                 $('#data').html(`
                     <tr>
                         <td
-                            colspan="8"
+                            colspan="7"
                             class="empty-state"
                         >
                             Memuat data...
@@ -343,7 +339,7 @@
                     table += `
                         <tr class="data-tagihan-kelas">
                             <td
-                                colspan="8"
+                                colspan="7"
                                 class="empty-state"
                             >
                                 Tidak ada data
@@ -369,9 +365,6 @@
 
                             table += `
                                 <tr class="data-tagihan-kelas">
-                                    <td class="no-print">
-                                        <input type="checkbox" class="form-check-input pilih-surat" value="${Number(item.id_siswa)}">
-                                    </td>
                                     <td>
                                         <strong>
                                             ${escapeHtml(item.nama_siswa || '-')}
@@ -450,7 +443,7 @@
                 $('#data').html(`
                     <tr>
                         <td
-                            colspan="8"
+                            colspan="7"
                             class="empty-state text-danger"
                         >
                             Data tagihan per kelas gagal dimuat.
@@ -476,6 +469,20 @@
         });
     }
 
+
+    function cetakData() {
+        var params = new URLSearchParams({
+            id_periode: $('#periode').val() || '',
+            id_kelas_setting: $('#kelas').val() || '',
+            sampai_bulan: $('#bulan').val() || ''
+        });
+
+        window.open(
+            '<?= base_url('admin/tunggakan/tagihan_per_kelas/cetak'); ?>?' + params.toString(),
+            '_blank'
+        );
+    }
+
     function exportData() {
         var params = new URLSearchParams({
             id_periode: $('#periode').val() || '',
@@ -484,23 +491,6 @@
         });
 
         window.location.href = '<?= base_url('admin/tunggakan/tagihan_per_kelas/export'); ?>?' + params.toString();
-    }
-
-    function bukaSuratTerpilih() {
-        var ids = [];
-
-        $('.pilih-surat:checked').each(function() {
-            ids.push($(this).val());
-        });
-
-        if (ids.length === 0) {
-            Swal.fire('Pilih siswa', 'Pilih minimal satu siswa yang akan dibuatkan surat tunggakan.', 'warning');
-            return;
-        }
-
-        ids.forEach(function(id) {
-            window.open('<?= base_url('admin/tunggakan/surat_tunggakan'); ?>?siswa=' + encodeURIComponent(id), '_blank');
-        });
     }
 
     function detail(id_siswa) {

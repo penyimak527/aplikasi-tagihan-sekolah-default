@@ -36,12 +36,11 @@
 </div>
 
 <div class="card">
-    <div class="card-header d-flex justify-content-between">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0">Daftar Tunggakan Lama</h5>
         <div class="d-flex gap-2 no-print">
-            <button onclick="window.print()" class="btn btn-secondary">Cetak Daftar</button>
+            <button type="button" id="btnCetak" class="btn btn-secondary">Cetak Daftar</button>
             <button type="button" id="btnExport" class="btn btn-success">Ekspor Excel</button>
-            <button type="button" id="btnSuratTerpilih" class="btn btn-warning">Pilih untuk Surat</button>
         </div>
     </div>
 
@@ -50,7 +49,6 @@
             <table class="table align-middle">
                 <thead>
                     <tr>
-                        <th class="no-print" style="width:40px;"><input type="checkbox" class="form-check-input" id="pilihSemuaSurat"></th>
                         <th>Siswa</th>
                         <th>Kelas Saat Ini</th>
                         <th>Tahun Asal</th>
@@ -61,7 +59,7 @@
                 </thead>
                 <tbody id="data">
                     <tr class="tunggakan-row">
-                        <td colspan="7" class="empty-state">Pilih tahun berjalan.</td>
+                        <td colspan="6" class="empty-state">Pilih tahun berjalan.</td>
                     </tr>
                 </tbody>
             </table>
@@ -112,6 +110,7 @@
             maximumFractionDigits: 2
         });
     }
+
     $(function() {
         filterKelasByPeriode();
 
@@ -122,24 +121,26 @@
         $('#tampil').on('click', function() {
             loadData();
         });
+
+        $('#btnCetak').on('click', function() {
+            cetakData();
+        });
+
+        $('#btnExport').on('click', function() {
+            exportData();
+        });
+
         $('#dt-length-0').on('change', function() {
             refreshPagination();
         });
+
         $(document).on('click', '.detail', function() {
             loadDetail(
                 $(this).data('id'),
                 $(this).data('period')
             );
         });
-        $('#pilihSemuaSurat').on('change', function() {
-            $('.pilih-surat').prop('checked', $(this).is(':checked'));
-        });
-        $('#btnExport').on('click', function() {
-            exportData();
-        });
-        $('#btnSuratTerpilih').on('click', function() {
-            bukaSuratTerpilih();
-        });
+
         loadData();
     });
 
@@ -161,16 +162,18 @@
     function loadData() {
         var idPeriode = $('#periode').val();
         var idKelasSetting = $('#kelas').val();
+
         if (!idPeriode) {
             $('#data').html(
                 '<tr class="tunggakan-row">' +
-                '<td colspan="7" class="empty-state">Pilih tahun berjalan.</td>' +
+                '<td colspan="6" class="empty-state">Pilih tahun berjalan.</td>' +
                 '</tr>'
             );
 
             refreshPagination();
             return;
         }
+
         $.ajax({
             url: '<?= base_url('admin/tunggakan/tunggakan_lama/result') ?>',
             type: 'POST',
@@ -182,7 +185,7 @@
             beforeSend: function() {
                 $('#data').html(
                     '<tr class="tunggakan-row">' +
-                    '<td colspan="7" class="text-center py-3">' +
+                    '<td colspan="6" class="text-center py-3">' +
                     '<span class="spinner-border spinner-border-sm me-1"></span>' +
                     'Memuat data...' +
                     '</td>' +
@@ -198,7 +201,7 @@
                 if (!rows.length) {
                     html =
                         '<tr class="tunggakan-row">' +
-                        '<td colspan="7" class="empty-state">' +
+                        '<td colspan="6" class="empty-state">' +
                         'Tidak ada tunggakan tahun sebelumnya.' +
                         '</td>' +
                         '</tr>';
@@ -206,7 +209,6 @@
                     rows.forEach(function(row) {
                         html +=
                             '<tr class="tunggakan-row">' +
-                            '<td class="no-print"><input type="checkbox" class="form-check-input pilih-surat" value="' + Number(row.id_siswa || 0) + '"></td>' +
                             '<td>' +
                             '<strong>' + escapeHtml(row.nama_siswa || '-') + '</strong><br>' +
                             '<small>' + escapeHtml(row.nis || '-') + '</small>' +
@@ -234,45 +236,54 @@
                             '</tr>';
                     });
                 }
+
                 $('#data').html(html);
                 refreshPagination();
             },
             error: function(xhr, status, error) {
                 $('#data').html(
                     '<tr class="tunggakan-row">' +
-                    '<td colspan="7" class="empty-state text-danger">' +
+                    '<td colspan="6" class="empty-state text-danger">' +
                     'Data tunggakan gagal dimuat.' +
                     '</td>' +
                     '</tr>'
                 );
+
                 refreshPagination();
                 ajaxError(xhr, status, error);
             }
         });
     }
 
-    function exportData() {
+    function cetakData() {
+        if (!$('#periode').val()) {
+            Swal.fire('Pilih tahun berjalan', 'Pilih Tahun Berjalan terlebih dahulu.', 'warning');
+            return;
+        }
+
         var params = new URLSearchParams({
             id_periode_berjalan: $('#periode').val() || '',
             id_kelas_setting: $('#kelas').val() || ''
         });
-        window.location.href = '<?= base_url('admin/tunggakan/tunggakan_lama/export') ?>?' + params.toString();
+
+        window.open(
+            '<?= base_url('admin/tunggakan/tunggakan_lama/cetak') ?>?' + params.toString(),
+            '_blank'
+        );
     }
 
-    function bukaSuratTerpilih() {
-        var ids = [];
-        $('.pilih-surat:checked').each(function() {
-            ids.push($(this).val());
-        });
-
-        if (ids.length === 0) {
-            Swal.fire('Pilih siswa', 'Pilih minimal satu siswa yang akan dibuatkan surat tunggakan.', 'warning');
+    function exportData() {
+        if (!$('#periode').val()) {
+            Swal.fire('Pilih tahun berjalan', 'Pilih Tahun Berjalan terlebih dahulu.', 'warning');
             return;
         }
 
-        ids.forEach(function(id) {
-            window.open('<?= base_url('admin/tunggakan/surat_tunggakan') ?>?siswa=' + encodeURIComponent(id), '_blank');
+        var params = new URLSearchParams({
+            id_periode_berjalan: $('#periode').val() || '',
+            id_kelas_setting: $('#kelas').val() || ''
         });
+
+        window.location.href = '<?= base_url('admin/tunggakan/tunggakan_lama/export') ?>?' + params.toString();
     }
 
     function loadDetail(idSiswa, idPeriode) {
@@ -298,11 +309,6 @@
             },
             success: function(response) {
                 var rows = Array.isArray(response) ? response : [];
-
-                rows = rows.filter(function(row) {
-                    return Number(row.sisa_tagihan || 0) > 0 &&
-                        row.dianggap_tunggakan === 'Ya';
-                });
 
                 var html =
                     '<table class="table">' +

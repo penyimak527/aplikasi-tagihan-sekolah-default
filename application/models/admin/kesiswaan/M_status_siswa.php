@@ -68,12 +68,12 @@ class M_status_siswa extends CI_Model
         $status = trim((string)$this->input->post('status_baru', true));
         $tanggal = trim((string)$this->input->post('tanggal', true));
         $alasan = trim((string)$this->input->post('alasan', true));
-        if (!$sid || !in_array($status, array('Pindah Sekolah', 'Berhenti'), true) || $tanggal === '' || $alasan === '') return model_response(false, 'Siswa, status baru, tanggal, dan alasan wajib diisi.');
+        if (!$sid || !in_array($status, array('Pindah Sekolah', 'Berhenti'), true) || $tanggal === '' || $alasan === '') return $this->model_response(false, 'Siswa, status baru, tanggal, dan alasan wajib diisi.');
         $s = $this->db->where('id', $sid)->get('siswa')->row_array();
-        if (!$s) return model_response(false, 'Siswa tidak ditemukan.');
+        if (!$s) return $this->model_response(false, 'Siswa tidak ditemukan.');
 
         if (in_array($s['status_pendaftaran'], array('Pindah Sekolah', 'Berhenti'), true)) {
-            return model_response(false, 'Siswa sudah berstatus ' . $s['status_pendaftaran'] . ' dan tidak dapat diproses ulang.');
+            return $this->model_response(false, 'Siswa sudah berstatus ' . $s['status_pendaftaran'] . ' dan tidak dapat diproses ulang.');
         }
 
         $kelas = $this->db->query(
@@ -110,9 +110,9 @@ class M_status_siswa extends CI_Model
                 ->where('id', (int)$kelas['id_kelas_siswa'])
                 ->update('kelas_siswa', array('status_aktif' => '0'));
         }
-        $this->db->insert('tagihan_riwayat_kelas_siswa', array('id_siswa' => $sid, 'nis' => $s['nis'], 'nisn' => $s['nisn'], 'nama_siswa' => $s['nama_lengkap'], 'id_kelas_setting_asal' => $kelas ? (int)$kelas['id'] : 0, 'id_kelas_asal' => $kelas ? (int)$kelas['id_kelas'] : 0, 'nama_kelas_asal' => $kelas ? $kelas['nama_kelas'] : '', 'id_periode_asal' => $kelas ? (int)$kelas['id_periode'] : 0, 'periode_asal' => $kelas ? $kelas['periode'] : '', 'semester_asal' => null, 'jenis_proses' => $status === 'Berhenti' ? 'Berhenti' : 'Pindah Sekolah', 'status_sebelum' => $s['status_pendaftaran'], 'status_setelah' => $status, 'alasan' => $alasan, 'tanggal_proses' => $tanggal, 'waktu_proses' => waktu_sekarang(), 'id_user' => app_user_id(), 'nama_user' => app_user_name(), 'status_riwayat' => 'Aktif'));
-        tagihan_log_activity('Perubahan Status Siswa', 'Kesiswaan', 'Ubah', 'siswa', $sid, $s['nis'], 'Status menjadi ' . $status . ' - ' . $alasan, $s, array('status_pendaftaran' => $status));
-        return tagihan_transaction_result('Status siswa berhasil diubah. Tagihan lama tetap tersimpan.');
+        $this->db->insert('tagihan_riwayat_kelas_siswa', array('id_siswa' => $sid, 'nis' => $s['nis'], 'nisn' => $s['nisn'], 'nama_siswa' => $s['nama_lengkap'], 'id_kelas_setting_asal' => $kelas ? (int)$kelas['id'] : 0, 'id_kelas_asal' => $kelas ? (int)$kelas['id_kelas'] : 0, 'nama_kelas_asal' => $kelas ? $kelas['nama_kelas'] : '', 'id_periode_asal' => $kelas ? (int)$kelas['id_periode'] : 0, 'periode_asal' => $kelas ? $kelas['periode'] : '', 'semester_asal' => null, 'jenis_proses' => $status === 'Berhenti' ? 'Berhenti' : 'Pindah Sekolah', 'status_sebelum' => $s['status_pendaftaran'], 'status_setelah' => $status, 'alasan' => $alasan, 'tanggal_proses' => $tanggal, 'waktu_proses' => $this->waktu_sekarang(), 'id_user' => $this->app_user_id(), 'nama_user' => $this->app_user_name(), 'status_riwayat' => 'Aktif'));
+        $this->tagihan_log_activity('Perubahan Status Siswa', 'Kesiswaan', 'Ubah', 'siswa', $sid, $s['nis'], 'Status menjadi ' . $status . ' - ' . $alasan, $s, array('status_pendaftaran' => $status));
+        return $this->tagihan_transaction_result('Status siswa berhasil diubah. Tagihan lama tetap tersimpan.');
     }
 
     private function kelas_terakhir($idSiswa)
@@ -147,5 +147,74 @@ class M_status_siswa extends CI_Model
                 ? $riwayat['periode_tujuan']
                 : $riwayat['periode_asal']
         );
+    }
+
+    private function app_user_id()
+    {
+        $user = $this->session->userdata('admin');
+        return is_array($user) && isset($user['id']) ? (int) $user['id'] : 0;
+    }
+
+
+    private function app_user_name()
+    {
+        $user = $this->session->userdata('admin');
+        return is_array($user) && isset($user['nama']) && $user['nama'] !== '' ? $user['nama'] : 'Administrator';
+    }
+
+
+    private function waktu_sekarang()
+    {
+        return date('H:i:s');
+    }
+
+
+    private function model_response($success, $message = '', $extra = array())
+    {
+        return array_merge(array(
+            'result' => $success ? 'true' : 'false',
+            'message' => $message
+        ), $extra);
+    }
+
+
+    private function tagihan_transaction_result($success_message = 'Data berhasil disimpan.')
+    {
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            return array(
+                'result' => 'false',
+                'message' => 'Proses database gagal. Tidak ada perubahan yang disimpan.'
+            );
+        }
+
+        $this->db->trans_commit();
+        return array(
+            'result' => 'true',
+            'message' => $success_message
+        );
+    }
+
+
+    private function tagihan_log_activity($jenis, $modul, $aksi, $table, $id, $nomor, $keterangan, $before = null, $after = null)
+    {
+        $user = $this->session->userdata('admin');
+        $this->db->insert('tagihan_log_aktivitas', array(
+            'jenis_aktivitas' => $jenis,
+            'modul' => $modul,
+            'aksi' => $aksi,
+            'nama_tabel' => $table,
+            'id_referensi' => (string) $id,
+            'nomor_referensi' => $nomor,
+            'keterangan' => $keterangan,
+            'data_sebelum' => $before === null ? null : json_encode($before, JSON_UNESCAPED_UNICODE),
+            'data_sesudah' => $after === null ? null : json_encode($after, JSON_UNESCAPED_UNICODE),
+            'ip_address' => $this->input->ip_address(),
+            'user_agent' => $this->input->user_agent(),
+            'tanggal' => date('d-m-Y'),
+            'waktu' => date('H:i:s'),
+            'id_user' => is_array($user) && isset($user['id']) ? (int) $user['id'] : 0,
+            'nama_user' => is_array($user) && isset($user['nama']) && $user['nama'] !== '' ? $user['nama'] : 'Administrator'
+        ));
     }
 }
