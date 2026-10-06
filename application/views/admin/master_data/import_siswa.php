@@ -20,8 +20,8 @@
                                 <?php endforeach; ?>
                             </select></div>
                         <div class="col-md-3"><label class="form-label">Kelas Penempatan</label><select
-                                name="id_kelas_setting" id="id_kelas_setting" class="form-select" required>
-                                <option value="">Pilih Kelas</option><?php foreach ($kelas as $r): ?>
+                                name="id_kelas_setting" id="id_kelas_setting" class="form-select" required disabled>
+                                <option value="">Pilih Tahun Ajaran terlebih dahulu</option><?php foreach ($kelas as $r): ?>
                                     <option value="<?= $r['id'] ?>" data-periode="<?= $r['id_periode'] ?>">
                                         <?= html_escape($r['nama_kelas']) ?></option><?php endforeach; ?>
                             </select></div>
@@ -97,6 +97,7 @@
 <script>
     $(function() {
         loadRiwayat();
+        filterKelas();
         $('#id_periode').change(filterKelas);
         $('#form_preview').submit(previewData);
         $('#btn_import').click(importData);
@@ -104,13 +105,27 @@
     });
 
     function filterKelas() {
-        var p = $('#id_periode').val();
-        $('#id_kelas_setting option').each(function() {
-            var v = $(this).data('periode');
-            var visible = !v || String(v) === String(p);
-            $(this).prop('hidden', !visible).prop('disabled', !visible);
+        var periode = $('#id_periode').val();
+        var kelas = $('#id_kelas_setting');
+
+        kelas.find('option').each(function() {
+            var optionPeriode = $(this).data('periode');
+
+            if (!optionPeriode) {
+                return;
+            }
+
+            var sesuai = periode !== '' && String(optionPeriode) === String(periode);
+            $(this).prop('hidden', !sesuai).prop('disabled', !sesuai);
         });
-        $('#id_kelas_setting').val('');
+
+        if (periode === '') {
+            kelas.find('option[value=""]').text('Pilih Tahun Ajaran terlebih dahulu');
+            kelas.val('').prop('disabled', true);
+        } else {
+            kelas.find('option[value=""]').text('Pilih Kelas');
+            kelas.val('').prop('disabled', false);
+        }
     }
 
     function previewData(e) {

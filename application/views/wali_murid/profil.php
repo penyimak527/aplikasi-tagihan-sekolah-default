@@ -1,6 +1,6 @@
-<div class="card portal-card mb-3">
-    <div class="card-header">
-        <h4 class="mb-0">Profil Wali Murid</h4>
+<div class="card mb-3">
+    <div class="card-header border-bottom border-dashed">
+        <h4 class="header-title">Profil Wali Murid</h4>
     </div>
     <div class="card-body">
         <div class="row g-3">
@@ -24,9 +24,9 @@
             Password</a>
     </div>
 </div>
-<div class="card portal-card">
-    <div class="card-header">
-        <h5 class="mb-0">Anak Terhubung</h5>
+<div class="card">
+    <div class="card-header border-bottom border-dashed">
+        <h4 class="header-title">Anak Terhubung</h4>
     </div>
     <div class="card-body">
         <?php if (empty($anak)): ?>

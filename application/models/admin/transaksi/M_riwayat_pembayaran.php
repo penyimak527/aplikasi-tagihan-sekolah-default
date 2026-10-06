@@ -35,12 +35,6 @@ class M_riwayat_pembayaran extends CI_Model
         $this->apply_filters();
         return $this->db->order_by("STR_TO_DATE(p.tanggal_transaksi,'%d-%m-%Y')", 'DESC', false)->order_by('p.waktu_transaksi', 'DESC')->order_by('p.id', 'DESC')->limit(1000)->get()->result_array();
     }
-    public function result_aktif()
-    {
-        $this->db->select('p.*')->from('tagihan_pembayaran p');
-        $this->apply_filters('Aktif');
-        return $this->db->order_by("STR_TO_DATE(p.tanggal_transaksi,'%d-%m-%Y')", 'DESC', false)->order_by('p.waktu_transaksi', 'DESC')->order_by('p.id', 'DESC')->limit(1000)->get()->result_array();
-    }
     public function detail($id)
     {
         $p = $this->db->where('id', $id)->get('tagihan_pembayaran')->row_array();

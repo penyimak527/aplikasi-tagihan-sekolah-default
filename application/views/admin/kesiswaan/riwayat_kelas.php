@@ -190,7 +190,15 @@
             if (event.key === 'Enter') cari();
         });
         $('#btn_cetak').on('click', function() {
-            window.print();
+            if (selectedStudentId <= 0) {
+                Swal.fire('Perhatian', 'Pilih siswa terlebih dahulu.', 'warning');
+                return;
+            }
+
+            window.open(
+                '<?= base_url('admin/kesiswaan/riwayat_kelas/cetak/') ?>' + selectedStudentId,
+                '_blank'
+            );
         });
         $('#btn_koreksi').on('click', bukaKoreksi);
         $('#btn_simpan_koreksi').on('click', simpanKoreksi);

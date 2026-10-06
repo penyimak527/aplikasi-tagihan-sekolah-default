@@ -28,6 +28,11 @@ $menuKesiswaan = $this->db->query(
     array($id_level)
 )->result_array();
 
+$menuKepegawaian = $this->db->query(
+    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Kepegawaian' ORDER BY b.urut ASC",
+    array($id_level)
+)->result_array();
+
 $menuTagihan = $this->db->query(
     "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Tagihan' ORDER BY b.urut ASC",
     array($id_level)
@@ -39,7 +44,7 @@ $menuTransaksi = $this->db->query(
 )->result_array();
 
 $menuTunggakan = $this->db->query(
-    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Tagihan & Tunggakan' ORDER BY b.urut ASC",
+    "SELECT a.* FROM list_menu a LEFT JOIN menu b ON a.id_menu = b.id WHERE a.id_level = ? AND a.`group` = 'Tunggakan' ORDER BY b.urut ASC",
     array($id_level)
 )->result_array();
 
@@ -72,6 +77,7 @@ $is_group_active = function ($menus) use ($is_menu_active) {
 
 $master_open = $is_group_active($menuMaster);
 $kesiswaan_open = $is_group_active($menuKesiswaan);
+$kepegawaian_open = $is_group_active($menuKepegawaian);
 $tagihan_open = $is_group_active($menuTagihan);
 $transaksi_open = $is_group_active($menuTransaksi);
 $tunggakan_open = $is_group_active($menuTunggakan);
@@ -83,9 +89,9 @@ $pengaturan_open = $is_group_active($menuPengaturan);
 
 <head>
     <meta charset="utf-8">
-    <title><?= html_escape($page_title) ?> | Aplikasi Tagihan Sekolah</title>
+    <title><?= html_escape($page_title) ?> | SIPASTI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Aplikasi Tagihan Sekolah">
+    <meta name="description" content="Sistem Informasi & Pengelolaan Administrasi Sekolah Terpadu.">
 
     <link rel="shortcut icon" href="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>">
 
@@ -102,12 +108,6 @@ $pengaturan_open = $is_group_active($menuPengaturan);
 
     <!-- vendor.min.js asli Adminto sudah memuat jQuery dan Bootstrap. -->
     <script src="<?= base_url('assets/js/vendor.min.js') ?>"></script>
-
-    <script>
-        if (typeof window.jQuery === 'undefined') {
-            document.write('<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>');
-        }
-    </script>
 
     <script src="<?= base_url('assets/js/js-form.js') ?>"></script>
     <script src="<?= base_url('assets/vendor/sweetalert2/sweetalert2.min.js') ?>"></script>
@@ -147,42 +147,8 @@ $pengaturan_open = $is_group_active($menuPengaturan);
 
             <div data-simplebar>
                 <div class="sidenav-scroll-content">
-                    <div class="sidenav-user">
-                        <div class="dropdown-center text-center">
-                            <a class="topbar-link dropdown-toggle text-reset drop-arrow-none px-2"
-                                data-bs-toggle="dropdown" type="button" aria-haspopup="false" aria-expanded="false">
-                                <img src="<?= base_url('assets/user.png') ?>" width="46" class="rounded-circle"
-                                    alt="Foto pengguna">
-                                <span class="d-flex gap-1 sidenav-user-name my-2">
-                                    <span>
-                                        <span
-                                            class="mb-0 fw-semibold lh-base fs-15"><?= html_escape($user_name) ?></span>
-                                        <p class="my-0 fs-13 text-muted"><?= html_escape($user_role) ?></p>
-                                    </span>
-                                    <i class="ri-arrow-down-s-line d-block sidenav-user-arrow align-middle"></i>
-                                </span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <div class="dropdown-header noti-title">
-                                    <h6 class="text-overflow m-0">Aplikasi Tagihan Sekolah</h6>
-                                </div>
-                                <?php $log_menu = array_values(array_filter($menuPengaturan, function ($m) {
-                                    return isset($m['name']) && $m['name'] === 'Log Aktivitas';
-                                })); ?>
-                                <?php if (!empty($log_menu)): ?>
-                                    <a href="<?= base_url($log_menu[0]['path']) ?>" class="dropdown-item">
-                                        <i class="ri-history-line me-1 fs-16 align-middle"></i>
-                                        <span class="align-middle">Log Aktivitas</span>
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                <?php endif; ?>
-                                <a href="<?= base_url('login/logout') ?>"
-                                    class="dropdown-item active fw-semibold text-danger">
-                                    <i class="ri-logout-box-line me-1 fs-16 align-middle"></i>
-                                    <span class="align-middle">Keluar</span>
-                                </a>
-                            </div>
-                        </div>
+                    <div class="sidenav-brand-name text-center" aria-label="SIPASTI">
+                        SIPASTI
                     </div>
 
                     <ul class="side-nav">
@@ -212,6 +178,30 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                 <div class="collapse <?= $master_open ? 'show' : '' ?>" id="menuMaster">
                                     <ul class="sub-menu">
                                         <?php foreach ($menuMaster as $menu): ?>
+                                            <li class="side-nav-item">
+                                                <a href="<?= base_url($menu['path']) ?>"
+                                                    class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
+                                                    <span class="menu-text"><?= html_escape($menu['name']) ?></span>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </li>
+                        <?php endif; ?>
+
+        <?php if ($menuKepegawaian): ?>
+                            <li class="side-nav-item">
+                                <a data-bs-toggle="collapse" href="#menuKepegawaian"
+                                    aria-expanded="<?= $kepegawaian_open ? 'true' : 'false' ?>" aria-controls="menuKepegawaian"
+                                    class="side-nav-link <?= $kepegawaian_open ? 'active' : '' ?>">
+                                    <span class="menu-icon"><i class="ti ti-briefcase"></i></span>
+                                    <span class="menu-text">Kepegawaian</span>
+                                    <span class="menu-arrow"></span>
+                                </a>
+                                <div class="collapse <?= $kepegawaian_open ? 'show' : '' ?>" id="menuKepegawaian">
+                                    <ul class="sub-menu">
+                                        <?php foreach ($menuKepegawaian as $menu): ?>
                                             <li class="side-nav-item">
                                                 <a href="<?= base_url($menu['path']) ?>"
                                                     class="side-nav-link <?= $is_menu_active($menu['path']) ? 'active' : '' ?>">
@@ -306,7 +296,7 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                                     aria-expanded="<?= $tunggakan_open ? 'true' : 'false' ?>" aria-controls="menuTunggakan"
                                     class="side-nav-link <?= $tunggakan_open ? 'active' : '' ?>">
                                     <span class="menu-icon"><i class="ti ti-alert-circle"></i></span>
-                                    <span class="menu-text">Tagihan &amp; Tunggakan</span>
+                                    <span class="menu-text">Tunggakan</span>
                                     <span class="menu-arrow"></span>
                                 </a>
                                 <div class="collapse <?= $tunggakan_open ? 'show' : '' ?>" id="menuTunggakan">
@@ -377,12 +367,6 @@ $pengaturan_open = $is_group_active($menuPengaturan);
                     <!-- Logo ini hanya tampil pada mode mobile sesuai perilaku bawaan Adminto. -->
                     <a href="<?= base_url($dashboard_path) ?>" class="logo">
                         <span class="logo-light">
-                            <span class="logo-lg"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>"
-                                    alt="Adminto"></span>
-                            <span class="logo-sm"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>"
-                                    alt="Adminto"></span>
-                        </span>
-                        <span class="logo-dark">
                             <span class="logo-lg"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>"
                                     alt="Adminto"></span>
                             <span class="logo-sm"><img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>"

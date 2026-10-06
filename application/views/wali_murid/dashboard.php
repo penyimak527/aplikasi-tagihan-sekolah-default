@@ -12,7 +12,7 @@ $format_rupiah = function ($nominal) { return 'Rp' . number_format((float) $nomi
     <div class="row g-3 mb-3">
         <?php
         $utama = array(
-            array('Tagihan Aktif', $ringkasan['tagihan_aktif'], 'ri-file-list-3-line'),
+            array('Total Tagihan', $ringkasan['tagihan_aktif'], 'ri-file-list-3-line'),
             array('Sudah Dibayar', $ringkasan['sudah_dibayar'], 'ri-checkbox-circle-line'),
             array('Sisa Tagihan', $ringkasan['sisa_tagihan'], 'ri-wallet-3-line')
         );
@@ -35,7 +35,7 @@ $format_rupiah = function ($nominal) { return 'Rp' . number_format((float) $nomi
             <div class="card portal-card h-100">
                 <div class="card-body d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="text-muted mb-2">Tunggakan Lama</div>
+                        <div class="text-muted mb-2">Tunggakan</div>
                         <div class="portal-stat-value"><?= $format_rupiah($ringkasan['tunggakan_lama']) ?></div>
                     </div>
                     <i class="ri-error-warning-line fs-3 text-primary"></i>
@@ -59,11 +59,11 @@ $format_rupiah = function ($nominal) { return 'Rp' . number_format((float) $nomi
         <div class="col-lg-7">
             <div class="card portal-card h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Tagihan yang Perlu Diperhatikan</h5>
+                    <h5 class="mb-0">Tagihan Bulan Ini & Tunggakan</h5>
                 </div>
                 <div class="card-body">
                     <?php if (empty($perhatian)): ?>
-                        <div class="text-muted">Tidak ada tagihan yang perlu diperhatikan pada filter yang dipilih.</div>
+                        <div class="text-muted">Tidak ada tagihan bulan berjalan atau tunggakan pada filter yang dipilih.</div>
                     <?php else:
                         foreach ($perhatian as $row): ?>
                             <div class="portal-list-item">

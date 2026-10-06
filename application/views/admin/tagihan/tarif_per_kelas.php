@@ -242,12 +242,15 @@ function loadTarifKelas() {
                         formatRupiah(tarifMaster.nominal_default || 0) +
                     '</td>' +
                     '<td>' +
-                        '<input type="text" ' +
-                            'inputmode="numeric" ' +
-                            'autocomplete="off" ' +
-                            'class="form-control money-input input-tarif-kelas" ' +
-                            'name="tarif[' + row.id + ']" ' +
-                            'value="' + value + '">' +
+                        '<div class="input-group input-group-sm">' +
+                            '<span class="input-group-text">Rp</span>' +
+                            '<input type="text" ' +
+                                'inputmode="numeric" ' +
+                                'autocomplete="off" ' +
+                                'class="form-control money-input input-tarif-kelas" ' +
+                                'name="tarif[' + row.id + ']" ' +
+                                'value="' + value + '">' +
+                        '</div>' +
                     '</td>' +
                     '<td class="text-center">' +
                         Number(row.jumlah_siswa || 0).toLocaleString('id-ID') +

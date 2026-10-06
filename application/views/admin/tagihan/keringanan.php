@@ -86,11 +86,11 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Nominal Awal</label>
-                            <input id="nominal_awal" class="form-control" disabled>
+                            <div class="input-group"><span class="input-group-text">Rp</span><input id="nominal_awal" class="form-control" disabled></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Sudah Dibayar</label>
-                            <input id="sudah_dibayar" class="form-control" disabled>
+                            <div class="input-group"><span class="input-group-text">Rp</span><input id="sudah_dibayar" class="form-control" disabled></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="jenis">Jenis Keringanan</label>
@@ -102,15 +102,15 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="nilai">Nilai Keringanan</label>
-                            <input name="nilai_keringanan" id="nilai" type="text" inputmode="numeric" autocomplete="off" class="form-control money-input">
+                            <div class="input-group" id="nilai_rupiah_group"><span class="input-group-text" id="nilai_prefix">Rp</span><input name="nilai_keringanan" id="nilai" type="text" inputmode="numeric" autocomplete="off" class="form-control money-input"></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Nominal Akhir</label>
-                            <input id="nominal_akhir" class="form-control" disabled>
+                            <div class="input-group"><span class="input-group-text">Rp</span><input id="nominal_akhir" class="form-control" disabled></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Sisa Setelah Aturan</label>
-                            <input id="sisa" class="form-control" disabled>
+                            <div class="input-group"><span class="input-group-text">Rp</span><input id="sisa" class="form-control" disabled></div>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Alasan</label>
@@ -130,6 +130,12 @@
 var tagihanMap = {};
 
 $(document).ready(function () {
+    $('#tagihan').select2({
+        width: '100%',
+        placeholder: 'Cari atau pilih tagihan',
+        allowClear: true
+    });
+
     $('#btn_cari_siswa').on('click', function () {
         cariSiswa();
     });
@@ -261,7 +267,7 @@ function loadTagihan() {
                 '</option>';
             });
 
-            $('#tagihan').html(html);
+            $('#tagihan').html(html).val('').trigger('change');
             $('#nominal_awal, #sudah_dibayar, #nominal_akhir, #sisa').val('');
         },
         error: ajaxError
@@ -277,12 +283,14 @@ function aturInputKeringanan() {
     input.data('jenis', jenis);
 
     if (jenis === 'Pembebasan Penuh') {
+        $('#nilai_prefix').text('Rp');
         input
             .prop('disabled', true)
             .removeClass('money-input')
             .removeAttr('max')
             .val('0');
     } else if (jenis === 'Potongan Persen') {
+        $('#nilai_prefix').text('%');
         input
             .prop('disabled', false)
             .removeClass('money-input')
@@ -292,6 +300,7 @@ function aturInputKeringanan() {
 
         batasiPersen();
     } else {
+        $('#nilai_prefix').text('Rp');
         input
             .prop('disabled', false)
             .addClass('money-input')

@@ -1,0 +1,117 @@
+/*
+ * Penyesuaian layout Portal Wali Murid.
+ * Komponen utama tetap menggunakan app.min.css + tagihan-custom.css yang sama dengan Admin.
+ */
+
+.wali-layout .app-topbar .wali-logo {
+    min-width: 74px;
+    padding-left: 0;
+    padding-right: 12px;
+}
+
+.wali-layout .app-topbar .wali-logo img {
+    width: auto;
+    max-width: 58px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.wali-layout .app-topbar .page-title {
+    max-width: min(48vw, 560px);
+}
+
+.wali-layout .wali-topnav {
+    background: #016533;
+    border-top: 0;
+    box-shadow: 0 3px 10px rgba(16, 24, 40, .08);
+}
+
+.wali-layout .wali-topnav .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, .84);
+    border-radius: .35rem;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.wali-layout .wali-topnav .navbar-nav .nav-link:hover,
+.wali-layout .wali-topnav .navbar-nav .nav-link:focus,
+.wali-layout .wali-topnav .navbar-nav .nav-link.active,
+.wali-layout .wali-topnav .navbar-nav .nav-item.active > .nav-link {
+    color: #fff;
+    background: rgba(255, 255, 255, .12);
+}
+
+.wali-layout .wali-global-filter .card-header {
+    min-height: 64px;
+}
+
+/* Daftar pada portal dibuat mengikuti karakter CRUD/list Admin. */
+.wali-layout .portal-list-item {
+    border: 1px solid var(--ct-border-color);
+    border-radius: var(--ct-border-radius-lg);
+    padding: 1rem;
+    background: var(--ct-tertiary-bg);
+}
+
+.wali-layout .portal-list-item + .portal-list-item {
+    margin-top: .75rem;
+}
+
+.wali-layout .portal-meta {
+    color: var(--ct-secondary-color);
+    font-size: .8125rem;
+    line-height: 1.5;
+}
+
+.wali-layout .portal-stat-value {
+    margin-bottom: .25rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.wali-layout .wali-detail-label {
+    display: block;
+    margin-bottom: .25rem;
+    color: var(--ct-secondary-color);
+    font-size: .8125rem;
+}
+
+.wali-layout .wali-detail-value {
+    color: var(--ct-heading-color);
+    font-weight: 600;
+}
+
+@media (max-width: 991.98px) {
+    .wali-layout .wali-topnav .navbar {
+        padding: 0;
+    }
+
+    .wali-layout .wali-topnav .navbar-collapse {
+        padding: .35rem 0 .75rem;
+    }
+
+    .wali-layout .wali-topnav .navbar-nav .nav-link {
+        border-radius: .35rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .wali-layout .app-topbar .wali-logo {
+        min-width: auto;
+        padding-right: 4px;
+    }
+
+    .wali-layout .app-topbar .wali-logo img {
+        max-width: 42px;
+        height: 36px;
+    }
+
+    .wali-layout .app-topbar .page-title {
+        max-width: 46vw;
+        font-size: 1rem !important;
+    }
+
+    .wali-layout .page-content {
+        margin-top: 1rem;
+    }
+}

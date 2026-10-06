@@ -1,6 +1,6 @@
-<div class="card portal-card">
-    <div class="card-header">
-        <h4 class="mb-0">Bukti Pembayaran</h4>
+<div class="card">
+    <div class="card-header border-bottom border-dashed">
+        <h4 class="header-title">Bukti Pembayaran</h4>
     </div>
     <div class="card-body">
         <p class="text-muted">Daftar bukti transaksi yang telah dicatat secara resmi oleh sekolah.</p>

@@ -101,11 +101,101 @@ class M_pembayaran extends CI_Model
         }
 
         $rows = $this->db
+            ->order_by("STR_TO_DATE(tanggal_jatuh_tempo, '%d-%m-%Y')", 'ASC', false)
             ->order_by('tahun', 'ASC')
             ->order_by('bulan', 'ASC')
             ->order_by('id', 'ASC')
             ->get()
             ->result_array();
+
+        $hariIni = new DateTime('today');
+        $awalBulan = new DateTime(date('Y-m-01'));
+        $akhirBulan = new DateTime(date('Y-m-t'));
+        $bulanHariIni = (int) $hariIni->format('n');
+        $tahunHariIni = (int) $hariIni->format('Y');
+        $periodeHariIni = ($tahunHariIni * 100) + $bulanHariIni;
+        $tagihanSaatIni = array();
+        $tagihanMendatang = array();
+        $totalSisaTagihan = 0;
+
+        foreach ($rows as $row) {
+            $jatuhTempo = $this->tanggal_jatuh_tempo_date(
+                $row['tanggal_jatuh_tempo'] ?? ''
+            );
+
+            $bulanTagihan = (int) ($row['bulan'] ?? 0);
+            $tahunTagihan = (int) ($row['tahun'] ?? 0);
+            $periodeTagihan = ($tahunTagihan * 100) + $bulanTagihan;
+            $periodeValid = $bulanTagihan >= 1 && $bulanTagihan <= 12 && $tahunTagihan > 0;
+            $isBulanIni = $periodeValid && $periodeTagihan === $periodeHariIni;
+            $isMendatang = $periodeValid && $periodeTagihan > $periodeHariIni;
+            $isBulanSebelumnya = $periodeValid && $periodeTagihan < $periodeHariIni;
+            $isLewatJatuhTempo = $jatuhTempo instanceof DateTime && $jatuhTempo <= $hariIni;
+            $isTunggakan = $isLewatJatuhTempo
+                && (($row['dianggap_tunggakan'] ?? 'Ya') === 'Ya');
+
+            $row['tanggal_jatuh_tempo_iso'] = $jatuhTempo instanceof DateTime
+                ? $jatuhTempo->format('Y-m-d')
+                : '';
+
+            $tipeTagihan = trim((string) ($row['tipe_tagihan'] ?? ''));
+            $isTagihanTahunan = $tipeTagihan === 'Tahunan';
+
+            if (!$periodeValid) {
+                // Data lama tanpa bulan/tahun yang valid tetap dapat dibaca,
+                // tetapi jatuh tempo hanya menentukan label tunggakannya.
+                $kategori = $isTunggakan
+                    ? 'overdue'
+                    : ((($row['status_pembayaran'] ?? '') === 'Dibayar Sebagian') ? 'partial' : 'current');
+            } elseif ($isMendatang) {
+                // Tagihan yang bulan mulainya belum tercapai tetap tersedia melalui Bayar Lebih Awal.
+                $kategori = 'future';
+            } elseif ($isTagihanTahunan) {
+                // Tahunan aktif mulai bulan tagihan dan tetap dapat dibayar
+                // pada bulan-bulan berikutnya selama masih memiliki sisa tagihan.
+                if ($isTunggakan) {
+                    $kategori = 'overdue';
+                } elseif (($row['status_pembayaran'] ?? '') === 'Dibayar Sebagian') {
+                    $kategori = 'partial';
+                } elseif (($row['status_pembayaran'] ?? '') === 'Belum Dibayar') {
+                    $kategori = 'unpaid';
+                } else {
+                    $kategori = 'current';
+                }
+            } elseif ($isBulanIni) {
+                // Tagihan bulan berjalan selalu tampil, berapa pun tanggal jatuh temponya.
+                if ($isTunggakan) {
+                    $kategori = 'overdue';
+                } elseif (($row['status_pembayaran'] ?? '') === 'Dibayar Sebagian') {
+                    $kategori = 'partial';
+                } elseif (($row['status_pembayaran'] ?? '') === 'Belum Dibayar') {
+                    $kategori = 'unpaid';
+                } else {
+                    $kategori = 'current';
+                }
+            } else {
+                // Selain Tahunan, tagihan bulan sebelumnya tetap mengikuti alur existing:
+                // hanya dibawa jika memang menjadi tunggakan.
+                $kategori = $isTunggakan ? 'overdue' : 'previous';
+            }
+
+            $row['kategori_pembayaran'] = $kategori;
+            $row['is_tunggakan'] = $isTunggakan ? 'Ya' : 'Tidak';
+            $row['is_bulan_ini'] = $isBulanIni ? 'Ya' : 'Tidak';
+            $row['is_bulan_sebelumnya'] = $isBulanSebelumnya ? 'Ya' : 'Tidak';
+            $row['is_mendatang'] = $isMendatang ? 'Ya' : 'Tidak';
+
+            if ($kategori === 'previous') {
+                continue;
+            }
+
+            if ($kategori === 'future') {
+                $tagihanMendatang[] = $row;
+            } else {
+                $tagihanSaatIni[] = $row;
+                $totalSisaTagihan += (float) ($row['sisa_tagihan'] ?? 0);
+            }
+        }
 
         return array(
             'result' => 'true',
@@ -121,8 +211,33 @@ class M_pembayaran extends CI_Model
                     )
                 )
             ),
-            'tagihan' => $rows
+            // Daftar normal hanya berisi tagihan yang waktunya sudah relevan dibayar.
+            'tagihan' => $tagihanSaatIni,
+            // Tagihan setelah bulan berjalan disediakan khusus untuk fitur Bayar Lebih Awal.
+            'tagihan_mendatang' => $tagihanMendatang,
+            'total_sisa_tagihan' => $totalSisaTagihan,
+            'tanggal_hari_ini' => $hariIni->format('d-m-Y'),
+            'awal_bulan' => $awalBulan->format('d-m-Y'),
+            'akhir_bulan' => $akhirBulan->format('d-m-Y')
         );
+    }
+
+    private function tanggal_jatuh_tempo_date($tanggal)
+    {
+        $tanggal = trim((string) $tanggal);
+
+        if ($tanggal !== '' && preg_match('/^\d{2}-\d{2}-\d{4}$/', $tanggal)) {
+            $date = DateTime::createFromFormat('!d-m-Y', $tanggal);
+            $errors = DateTime::getLastErrors();
+            $valid = $errors === false
+                || ((int) ($errors['warning_count'] ?? 0) === 0 && (int) ($errors['error_count'] ?? 0) === 0);
+
+            if ($date instanceof DateTime && $valid && $date->format('d-m-Y') === $tanggal) {
+                return $date;
+            }
+        }
+
+        return null;
     }
 
     private function payment_status($paid, $total)

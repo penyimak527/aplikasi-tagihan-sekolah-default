@@ -19,8 +19,8 @@
                 </select>
             </div>
             <div class="col-lg-2 col-md-6">
-                <select id="kelas_filter" class="form-select">
-                    <option value="0">Semua Kelas</option>
+                <select id="kelas_filter" class="form-select" disabled>
+                    <option value="0">Pilih Tahun Ajaran terlebih dahulu</option>
                     <?php foreach ($kelas as $row): ?>
                         <option value="<?= $row['id'] ?>" data-periode="<?= $row['id_periode'] ?>"><?= html_escape($row['nama_kelas']) ?></option>
                     <?php endforeach; ?>
@@ -234,11 +234,26 @@ $('#btn-update').prop('disabled', true);
 
     function filterKelas() {
         var periode = $('#periode_filter').val();
-        $('#kelas_filter option').each(function() {
+        var kelas = $('#kelas_filter');
+
+        kelas.find('option').each(function() {
             var optionPeriode = $(this).data('periode');
-            $(this).toggle(!optionPeriode || periode === '0' || String(optionPeriode) === String(periode));
+
+            if (!optionPeriode) {
+                return;
+            }
+
+            var sesuai = periode !== '0' && String(optionPeriode) === String(periode);
+            $(this).prop('hidden', !sesuai).prop('disabled', !sesuai);
         });
-        $('#kelas_filter').val('0');
+
+        if (periode === '0') {
+            kelas.find('option[value="0"]').text('Pilih Tahun Ajaran terlebih dahulu');
+            kelas.val('0').prop('disabled', true);
+        } else {
+            kelas.find('option[value="0"]').text('Semua Kelas');
+            kelas.val('0').prop('disabled', false);
+        }
     }
 
     function siswa() {
@@ -285,12 +300,12 @@ $('#btn-update').prop('disabled', true);
                                     <button type="button" class="btn btn-outline-primary btn-icon" title="Detail" onclick="detail('${detailData}')"><i class="ri-eye-line"></i></button>
                                     <button type="button" class="btn btn-outline-warning btn-icon" title="Edit" onclick="edit('${detailData}')"><i class="ri-edit-line"></i></button>
                                     <a class="btn btn-outline-info btn-icon" title="Riwayat Kelas" href="<?= base_url('admin/kesiswaan/riwayat_kelas?id_siswa=') ?>${item.id}"><i class="ri-history-line"></i></a>
-                                    <a class="btn btn-outline-primary btn-icon" title="Riwayat Tagihan" href="<?= base_url('admin/tunggakan/tagihan_per_siswa?id_siswa=') ?>${item.id}"><i class="ri-file-list-3-line"></i></a>
+                                    <a class="btn btn-outline-primary btn-icon" title="Riwayat Tagihan" href="<?= base_url('admin/tunggakan/monitoring_tagihan?id_siswa=') ?>${item.id}"><i class="ri-file-list-3-line"></i></a>
                                     ${tombolHapus}
-                                </div>
-                            </div>`;
-                    });
-                }
+                                    </div>
+                                    </div>`;
+                                });
+                            }
 
                 $('#data_siswa').html(table);
                 var jumlah = parseInt($('#dt-length-0').val(), 10) || 10;

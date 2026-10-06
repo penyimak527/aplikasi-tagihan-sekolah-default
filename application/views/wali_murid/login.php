@@ -11,7 +11,7 @@ $schoolLogo = !empty($school['logo_sekolah']) ? $school['logo_sekolah'] : 'asset
     <title>Login | Portal Wali Murid</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Login Portal Wali Murid">
-    <link rel="shortcut icon" href="<?= base_url($schoolLogo) ?>">
+        <link rel="shortcut icon" href="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>">
     <script src="<?= base_url('assets/js/config.js') ?>"></script>
     <link href="<?= base_url('assets/css/vendor.min.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/css/app.min.css') ?>" rel="stylesheet">
@@ -20,24 +20,51 @@ $schoolLogo = !empty($school['logo_sekolah']) ? $school['logo_sekolah'] : 'asset
     <style>
         body {
             min-height: 100vh;
-            background: #f5f7fb;
+            background-image: linear-gradient(rgba(17, 24, 39, .30), rgba(17, 24, 39, .30)), url('<?= base_url('assets/almahbaro_login.webp') ?>');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             display: flex;
             align-items: center;
         }
 
         .login-card {
-            max-width: 460px;
+            max-width: 410px;
             margin: auto;
             width: 100%;
-            border: 0;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, .08);
+            border: 1px solid rgba(255, 255, 255, .55);
+            border-radius: 14px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .16);
+            background: rgba(255, 255, 255, .91);
+            -webkit-backdrop-filter: blur(7px);
+            backdrop-filter: blur(7px);
+        }
+
+        .login-card .card-body {
+            padding: 28px 30px;
         }
 
         .login-logo {
-            width: 82px;
-            height: 82px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
             object-fit: cover;
+        }
+
+        @media (max-width: 575.98px) {
+            body {
+                align-items: center;
+                background-attachment: scroll;
+            }
+
+            .login-card {
+                max-width: 100%;
+            }
+
+            .login-card .card-body {
+                padding: 24px 22px;
+            }
         }
     </style>
 </head>
@@ -45,7 +72,7 @@ $schoolLogo = !empty($school['logo_sekolah']) ? $school['logo_sekolah'] : 'asset
 <body>
     <div class="container py-4">
         <div class="card login-card">
-            <div class="card-body p-4 p-md-5">
+            <div class="card-body">
                 <div class="text-center mb-4">
                     <img class="login-logo mb-3" src="<?= base_url($schoolLogo) ?>" alt="Logo sekolah">
                     <div class="fw-semibold text-muted mb-1"><?= html_escape($schoolName) ?></div>
@@ -77,8 +104,7 @@ $schoolLogo = !empty($school['logo_sekolah']) ? $school['logo_sekolah'] : 'asset
                     </div>
                     <button type="submit" class="btn btn-primary w-100 fw-semibold">Masuk</button>
                 </form>
-                <p class="text-center text-muted mt-4 mb-0">Jika lupa password, silakan hubungi administrasi sekolah.
-                </p>
+                <p class="text-center text-muted mt-4 mb-0">Jika lupa password, silakan hubungi administrasi sekolah.</p>
             </div>
         </div>
     </div>

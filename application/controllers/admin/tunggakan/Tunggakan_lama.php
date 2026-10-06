@@ -1,12 +1,12 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class Tunggakan_lama extends CI_Controller
 {
     public function __construct()
     {
         parent::__construct();
-           date_default_timezone_set('Asia/Jakarta');
+        date_default_timezone_set('Asia/Jakarta');
         if ($this->session->userdata('admin')['username'] == null) {
             redirect('/');
         }
@@ -109,16 +109,18 @@ class Tunggakan_lama extends CI_Controller
                 ->setFormatCode('#,##0');
         }
 
-        foreach (array(
-            'A' => 6,
-            'B' => 16,
-            'C' => 18,
-            'D' => 30,
-            'E' => 20,
-            'F' => 18,
-            'G' => 16,
-            'H' => 20
-        ) as $column => $width) {
+        foreach (
+            array(
+                'A' => 6,
+                'B' => 16,
+                'C' => 18,
+                'D' => 30,
+                'E' => 20,
+                'F' => 18,
+                'G' => 16,
+                'H' => 20
+            ) as $column => $width
+        ) {
             $sheet->getColumnDimension($column)->setWidth($width);
         }
 

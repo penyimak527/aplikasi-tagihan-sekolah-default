@@ -8,9 +8,9 @@ $nama_bulan_lokal = function ($bulan) {
 $periodeAktifId = isset($periode_aktif['id']) ? (int) $periode_aktif['id'] : 0;
 $metricCards = array(
     array('key' => 'siswa_aktif', 'label' => 'Siswa Aktif', 'icon' => 'ti-users', 'tone' => 'primary', 'money' => false, 'hint' => 'Siswa aktif sesuai filter'),
-    array('key' => 'total_tagihan', 'label' => 'Total Tagihan', 'icon' => 'ti-file-invoice', 'tone' => 'secondary', 'money' => true, 'hint' => 'Nominal tagihan sesuai periode'),
-    array('key' => 'pembayaran_masuk', 'label' => 'Pembayaran Masuk', 'icon' => 'ti-cash', 'tone' => 'success', 'money' => true, 'hint' => 'Hanya transaksi berstatus Aktif'),
-    array('key' => 'tunggakan', 'label' => 'Tunggakan', 'icon' => 'ti-alert-circle', 'tone' => 'danger', 'money' => true, 'hint' => 'Sisa tagihan yang dianggap tunggakan', 'url' => base_url('admin/tunggakan/tagihan_per_kelas')),
+    array('key' => 'total_tagihan', 'label' => 'Total Tagihan', 'icon' => 'ti-file-invoice', 'tone' => 'secondary', 'money' => true, 'hint' => 'Nominal tagihan yang masih aktif'),
+    array('key' => 'pembayaran_masuk', 'label' => 'Pembayaran Masuk', 'icon' => 'ti-cash', 'tone' => 'success', 'money' => true, 'hint' => 'Uang yang benar-benar masuk sesuai tanggal transaksi'),
+    array('key' => 'tunggakan', 'label' => 'Tunggakan', 'icon' => 'ti-alert-circle', 'tone' => 'danger', 'money' => true, 'hint' => 'Sisa wajib bayar yang sudah lewat jatuh tempo', 'url' => base_url('admin/tunggakan/monitoring_tagihan')),
     array('key' => 'sudah_lunas', 'label' => 'Sudah Lunas', 'icon' => 'ti-circle-check', 'tone' => 'success', 'money' => false, 'hint' => 'Jumlah tagihan berstatus Lunas'),
     array('key' => 'belum_lunas', 'label' => 'Belum Lunas', 'icon' => 'ti-clock', 'tone' => 'warning', 'money' => false, 'hint' => 'Jumlah tagihan belum dibayar'),
     array('key' => 'cicilan_aktif', 'label' => 'Cicilan Aktif', 'icon' => 'ti-chart-pie', 'tone' => 'info', 'money' => false, 'hint' => 'Jumlah tagihan dibayar sebagian'),
@@ -30,7 +30,7 @@ $metricCards = array(
                     <option value="">Pilih Tahun Ajaran</option>
                     <?php foreach ($periode as $row): ?>
                         <option value="<?= (int) $row['id'] ?>" <?= (int) $row['id'] === $periodeAktifId ? 'selected' : '' ?>>
-                            <?= html_escape($row['periode']) ?>    <?= $row['status'] === 'Aktif' ? ' - Aktif' : '' ?>
+                            <?= html_escape($row['periode']) ?> <?= $row['status'] === 'Aktif' ? ' - Aktif' : '' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -49,10 +49,7 @@ $metricCards = array(
             <div class="col-md-3">
                 <label for="filter_bulan" class="form-label">Bulan/Periode</label>
                 <select id="filter_bulan" class="form-select">
-                    <option value="0">Seluruh Tahun Ajaran</option>
-                    <?php foreach (array(7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6) as $nomorBulan): ?>
-                        <option value="<?= $nomorBulan ?>"><?= $nama_bulan_lokal($nomorBulan) ?></option>
-                    <?php endforeach; ?>
+                    <option value="0|0">Seluruh Tahun Ajaran</option>
                 </select>
             </div>
             <div class="col-md-2">
@@ -96,7 +93,10 @@ $metricCards = array(
 
 <div class="card mb-3">
     <div class="card-header justify-content-between">
-        <h4 class="header-title">Grafik Realisasi Pembayaran Juli–Juni</h4>
+        <div>
+            <h4 class="header-title mb-0">Grafik Realisasi Pembayaran</h4>
+            <small class="text-muted" id="dashboard_periode_info">-</small>
+        </div>
         <a href="<?= base_url('admin/laporan') ?>" class="btn btn-sm btn-outline-primary">Buka Laporan
             Tahunan</a>
     </div>
@@ -189,7 +189,7 @@ $metricCards = array(
         <div class="card ">
             <div class="card-header justify-content-between">
                 <h4 class="header-title">Tunggakan Prioritas</h4>
-                <a href="<?= base_url('admin/tunggakan/tagihan_per_kelas') ?>" class="btn btn-sm btn-outline-primary">Tindak
+                <a href="<?= base_url('admin/tunggakan/monitoring_tagihan') ?>" class="btn btn-sm btn-outline-primary">Tindak
                     Lanjut</a>
             </div>
             <div class="card-body p-0">
@@ -234,53 +234,59 @@ $metricCards = array(
 
 
 <style>
-/*
+    /*
  * Pagination tetap menggunakan Pagination JS seperti Beasiswa.
  * Pada template dashboard, elemen first/prev/next/last terbentuk
  * tetapi icon Font Awesome tidak ter-render sehingga terlihat kosong.
  * Fallback ini hanya menampilkan simbol arrow-nya.
  */
-#pagination-transaksi .fa-angle-double-left::before,
-#pagination-tunggakan .fa-angle-double-left::before {
-    content: "\00AB" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-transaksi .fa-angle-double-left::before,
+    #pagination-tunggakan .fa-angle-double-left::before {
+        content: "\00AB" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-transaksi .fa-angle-left::before,
-#pagination-tunggakan .fa-angle-left::before {
-    content: "\2039" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-transaksi .fa-angle-left::before,
+    #pagination-tunggakan .fa-angle-left::before {
+        content: "\2039" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-transaksi .fa-angle-right::before,
-#pagination-tunggakan .fa-angle-right::before {
-    content: "\203A" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-transaksi .fa-angle-right::before,
+    #pagination-tunggakan .fa-angle-right::before {
+        content: "\203A" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-transaksi .fa-angle-double-right::before,
-#pagination-tunggakan .fa-angle-double-right::before {
-    content: "\00BB" !important;
-    font-family: Arial, sans-serif !important;
-}
+    #pagination-transaksi .fa-angle-double-right::before,
+    #pagination-tunggakan .fa-angle-double-right::before {
+        content: "\00BB" !important;
+        font-family: Arial, sans-serif !important;
+    }
 
-#pagination-transaksi .page-link i,
-#pagination-tunggakan .page-link i {
-    font-style: normal;
-}
+    #pagination-transaksi .page-link i,
+    #pagination-tunggakan .page-link i {
+        font-style: normal;
+    }
 </style>
 
 <script>
     var dashboardChart = null;
+    var dashboardPeriode = <?= json_encode(array_column($periode, 'periode', 'id'), JSON_UNESCAPED_UNICODE) ?>;
+    var namaBulanDashboard = {1:'Januari',2:'Februari',3:'Maret',4:'April',5:'Mei',6:'Juni',7:'Juli',8:'Agustus',9:'September',10:'Oktober',11:'November',12:'Desember'};
 
-    $(document).ready(function () {
+    $(document).ready(function() {
         filterDashboardKelas();
+        updateDashboardBulan();
         loadDashboard();
 
-        $('#filter_periode').on('change', filterDashboardKelas);
+        $('#filter_periode').on('change', function() {
+            filterDashboardKelas();
+            updateDashboardBulan();
+        });
         $('#btn_tampilkan, #btn_muat_ulang').on('click', loadDashboard);
 
-        $('#dt-length-transaksi').on('change', function () {
+        $('#dt-length-transaksi').on('change', function() {
             pagingDashboard(
                 $('#transaksi_terbaru .data-transaksi-terbaru'),
                 parseInt($(this).val()),
@@ -288,7 +294,7 @@ $metricCards = array(
             );
         });
 
-        $('#dt-length-tunggakan').on('change', function () {
+        $('#dt-length-tunggakan').on('change', function() {
             pagingDashboard(
                 $('#tunggakan_prioritas .data-tunggakan-prioritas'),
                 parseInt($(this).val()),
@@ -296,15 +302,33 @@ $metricCards = array(
             );
         });
 
-        $(document).on('click', '.dashboard-metric-card.is-link', function () {
+        $(document).on('click', '.dashboard-metric-card.is-link', function() {
             var url = $(this).data('url');
             if (url) window.location.href = url;
         });
     });
 
+    function updateDashboardBulan() {
+        var idPeriode = String($('#filter_periode').val() || '');
+        var periode = String(dashboardPeriode[idPeriode] || '');
+        var tahun = periode.split('/');
+        var tahunAwal = Number(tahun[0] || 0);
+        var tahunAkhir = Number(tahun[1] || (tahunAwal + 1));
+        var urutan = [7,8,9,10,11,12,1,2,3,4,5,6];
+        var html = '<option value="0|0">Seluruh Tahun Ajaran</option>';
+
+        if (tahunAwal > 0) {
+            urutan.forEach(function(bulan) {
+                var tahunItem = bulan >= 7 ? tahunAwal : tahunAkhir;
+                html += '<option value="' + bulan + '|' + tahunItem + '">Sampai ' + namaBulanDashboard[bulan] + ' ' + tahunItem + '</option>';
+            });
+        }
+        $('#filter_bulan').html(html);
+    }
+
     function filterDashboardKelas() {
         var periode = String($('#filter_periode').val() || '');
-        $('#filter_kelas option').each(function () {
+        $('#filter_kelas option').each(function() {
             var optionPeriode = $(this).data('periode');
             var visible = !optionPeriode || String(optionPeriode) === periode;
             $(this).prop('hidden', !visible).prop('disabled', !visible);
@@ -314,6 +338,7 @@ $metricCards = array(
 
     function loadDashboard() {
         $('#dashboard_error').addClass('d-none');
+        var bulanFilter = String($('#filter_bulan').val() || '0|0').split('|');
         $('#btn_tampilkan, #btn_muat_ulang').prop('disabled', true);
 
         $.ajax({
@@ -323,23 +348,25 @@ $metricCards = array(
             data: {
                 id_periode: $('#filter_periode').val(),
                 id_kelas_setting: $('#filter_kelas').val(),
-                bulan: $('#filter_bulan').val()
+                bulan: Number(bulanFilter[0] || 0),
+                tahun: Number(bulanFilter[1] || 0)
             }
-        }).done(function (response) {
+        }).done(function(response) {
             if (!response || response.result !== 'true') {
                 showDashboardError();
                 return;
             }
 
+            $('#dashboard_periode_info').text((response.periode_filter && response.periode_filter.label) ? response.periode_filter.label : '-');
             renderDashboardSummary(response.summary || {});
             renderDashboardChart(response.chart || []);
             renderJenisTagihan(response.jenis || []);
             renderStatusPembayaran(response.status || []);
             renderTransaksiTerbaru(response.transaksi || []);
             renderTunggakanPrioritas(response.prioritas || []);
-        }).fail(function () {
+        }).fail(function() {
             showDashboardError();
-        }).always(function () {
+        }).always(function() {
             $('#btn_tampilkan, #btn_muat_ulang').prop('disabled', false);
         });
     }
@@ -359,7 +386,7 @@ $metricCards = array(
     }
 
     function renderDashboardSummary(summary) {
-        $('#dashboard_metrics .summary-value').each(function () {
+        $('#dashboard_metrics .summary-value').each(function() {
             var key = String(this.id).replace('sum_', '');
             var value = Number(summary[key] || 0);
             $(this).text($(this).data('money') === 1 ? formatRupiah(value) : new Intl.NumberFormat('id-ID').format(value));
@@ -367,8 +394,12 @@ $metricCards = array(
     }
 
     function renderDashboardChart(rows) {
-        var totals = rows.map(function (row) { return Number(row.total || 0); });
-        var hasData = totals.some(function (value) { return value > 0; });
+        var totals = rows.map(function(row) {
+            return Number(row.total || 0);
+        });
+        var hasData = totals.some(function(value) {
+            return value > 0;
+        });
 
         if (dashboardChart) {
             dashboardChart.destroy();
@@ -388,29 +419,54 @@ $metricCards = array(
             chart: {
                 type: 'bar',
                 height: 320,
-                toolbar: { show: false },
-                animations: { enabled: true }
+                toolbar: {
+                    show: false
+                },
+                animations: {
+                    enabled: true
+                }
             },
-            series: [{ name: 'Pembayaran', data: totals }],
+            series: [{
+                name: 'Pembayaran',
+                data: totals
+            }],
             colors: ['#188ae2'],
             plotOptions: {
-                bar: { borderRadius: 4, columnWidth: '48%' }
+                bar: {
+                    borderRadius: 4,
+                    columnWidth: '48%'
+                }
             },
             xaxis: {
-                categories: rows.map(function (row) { return row.label; }),
-                labels: { rotate: -35 }
+                categories: rows.map(function(row) {
+                    return row.label;
+                }),
+                labels: {
+                    rotate: -35
+                }
             },
             yaxis: {
                 labels: {
-                    formatter: function (value) {
-                        return 'Rp' + new Intl.NumberFormat('id-ID', { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+                    formatter: function(value) {
+                        return 'Rp' + new Intl.NumberFormat('id-ID', {
+                            notation: 'compact',
+                            maximumFractionDigits: 1
+                        }).format(value);
                     }
                 }
             },
-            dataLabels: { enabled: false },
-            grid: { borderColor: 'rgba(155, 166, 183, .22)' },
+            dataLabels: {
+                enabled: false
+            },
+            grid: {
+                borderColor: 'rgba(155, 166, 183, .22)'
+            },
             tooltip: {
-                y: { formatter: function (value) { return formatRupiah(value); } }
+                y: {
+                    formatter: function(value) {
+                        return formatRupiah(value);
+                    }
+                }
             }
         });
         dashboardChart.render();
@@ -424,10 +480,15 @@ $metricCards = array(
 
         var order = ['Bulanan', 'Langsung', 'Tahunan'];
         var indexed = {};
-        rows.forEach(function (row) { indexed[row.tipe_tagihan] = row; });
+        rows.forEach(function(row) {
+            indexed[row.tipe_tagihan] = row;
+        });
 
-        var html = order.map(function (tipe) {
-            var row = indexed[tipe] || { jumlah: 0, nominal: 0 };
+        var html = order.map(function(tipe) {
+            var row = indexed[tipe] || {
+                jumlah: 0,
+                nominal: 0
+            };
             return '<div class="dashboard-list-row">' +
                 '<div><div class="fw-semibold">' + escapeHtml(tipe) + '</div>' +
                 '<small class="text-muted">' + new Intl.NumberFormat('id-ID').format(Number(row.jumlah || 0)) + ' tagihan</small></div>' +
@@ -449,9 +510,11 @@ $metricCards = array(
             'Dibayar Sebagian': 'info',
             'Belum Dibayar': 'warning'
         };
-        var total = rows.reduce(function (sum, row) { return sum + Number(row.jumlah || 0); }, 0);
+        var total = rows.reduce(function(sum, row) {
+            return sum + Number(row.jumlah || 0);
+        }, 0);
 
-        var html = rows.map(function (row) {
+        var html = rows.map(function(row) {
             var count = Number(row.jumlah || 0);
             var percent = total > 0 ? Math.round((count / total) * 100) : 0;
             var tone = tones[row.status_pembayaran] || 'primary';
@@ -484,7 +547,7 @@ $metricCards = array(
             return;
         }
 
-        var html = rows.map(function (row) {
+        var html = rows.map(function(row) {
             var detailUrl = '<?= base_url('admin/transaksi/riwayat_pembayaran?detail=') ?>' + encodeURIComponent(row.id);
             return '<tr class="data-transaksi-terbaru">' +
                 '<td><strong class="text-primary">' + escapeHtml(row.no_transaksi) + '</strong></td>' +
@@ -517,8 +580,8 @@ $metricCards = array(
             return;
         }
 
-        var html = rows.map(function (row) {
-            var detailUrl = '<?= base_url('admin/tunggakan/tagihan_per_siswa?id_siswa=') ?>' + encodeURIComponent(row.id_siswa);
+        var html = rows.map(function(row) {
+            var detailUrl = '<?= base_url('admin/tunggakan/monitoring_tagihan?id_siswa=') ?>' + encodeURIComponent(row.id_siswa);
             return '<tr class="data-tunggakan-prioritas">' +
                 '<td class="fw-semibold">' + escapeHtml(row.nama_siswa) + '</td>' +
                 '<td>' + escapeHtml(row.nama_kelas || '-') + '</td>' +
@@ -541,7 +604,7 @@ $metricCards = array(
         window.tpDashboard = new Pagination(pagination_selector, {
             itemsCount: $selector.length,
             pageSize: parseInt(jumlah_tampil),
-            onPageChange: function (paging) {
+            onPageChange: function(paging) {
                 let start = paging.pageSize * (paging.currentPage - 1);
                 let end = start + paging.pageSize;
                 let $rows = $selector;

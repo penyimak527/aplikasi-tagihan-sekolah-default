@@ -3,11 +3,12 @@ $app_admin = $this->session->userdata('admin');
 $app_admin = is_array($app_admin) ? $app_admin : array();
 $app_admin_name = isset($app_admin['nama']) && $app_admin['nama'] !== '' ? $app_admin['nama'] : 'Administrator';
 ?>
-<div class="card">
+
+<div class="card" id="card_cari_siswa">
     <div class="card-header app-card-header">
         <div>
-            <h4 class="header-title mb-1">1. Cari dan Pilih Siswa</h4>
-            <p class="text-muted mb-0">Cari berdasarkan nama, NIS, NISN, atau kode siswa. Satu transaksi hanya untuk satu siswa.</p>
+            <h4 class="header-title mb-1">1. Cari Siswa</h4>
+            <p class="text-muted mb-0">Cari siswa yang akan melakukan pembayaran.</p>
         </div>
     </div>
     <div class="card-body">
@@ -22,7 +23,7 @@ $app_admin_name = isset($app_admin['nama']) && $app_admin['nama'] !== '' ? $app_
             </div>
             <div class="col-md-2 d-grid">
                 <button id="btn_cari_siswa" type="button" class="btn btn-primary">
-                    <i class="ri-search-line me-1"></i>Cari Siswa
+                    <i class="ri-search-line me-1"></i>Cari
                 </button>
             </div>
         </div>
@@ -31,123 +32,203 @@ $app_admin_name = isset($app_admin['nama']) && $app_admin['nama'] !== '' ? $app_
     </div>
 </div>
 
-<div id="card_identitas_siswa" class="card d-none">
-    <div class="card-header app-card-header">
-        <div>
-            <h4 class="header-title mb-1">Identitas Siswa</h4>
-            <p class="text-muted mb-0">Pastikan siswa yang dipilih sudah benar sebelum memilih tagihan.</p>
+<div id="card_identitas_siswa" class="card d-none student-summary-card">
+    <div class="card-body py-3">
+        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+            <div class="flex-grow-1 min-w-0" id="siswa_dipilih"></div>
+            <button type="button" id="btn_ganti_siswa" class="btn btn-outline-primary flex-shrink-0">
+                <i class="ri-user-search-line me-1"></i>Ganti Siswa
+            </button>
         </div>
-        <button type="button" id="btn_ganti_siswa" class="btn btn-outline-primary">
-            <i class="ri-user-search-line me-1"></i>Ganti Siswa
-        </button>
     </div>
-    <div class="card-body" id="siswa_dipilih"></div>
 </div>
 
 <div id="area_transaksi" class="d-none">
     <div class="row g-3 align-items-start">
-        <div class="col-xl-7">
+        <div class="col-xl-8">
             <div class="card" id="card_tagihan">
                 <div class="card-header app-card-header">
                     <div>
-                        <h4 class="header-title mb-1">2. Tagihan Siswa</h4>
-                        <p class="text-muted mb-0">Tagihan tahun berjalan dan tagihan tahun sebelumnya ditampilkan terpisah.</p>
+                        <h4 class="header-title mb-1">2. Pilih Tagihan</h4>
+                        <p class="text-muted mb-0">Klik card tagihan yang ingin dibayar. Pilihan langsung masuk ke Pembayaran Dipilih.</p>
                     </div>
                     <span class="badge bg-primary-subtle text-primary" id="jumlah_tagihan">0 tagihan</span>
                 </div>
                 <div class="card-body">
-                    <div class="row g-2 align-items-end">
-                        <div class="col-xl-2 col-md-6">
-                            <label class="form-label" for="filter_tahun">Tahun Ajaran</label>
-                            <select id="filter_tahun" class="form-select">
-                                <option value="">Semua Tahun</option>
-                            </select>
-                        </div>
-                        <div class="col-xl-2 col-md-6">
-                            <label class="form-label" for="filter_tipe">Tipe</label>
-                            <select id="filter_tipe" class="form-select">
-                                <option value="">Semua Tipe</option>
-                                <option value="Bulanan">Bulanan</option>
-                                <option value="Langsung">Langsung</option>
-                                <option value="Tahunan">Tahunan</option>
-                            </select>
-                        </div>
-                        <div class="col-xl-2 col-md-6">
-                            <label class="form-label" for="filter_status">Status</label>
-                            <select id="filter_status" class="form-select">
-                                <option value="">Semua Status</option>
-                                <option value="Belum Dibayar">Belum Dibayar</option>
-                                <option value="Dibayar Sebagian">Dibayar Sebagian</option>
-                            </select>
-                        </div>
-                        <div class="col-xl-4 col-md-6">
-                            <label class="form-label" for="filter_tagihan">Nama Tagihan</label>
-                            <input
-                                type="text"
-                                id="filter_tagihan"
-                                class="form-control"
-                                placeholder="Cari nama atau nomor tagihan"
-                            >
-                        </div>
-                        <div class="col-xl-2 col-md-12 d-grid">
-                            <button id="btn_filter_tagihan" type="button" class="btn btn-primary">
-                                <i class="ri-search-line me-1"></i>Cari
-                            </button>
+                    <div class="quick-filter-wrap mb-3" id="quick_filter_tagihan">
+                        <button type="button" class="btn btn-sm btn-primary quick-filter active" data-quick-filter="all">Semua</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary quick-filter" data-quick-filter="unpaid">Belum Bayar</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary quick-filter" data-quick-filter="partial">Cicilan</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary quick-filter" data-quick-filter="overdue">Tunggakan</button>
+                        <button type="button" id="btn_bayar_lebih_awal" class="btn btn-sm btn-outline-success ms-sm-auto">
+                            <i class="ri-calendar-forward-line me-1"></i>Bayar Lebih Awal
+                            <span class="badge bg-success-subtle text-success ms-1" id="jumlah_tagihan_mendatang">0</span>
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#filter_lainnya"
+                            aria-expanded="false"
+                            aria-controls="filter_lainnya"
+                        >
+                            <i class="ri-filter-3-line me-1"></i>Filter Lainnya
+                            <i class="ri-arrow-down-s-line ms-1"></i>
+                        </button>
+                    </div>
+
+                    <div class="collapse" id="filter_lainnya">
+                        <div class="advanced-filter-box mb-3">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label" for="filter_tahun">Tahun Ajaran</label>
+                                    <select id="filter_tahun" class="form-select">
+                                        <option value="">Semua Tahun</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-2 col-md-6">
+                                    <label class="form-label" for="filter_bulan">Bulan</label>
+                                    <select id="filter_bulan" class="form-select">
+                                        <option value="">Semua Bulan</option>
+                                        <option value="1">Januari</option>
+                                        <option value="2">Februari</option>
+                                        <option value="3">Maret</option>
+                                        <option value="4">April</option>
+                                        <option value="5">Mei</option>
+                                        <option value="6">Juni</option>
+                                        <option value="7">Juli</option>
+                                        <option value="8">Agustus</option>
+                                        <option value="9">September</option>
+                                        <option value="10">Oktober</option>
+                                        <option value="11">November</option>
+                                        <option value="12">Desember</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-2 col-md-6">
+                                    <label class="form-label" for="filter_tipe">Tipe</label>
+                                    <select id="filter_tipe" class="form-select">
+                                        <option value="">Semua Tipe</option>
+                                        <option value="Bulanan">Bulanan</option>
+                                        <option value="Langsung">Langsung</option>
+                                        <option value="Tahunan">Tahunan</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-5">
+                                    <label class="form-label" for="filter_tagihan">Nama Tagihan</label>
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            id="filter_tagihan"
+                                            class="form-control"
+                                            placeholder="Cari nama atau nomor tagihan"
+                                        >
+                                        <button id="btn_reset_filter" class="btn btn-outline-secondary" type="button">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="daftar_tagihan" class="mt-3"></div>
+                    <div id="daftar_tagihan"></div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="d-flex justify-content-end mt-3">
-                        <button id="btn_tambah_keranjang" type="button" class="btn btn-primary" disabled>
-                            <i class="ri-shopping-cart-2-line me-1"></i>Tambah Terpilih ke Keranjang
+        <div class="col-xl-4">
+            <div class="card" id="keranjang-pembayaran">
+                <div class="card-header app-card-header">
+                    <div>
+                        <h4 class="header-title mb-1">3. Pembayaran Dipilih</h4>
+                        <p class="text-muted mb-0" id="ringkasan_pilihan">Belum ada tagihan dipilih.</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="keranjang">
+                        <div class="empty-state py-3">
+                            <i class="ri-checkbox-multiple-line empty-icon"></i>
+                            Klik card tagihan di sebelah kiri untuk mulai pembayaran.
+                        </div>
+                    </div>
+
+                    <div class="payment-total-box mt-3">
+                        <div>
+                            <small class="text-muted d-block">Total Pembayaran</small>
+                            <strong class="text-success fs-24" id="total_keranjang">Rp0</strong>
+                        </div>
+                        <span class="badge bg-light text-dark" id="jumlah_pilihan">0 tagihan</span>
+                    </div>
+
+                    <button type="button" id="btn_selesaikan_pembayaran" class="btn btn-success btn-lg w-100 mt-3" disabled>
+                        <i class="ri-secure-payment-line me-1"></i>Bayar Sekarang
+                    </button>
+
+                    <div class="text-center mt-2">
+                        <button type="button" id="btn_kosongkan" class="btn btn-link btn-sm text-danger text-decoration-none" disabled>
+                            Batalkan semua pilihan
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="col-xl-5">
-            <div class="card" id="keranjang-pembayaran">
-                <div class="card-header app-card-header">
-                    <div>
-                        <h4 class="header-title mb-1">3. Keranjang Pembayaran</h4>
-                        <p class="text-muted mb-0">Nominal setiap tagihan dapat diubah untuk pembayaran cicilan.</p>
+<div class="modal fade" id="modal_bayar_lebih_awal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1"><i class="ri-calendar-forward-line me-1 text-success"></i>Bayar Lebih Awal</h5>
+                    <small class="text-muted">Pilih tagihan setelah bulan berjalan tanpa menampilkannya pada daftar pembayaran normal.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-light border mb-3">
+                    Tagihan yang dipilih di sini tetap masuk ke <strong>Pembayaran Dipilih</strong> seperti tagihan biasa.
+                    Untuk membayar SPP beberapa bulan atau sampai akhir tahun ajaran, cari SPP lalu gunakan <strong>Pilih Semua yang Tampil</strong>.
+                </div>
+
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label" for="future_filter_tahun">Tahun Ajaran</label>
+                        <select id="future_filter_tahun" class="form-select">
+                            <option value="">Semua Tahun</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="future_filter_tipe">Tipe</label>
+                        <select id="future_filter_tipe" class="form-select">
+                            <option value="">Semua Tipe</option>
+                            <option value="Bulanan">Bulanan</option>
+                            <option value="Langsung">Langsung</option>
+                            <option value="Tahunan">Tahunan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label" for="future_filter_tagihan">Nama Tagihan</label>
+                        <input type="text" id="future_filter_tagihan" class="form-control" placeholder="Contoh: SPP">
                     </div>
                 </div>
-                <div class="card-body">
-                    <div id="keranjang">
-                        <div class="empty-state py-3">Keranjang masih kosong.</div>
-                    </div>
 
-                    <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3">
-                        <strong>Total Pembayaran</strong>
-                        <strong class="text-primary fs-18" id="total_keranjang">Rp0</strong>
-                    </div>
-
-                    <div class="row g-2 mt-2">
-                        <div class="col-sm-6">
-                            <button type="button" id="btn_kosongkan" class="btn btn-outline-danger w-100" disabled>
-                                <i class="ri-delete-bin-line me-1"></i>Kosongkan Keranjang
-                            </button>
-                        </div>
-                        <div class="col-sm-6">
-                            <button type="button" id="btn_selesaikan_pembayaran" class="btn btn-success w-100" disabled>
-                                <i class="ri-checkbox-circle-line me-1"></i>Selesaikan Pembayaran
-                            </button>
-                        </div>
-                    </div>
+                <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3">
+                    <small class="text-muted" id="future_filter_info">0 tagihan mendatang</small>
+                    <button type="button" id="btn_pilih_semua_mendatang" class="btn btn-sm btn-outline-success">
+                        <i class="ri-checkbox-multiple-line me-1"></i>Pilih Semua yang Tampil
+                    </button>
                 </div>
+
+                <div id="daftar_tagihan_mendatang"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Selesai</button>
             </div>
         </div>
     </div>
-
-
 </div>
 
-
 <div class="modal fade" id="modal_checkout_pembayaran" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <div>
@@ -156,95 +237,110 @@ $app_admin_name = isset($app_admin['nama']) && $app_admin['nama'] !== '' ? $app_
                     </h5>
                     <small class="text-muted" id="checkout_siswa">-</small>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
 
             <div class="modal-body">
-                <div class="row g-4">
-                    <div class="col-lg-7">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <h6 class="mb-1">Tagihan Dipilih</h6>
-                                <small class="text-muted">Periksa kembali daftar tagihan sebelum pembayaran.</small>
-                            </div>
-                            <span class="badge bg-primary-subtle text-primary" id="checkout_jumlah">0 tagihan</span>
-                        </div>
+                <div class="checkout-total-box text-center mb-3">
+                    <small class="text-muted d-block mb-1">TOTAL PEMBAYARAN</small>
+                    <strong class="text-success" id="checkout_total">Rp0</strong>
+                    <div class="small text-muted mt-1" id="checkout_jumlah">0 tagihan</div>
+                </div>
 
-                        <div id="checkout_daftar">
-                            <div class="empty-state py-3">Belum ada tagihan dipilih.</div>
+                <form id="form_pembayaran">
+                    <input type="hidden" id="id_siswa">
+                    <input type="hidden" id="token_pembayaran" value="<?= html_escape($token_pembayaran) ?>">
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_metode">Metode Pembayaran <span class="text-danger">*</span></label>
+                        <select id="id_metode" class="form-select" required>
+                            <option value="">Pilih metode pembayaran</option>
+                            <?php foreach ($metode as $row): ?>
+                                <option value="<?= (int) $row['id'] ?>" data-cash="<?= html_escape($row['butuh_uang_diterima']) ?>">
+                                    <?= html_escape($row['nama_metode']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div id="blok_tunai" class="d-none">
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="uang_diterima">Uang Diterima</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="text" inputmode="numeric" autocomplete="off"
+                                        id="uang_diterima" class="form-control money-input" value="0">
+                                </div>
+                                <div class="form-text">Minimal sama dengan total pembayaran.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="kembalian">Kembalian</label>
+                                <div class="change-box" id="kembalian">Rp0</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-5">
-                        <div class="checkout-form-panel">
-                            <h6 class="mb-3">Informasi Pembayaran</h6>
+                    <div id="blok_referensi" class="mb-3 d-none">
+                        <label class="form-label" for="referensi">Referensi Pembayaran <span class="text-muted fw-normal">(opsional)</span></label>
+                        <input id="referensi" class="form-control" placeholder="Contoh: nomor transfer / referensi QRIS">
+                    </div>
 
-                            <form id="form_pembayaran">
-                                <input type="hidden" id="id_siswa">
-                                <input type="hidden" id="token_pembayaran" value="<?= html_escape($token_pembayaran) ?>">
+                    <div class="border rounded p-3 mb-3 bg-light-subtle">
+                        <button
+                            type="button"
+                            class="btn btn-link p-0 text-decoration-none fw-semibold"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#opsi_lainnya_pembayaran"
+                            aria-expanded="false"
+                            aria-controls="opsi_lainnya_pembayaran"
+                        >
+                            <i class="ri-add-circle-line me-1"></i>Opsi Lainnya
+                        </button>
 
-                                <div class="mb-3">
+                        <div class="collapse mt-3" id="opsi_lainnya_pembayaran">
+                            <div class="row g-3">
+                                <div class="col-md-6">
                                     <label class="form-label" for="tanggal_pembayaran">Tanggal Pembayaran</label>
                                     <input type="text" id="tanggal_pembayaran" class="form-control tanggal-picker"
                                         value="<?= date('d-m-Y') ?>" placeholder="dd-mm-yyyy" autocomplete="off" required>
                                 </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label" for="id_metode">Metode Pembayaran</label>
-                                    <select id="id_metode" class="form-select" required>
-                                        <option value="">Pilih metode pembayaran</option>
-                                        <?php foreach ($metode as $row): ?>
-                                            <option value="<?= (int) $row['id'] ?>" data-cash="<?= html_escape($row['butuh_uang_diterima']) ?>">
-                                                <?= html_escape($row['nama_metode']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-
-                                <div id="blok_tunai" class="d-none">
-                                    <div class="row g-2 mb-3">
-                                        <div class="col-xl-6">
-                                            <label class="form-label" for="uang_diterima">Uang Diterima</label>
-                                            <input type="text" inputmode="numeric" autocomplete="off"
-                                                id="uang_diterima" class="form-control money-input" value="0">
-                                        </div>
-                                        <div class="col-xl-6">
-                                            <label class="form-label" for="kembalian">Kembalian</label>
-                                            <input id="kembalian" class="form-control" value="Rp0" readonly>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label" for="referensi">Referensi Pembayaran</label>
-                                    <input id="referensi" class="form-control" placeholder="Opsional untuk transfer atau QRIS">
-                                </div>
-
-                                <div class="mb-3">
+                                <div class="col-md-6">
                                     <label class="form-label">Petugas</label>
-                                    <div class="alert alert-light border mb-0 py-2">
-                                        <small class="text-muted d-block">Transaksi diproses oleh</small>
-                                        <strong><?= html_escape($app_admin_name) ?></strong>
-                                    </div>
+                                    <div class="form-control bg-body-tertiary"><?= html_escape($app_admin_name) ?></div>
+                                    <div class="form-text">Otomatis mengikuti pengguna yang sedang login.</div>
                                 </div>
-
-                                <div>
-                                    <label class="form-label" for="catatan">Catatan</label>
-                                    <textarea id="catatan" class="form-control" rows="3"
-                                        placeholder="Catatan transaksi bila diperlukan"></textarea>
+                                <div class="col-12">
+                                    <label class="form-label" for="catatan">Catatan <span class="text-muted fw-normal">(opsional)</span></label>
+                                    <textarea id="catatan" class="form-control" rows="2" placeholder="Tambahkan catatan bila diperlukan"></textarea>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    <div class="border rounded p-3 bg-body-tertiary">
+                        <div class="d-flex align-items-center justify-content-between gap-2">
+                            <div>
+                                <strong>Ringkasan Tagihan</strong>
+                                <div class="small text-muted">Periksa pilihan bila diperlukan.</div>
+                            </div>
+                            <button
+                                class="btn btn-sm btn-outline-secondary"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#checkout_daftar_wrap"
+                                aria-expanded="false"
+                                aria-controls="checkout_daftar_wrap"
+                            >Lihat</button>
+                        </div>
+                        <div class="collapse mt-3" id="checkout_daftar_wrap">
+                            <div id="checkout_daftar"></div>
+                        </div>
+                    </div>
+                </form>
             </div>
 
             <div class="modal-footer">
-                <div class="me-auto">
-                    <small class="text-muted d-block">Total Pembayaran</small>
-                    <strong class="fs-18 text-success" id="checkout_total">Rp0</strong>
-                </div>
-
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
                 <button type="submit" form="form_pembayaran" id="btn_simpan" class="btn btn-success" disabled>
                     <i class="ri-check-line me-1"></i>Bayar Sekarang
@@ -254,20 +350,40 @@ $app_admin_name = isset($app_admin['nama']) && $app_admin['nama'] !== '' ? $app_
     </div>
 </div>
 
-<div class="modal fade" id="modal_berhasil" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal fade" id="modal_berhasil" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title text-success"><i class="ri-checkbox-circle-line me-1"></i>Pembayaran Berhasil</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
             <div class="modal-body" id="isi_berhasil"></div>
-            <div class="modal-footer flex-wrap">
-                <button type="button" id="btn_lihat_detail" class="btn btn-outline-primary"><i class="ri-eye-line me-1"></i>Lihat Detail</button>
-                <a id="link_bukti" target="_blank" class="btn btn-primary"><i class="ri-printer-line me-1"></i>Cetak / Simpan PDF</a>
-                <button type="button" id="btn_whatsapp" class="btn btn-success"><i class="ri-whatsapp-line me-1"></i>Kirim WhatsApp</button>
-                <a id="link_kartu" target="_blank" class="btn btn-info"><i class="ri-id-card-line me-1"></i>Cetak ke Kartu</a>
-                <button type="button" id="btn_transaksi_baru" class="btn btn-dark">Transaksi Baru</button>
+            <div class="modal-footer border-0 pt-0 flex-wrap justify-content-center">
+                <a id="link_bukti" target="_blank" class="btn btn-primary">
+                    <i class="ri-printer-line me-1"></i>Cetak Bukti
+                </a>
+                <button type="button" id="btn_whatsapp" class="btn btn-success">
+                    <i class="ri-whatsapp-line me-1"></i>Kirim WhatsApp
+                </button>
+
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Pilihan Lainnya
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a id="link_kartu" target="_blank" class="dropdown-item" href="#">
+                                <i class="ri-id-card-line me-2"></i>Cetak ke Kartu Pembayaran
+                            </a>
+                        </li>
+                        <li>
+                            <button type="button" id="btn_lihat_detail" class="dropdown-item">
+                                <i class="ri-eye-line me-2"></i>Lihat Detail Transaksi
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <button type="button" id="btn_transaksi_baru" class="btn btn-outline-dark">Transaksi Baru</button>
             </div>
         </div>
     </div>
@@ -345,6 +461,52 @@ $app_admin_name = isset($app_admin['nama']) && $app_admin['nama'] !== '' ? $app_
 </div>
 
 <style>
+.min-w-0 { min-width: 0; }
+
+.student-summary-card {
+    border-left: 4px solid var(--ct-primary);
+}
+
+.student-summary-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.student-summary-name {
+    min-width: 220px;
+    flex: 1 1 280px;
+}
+
+.student-summary-meta {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.student-summary-meta > div {
+    min-width: 110px;
+}
+
+.student-summary-outstanding {
+    min-width: 170px;
+}
+
+.quick-filter-wrap {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.advanced-filter-box {
+    border: 1px solid var(--ct-border-color);
+    border-radius: var(--ct-border-radius-lg);
+    background: var(--ct-tertiary-bg);
+    padding: 1rem;
+}
+
 .bill-section + .bill-section {
     margin-top: 1.5rem;
 }
@@ -359,76 +521,169 @@ $app_admin_name = isset($app_admin['nama']) && $app_admin['nama'] !== '' ? $app_
 
 .bill-item {
     border: 1px solid var(--ct-border-color);
-    border-radius: var(--ct-border-radius-lg);
-    padding: 1rem;
-    margin-bottom: .75rem;
-    background: var(--ct-tertiary-bg);
-}
-
-.bill-values {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
-    gap: .75rem;
-    margin-top: .75rem;
-}
-
-.bill-values > div {
-    min-width: 0;
-}
-
-.bill-values small {
-    display: block;
-    color: var(--ct-secondary-color);
-    margin-bottom: .15rem;
-}
-
-.bill-values strong {
-    display: block;
-    overflow-wrap: anywhere;
-}
-
-#keranjang-pembayaran .cart-amount {
-    min-width: 0;
-}
-
-.checkout-form-panel {
-    border-left: 1px solid var(--ct-border-color);
-    padding-left: 1.5rem;
-    height: 100%;
-}
-
-.checkout-bill-item {
-    border: 1px solid var(--ct-border-color);
+    cursor: pointer;
     border-radius: var(--ct-border-radius-lg);
     padding: .9rem 1rem;
     margin-bottom: .75rem;
+    background: var(--ct-body-bg);
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.bill-item.is-selected {
+    border-color: var(--ct-primary);
     background: var(--ct-tertiary-bg);
 }
 
-@media (max-width: 991.98px) {
-    .checkout-form-panel {
-        border-left: 0;
-        border-top: 1px solid var(--ct-border-color);
-        padding-left: 0;
-        padding-top: 1.25rem;
-    }
+
+.bill-main-value {
+    min-width: 130px;
+    text-align: right;
+}
+
+.bill-detail {
+    border-top: 1px dashed var(--ct-border-color);
+    margin-top: .85rem;
+    padding-top: .85rem;
+}
+
+.bill-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .65rem 1rem;
+}
+
+.bill-detail-grid small {
+    display: block;
+    color: var(--ct-secondary-color);
+    margin-bottom: .1rem;
+}
+
+.cart-item {
+    border: 1px solid var(--ct-border-color);
+    border-radius: var(--ct-border-radius-lg);
+    padding: .9rem;
+    margin-bottom: .75rem;
+}
+
+.cart-mode-box {
+    background: var(--ct-tertiary-bg);
+    border-radius: var(--ct-border-radius);
+    padding: .65rem .75rem;
+    margin-top: .75rem;
+}
+
+.payment-total-box {
+    border-top: 1px solid var(--ct-border-color);
+    padding-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.checkout-total-box {
+    border: 1px solid var(--ct-success);
+    background: var(--ct-tertiary-bg);
+    border-radius: var(--ct-border-radius-lg);
+    padding: 1rem;
+}
+
+.checkout-total-box strong {
+    font-size: 2rem;
+    line-height: 1.1;
+}
+
+.checkout-bill-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .65rem 0;
+    border-bottom: 1px solid var(--ct-border-color);
+}
+
+.checkout-bill-item:last-child {
+    border-bottom: 0;
+}
+
+.change-box {
+    min-height: calc(1.5em + .9rem + 2px);
+    display: flex;
+    align-items: center;
+    padding: .45rem .9rem;
+    border-radius: var(--ct-border-radius);
+    background: var(--ct-tertiary-bg);
+    border: 1px solid var(--ct-border-color);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ct-success);
 }
 
 @media (min-width: 1200px) {
     #keranjang-pembayaran {
         position: sticky;
         top: 92px;
+        max-height: calc(100vh - 110px);
+        overflow: auto;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .student-summary-main,
+    .student-summary-meta {
+        gap: .7rem;
+    }
+
+    .student-summary-meta {
+        width: 100%;
+    }
+
+    .student-summary-meta > div,
+    .student-summary-outstanding {
+        flex: 1 1 45%;
+        min-width: 0;
+    }
+
+    .bill-item .bill-top-row {
+        align-items: flex-start !important;
+    }
+
+    .bill-main-value {
+        width: 100%;
+        text-align: left;
+        margin-top: .5rem;
+    }
+
+    .bill-detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .checkout-total-box strong {
+        font-size: 1.7rem;
     }
 }
 
 @media (max-width: 575.98px) {
+    .quick-filter-wrap .quick-filter {
+        flex: 1 1 calc(50% - .5rem);
+    }
+
+    .quick-filter-wrap > [data-bs-toggle="collapse"] {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
     .bill-section-title {
         align-items: flex-start;
         flex-direction: column;
     }
 
-    .bill-values {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .bill-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .student-summary-meta > div,
+    .student-summary-outstanding {
+        flex-basis: 100%;
     }
 }
 </style>
@@ -437,38 +692,37 @@ $app_admin_name = isset($app_admin['nama']) && $app_admin['nama'] !== '' ? $app_
 var studentCache = {};
 var selectedStudent = null;
 var billRows = [];
+var futureBillRows = [];
 var paymentCart = [];
 var lastPaymentId = 0;
 var lastPaymentNumber = '';
 var currentAcademicPeriod = '';
+var studentOutstandingTotal = 0;
+var activeQuickFilter = 'all';
 var paymentSuccessModal;
+var earlyPaymentModal;
 var checkoutPaymentModal;
 var transactionDetailModal;
 var whatsappModal;
 var waPesanEdited = false;
+var serverNowAtLoad = <?= (int) round(microtime(true) * 1000) ?>;
+var browserNowAtLoad = Date.now();
 
-$(function () {
+$(document).ready(function () {
     flatpickr('#tanggal_pembayaran', {
         dateFormat: 'd-m-Y',
         allowInput: true,
         disableMobile: true
     });
 
-    paymentSuccessModal = new bootstrap.Modal(
-        document.getElementById('modal_berhasil')
-    );
+    paymentSuccessModal = new bootstrap.Modal(document.getElementById('modal_berhasil'), {backdrop: 'static', keyboard: false});
+    earlyPaymentModal = new bootstrap.Modal(document.getElementById('modal_bayar_lebih_awal'));
+    checkoutPaymentModal = new bootstrap.Modal(document.getElementById('modal_checkout_pembayaran'));
+    transactionDetailModal = new bootstrap.Modal(document.getElementById('modal_detail_transaksi'));
+    whatsappModal = new bootstrap.Modal(document.getElementById('modal_whatsapp'));
 
-    checkoutPaymentModal = new bootstrap.Modal(
-        document.getElementById('modal_checkout_pembayaran')
-    );
-
-    transactionDetailModal = new bootstrap.Modal(
-        document.getElementById('modal_detail_transaksi')
-    );
-
-    whatsappModal = new bootstrap.Modal(
-        document.getElementById('modal_whatsapp')
-    );
+    updateTransactionClock();
+    setInterval(updateTransactionClock, 1000);
 
     $('#btn_cari_siswa').click(function () {
         searchStudent();
@@ -488,26 +742,78 @@ $(function () {
         changeStudent();
     });
 
-    $('#filter_tahun, #filter_tipe, #filter_status').change(function () {
-        loadBills();
+    $('#quick_filter_tagihan').on('click', '.quick-filter', function () {
+        activeQuickFilter = String($(this).data('quick-filter') || 'all');
+        $('.quick-filter')
+            .removeClass('btn-primary active')
+            .addClass('btn-outline-secondary');
+        $(this)
+            .removeClass('btn-outline-secondary')
+            .addClass('btn-primary active');
+        drawBills();
     });
 
-    $('#btn_filter_tagihan').click(function () {
-        loadBills();
+    $('#filter_tahun, #filter_bulan, #filter_tipe').change(function () {
+        drawBills();
     });
 
-    $('#filter_tagihan').keyup(function (event) {
-        if (event.key === 'Enter') {
-            loadBills();
+    $('#filter_tagihan').on('input', function () {
+        drawBills();
+    });
+
+    $('#btn_reset_filter').click(function () {
+        $('#filter_tahun, #filter_bulan, #filter_tipe').val('');
+        $('#filter_tagihan').val('');
+        drawBills();
+    });
+
+    $('#daftar_tagihan').on('click', '.bill-item', function (event) {
+        if ($(event.target).closest('[data-bill-detail]').length) return;
+        toggleBillSelection(Number($(this).data('bill-id')));
+    });
+
+    $('#daftar_tagihan').on('keydown', '.bill-item', function (event) {
+        if ($(event.target).closest('[data-bill-detail]').length) return;
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            toggleBillSelection(Number($(this).data('bill-id')));
         }
     });
 
-    $('#btn_tambah_keranjang').click(function () {
-        addSelectedBills();
+    $('#daftar_tagihan').on('click', '[data-bill-detail]', function (event) {
+        event.stopPropagation();
+        toggleBillDetail.call(this);
     });
 
-    $('#daftar_tagihan').on('change', '.check-bill', function () {
-        updateAddButton();
+    $('#btn_bayar_lebih_awal').click(function () {
+        openEarlyPayment();
+    });
+
+    $('#future_filter_tahun, #future_filter_tipe').change(function () {
+        drawFutureBills();
+    });
+
+    $('#future_filter_tagihan').on('input', function () {
+        drawFutureBills();
+    });
+
+    $('#daftar_tagihan_mendatang').on('click', '.future-bill-item', function () {
+        toggleFutureBillSelection(Number($(this).data('bill-id')));
+    });
+
+    $('#daftar_tagihan_mendatang').on('keydown', '.future-bill-item', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            toggleFutureBillSelection(Number($(this).data('bill-id')));
+        }
+    });
+
+    $('#btn_pilih_semua_mendatang').click(function () {
+        selectAllVisibleFutureBills();
+    });
+
+    $('#keranjang').on('change', '.payment-mode', function () {
+        updatePaymentMode.call(this);
     });
 
     $('#keranjang').on('input', '.cart-amount', function () {
@@ -570,6 +876,8 @@ $(function () {
     });
 
     drawBills();
+    drawCart();
+    $('#cari_siswa').focus();
 
     var presetStudent = new URLSearchParams(window.location.search).get('siswa');
 
@@ -577,23 +885,17 @@ $(function () {
         $.ajax({
             url: '<?= base_url('admin/transaksi/pembayaran/siswa'); ?>',
             type: 'POST',
-            data: {
-                id: presetStudent
-            },
+            data: { id: presetStudent },
             dataType: 'JSON',
             success: function (data) {
                 if (data.result == 'true') {
                     studentCache[data.siswa.id] = data.siswa;
                     selectStudent(data.siswa.id);
                 } else if (data.result == 'false') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: data.message
-                    });
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
                 }
             },
-            error: function (xhr, status, error) {
+            error: function (xhr) {
                 ajaxError(xhr);
             }
         });
@@ -602,16 +904,44 @@ $(function () {
 
 function getStudentAdministrativeStatus(status) {
     var normalized = $.trim(String(status || ''));
-    var inactiveStatuses = [
-        'Lulus',
-        'Pindah Sekolah',
-        'Berhenti',
-        'Nonaktif'
-    ];
+    var inactiveStatuses = ['Lulus', 'Pindah Sekolah', 'Berhenti', 'Nonaktif'];
+    return inactiveStatuses.indexOf(normalized) !== -1 ? normalized : 'Aktif';
+}
 
-    return inactiveStatuses.indexOf(normalized) !== -1
-        ? normalized
-        : 'Aktif';
+function getPaymentStatusLabel(status) {
+    var normalized = $.trim(String(status || ''));
+    if (normalized === 'Belum Dibayar') return 'Belum Bayar';
+    if (normalized === 'Dibayar Sebagian') return 'Cicilan';
+    if (normalized === 'Lunas') return 'Lunas';
+    if (normalized === 'Dibebaskan') return 'Dibebaskan';
+    return normalized || '-';
+}
+
+function getPaymentStatusTone(status) {
+    if (status === 'Dibayar Sebagian') return 'warning';
+    if (status === 'Lunas') return 'success';
+    if (status === 'Dibebaskan') return 'info';
+    return 'secondary';
+}
+
+function updateTransactionClock() {
+    var now = new Date(serverNowAtLoad + (Date.now() - browserNowAtLoad));
+    var dateText = new Intl.DateTimeFormat('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    }).format(now).replace(/\//g, '-');
+    var timeText = new Intl.DateTimeFormat('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    }).format(now).replace(/\./g, ':');
+
+    $('#tanggal_transaksi_info').text(dateText);
+    $('#jam_transaksi_info').text(timeText);
 }
 
 function searchStudent() {
@@ -627,25 +957,19 @@ function searchStudent() {
     }
 
     var button = $('#btn_cari_siswa');
-
-    button
-        .prop('disabled', true)
-        .html('<span class="spinner-border spinner-border-sm me-1"></span>Mencari');
+    button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Mencari');
 
     $.ajax({
         url: '<?= base_url('admin/transaksi/pembayaran/cari_siswa'); ?>',
         type: 'POST',
-        data: {
-            q: keyword
-        },
+        data: { q: keyword },
         dataType: 'JSON',
         success: function (data) {
             studentCache = {};
-
             var table = '';
 
             if (data.length == 0) {
-                table += `
+                table = `
                     <div class="empty-state">
                         <i class="ri-user-search-line empty-icon"></i>
                         Siswa tidak ditemukan.
@@ -654,35 +978,25 @@ function searchStudent() {
             } else {
                 data.forEach(function (item) {
                     studentCache[item.id] = item;
+                    var studentStatus = getStudentAdministrativeStatus(item.status_pendaftaran);
+                    var statusTone = studentStatus === 'Aktif' ? 'success' : 'secondary';
 
                     table += `
                         <div class="crud-list-item">
                             <div class="crud-content">
                                 <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                                    <div class="crud-title mb-0">
-                                        ${escapeHtml(item.nama_lengkap)}
-                                    </div>
-                                    <span class="badge bg-${getStudentAdministrativeStatus(item.status_pendaftaran) === 'Aktif' ? 'success' : 'secondary'}-subtle text-${getStudentAdministrativeStatus(item.status_pendaftaran) === 'Aktif' ? 'success' : 'secondary'}">
-                                        ${escapeHtml(getStudentAdministrativeStatus(item.status_pendaftaran))}
-                                    </span>
+                                    <div class="crud-title mb-0">${escapeHtml(item.nama_lengkap)}</div>
+                                    <span class="badge bg-${statusTone}-subtle text-${statusTone}">${escapeHtml(studentStatus)}</span>
                                 </div>
                                 <div class="crud-meta">
-                                    NIS ${escapeHtml(item.nis || '-')} |
-                                    NISN ${escapeHtml(item.nisn || '-')} |
-                                    Kelas Aktif ${escapeHtml(item.nama_kelas || 'Belum ditempatkan')}
-                                </div>
-                                <div class="crud-note">
-                                    Ayah ${escapeHtml(item.telepon_ayah || '-')} |
-                                    Ibu ${escapeHtml(item.telepon_ibu || '-')}
+                                    NIS ${escapeHtml(item.nis || '-')} &nbsp;•&nbsp;
+                                    NISN ${escapeHtml(item.nisn || '-')} &nbsp;•&nbsp;
+                                    Kelas ${escapeHtml(item.nama_kelas || 'Belum ditempatkan')}
                                 </div>
                             </div>
                             <div class="crud-actions">
-                                <button
-                                    type="button"
-                                    class="btn btn-primary"
-                                    data-student-id="${Number(item.id)}"
-                                >
-                                    <i class="ri-check-line me-1"></i>Pilih
+                                <button type="button" class="btn btn-primary" data-student-id="${Number(item.id)}">
+                                    <i class="ri-check-line me-1"></i>Pilih Siswa
                                 </button>
                             </div>
                         </div>
@@ -692,13 +1006,11 @@ function searchStudent() {
 
             $('#hasil_siswa').html(table);
         },
-        error: function (xhr, status, error) {
+        error: function (xhr) {
             ajaxError(xhr);
         },
         complete: function () {
-            button
-                .prop('disabled', false)
-                .html('<i class="ri-search-line me-1"></i>Cari Siswa');
+            button.prop('disabled', false).html('<i class="ri-search-line me-1"></i>Cari');
         }
     });
 }
@@ -710,7 +1022,7 @@ function selectStudent(id) {
     if (selectedStudent && Number(selectedStudent.id) !== Number(id) && paymentCart.length) {
         Swal.fire({
             title: 'Ganti siswa?',
-            text: 'Keranjang pembayaran siswa sebelumnya akan dikosongkan.',
+            text: 'Pilihan pembayaran siswa sebelumnya akan dikosongkan.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Ganti Siswa',
@@ -720,6 +1032,7 @@ function selectStudent(id) {
         });
         return;
     }
+
     applySelectedStudent(nextStudent);
 }
 
@@ -727,58 +1040,36 @@ function applySelectedStudent(student) {
     selectedStudent = student;
     paymentCart = [];
     billRows = [];
+    futureBillRows = [];
+    studentOutstandingTotal = 0;
     currentAcademicPeriod = student.periode || '';
-
-    var studentStatus = getStudentAdministrativeStatus(
-        student.status_pendaftaran
-    );
-    var statusTone = studentStatus === 'Aktif' ? 'success' : 'secondary';
+    activeQuickFilter = 'all';
 
     $('#id_siswa').val(student.id);
     $('#hasil_siswa').empty();
     $('#filter_tahun').html('<option value="">Semua Tahun</option>');
+    $('#filter_bulan').val('');
     $('#filter_tipe').val('');
-    $('#filter_status').val('');
     $('#filter_tagihan').val('');
+    $('#future_filter_tahun').html('<option value="">Semua Tahun</option>');
+    $('#future_filter_tipe').val('');
+    $('#future_filter_tagihan').val('');
     $('#id_metode').val('');
     $('#referensi').val('');
     $('#catatan').val('');
     setMoneyInputValue('#uang_diterima', 0);
-    $('#blok_tunai').addClass('d-none');
+    $('#blok_tunai, #blok_referensi').addClass('d-none');
+    $('#opsi_lainnya_pembayaran, #checkout_daftar_wrap').removeClass('show');
 
-    $('#siswa_dipilih').html(`
-        <div class="row g-3">
-            <div class="col-lg-4 col-md-6">
-                <small class="text-muted d-block">Nama Siswa</small>
-                <strong class="fs-16">${escapeHtml(student.nama_lengkap)}</strong>
-            </div>
-            <div class="col-lg-2 col-md-6">
-                <small class="text-muted d-block">NIS</small>
-                <strong>${escapeHtml(student.nis || '-')}</strong>
-            </div>
-            <div class="col-lg-2 col-md-6">
-                <small class="text-muted d-block">NISN</small>
-                <strong>${escapeHtml(student.nisn || '-')}</strong>
-            </div>
-            <div class="col-lg-2 col-md-6">
-                <small class="text-muted d-block">Kelas Aktif</small>
-                <strong>${escapeHtml(student.nama_kelas || 'Belum ditempatkan')}</strong>
-            </div>
-            <div class="col-lg-2 col-md-6">
-                <small class="text-muted d-block">Status</small>
-                <span class="badge bg-${statusTone}-subtle text-${statusTone}">${escapeHtml(studentStatus)}</span>
-            </div>
-            <div class="col-md-6">
-                <small class="text-muted d-block">Telepon Ayah</small>
-                <strong>${escapeHtml(student.telepon_ayah || '-')}</strong>
-            </div>
-            <div class="col-md-6">
-                <small class="text-muted d-block">Telepon Ibu</small>
-                <strong>${escapeHtml(student.telepon_ibu || '-')}</strong>
-            </div>
-        </div>
-    `);
+    $('.quick-filter')
+        .removeClass('btn-primary active')
+        .addClass('btn-outline-secondary');
+    $('.quick-filter[data-quick-filter="all"]')
+        .removeClass('btn-outline-secondary')
+        .addClass('btn-primary active');
 
+    renderStudentSummary();
+    $('#card_cari_siswa').addClass('d-none');
     $('#card_identitas_siswa').removeClass('d-none');
     $('#area_transaksi').removeClass('d-none');
 
@@ -786,14 +1077,50 @@ function applySelectedStudent(student) {
     loadBills();
 }
 
+function renderStudentSummary() {
+    if (!selectedStudent) return;
+
+    $('#siswa_dipilih').html(`
+        <div class="student-summary-main">
+            <div class="student-summary-name">
+                <small class="text-muted d-block">Siswa</small>
+                <strong class="fs-17 d-block text-truncate">${escapeHtml(selectedStudent.nama_lengkap)}</strong>
+            </div>
+            <div class="student-summary-meta">
+                <div>
+                    <small class="text-muted d-block">Kelas</small>
+                    <strong>${escapeHtml(selectedStudent.nama_kelas || 'Belum ditempatkan')}</strong>
+                </div>
+                <div>
+                    <small class="text-muted d-block">NIS</small>
+                    <strong>${escapeHtml(selectedStudent.nis || '-')}</strong>
+                </div>
+                <div>
+                    <small class="text-muted d-block">Tanggal</small>
+                    <strong id="tanggal_transaksi_info">-</strong>
+                </div>
+                <div>
+                    <small class="text-muted d-block">Jam</small>
+                    <strong><span id="jam_transaksi_info">-</span> WIB</strong>
+                </div>
+            </div>
+            <div class="student-summary-outstanding">
+                <small class="text-muted d-block">Total Sisa Tagihan</small>
+                <strong class="text-danger fs-17" id="total_sisa_siswa">${billRows.length ? formatRupiah(studentOutstandingTotal) : 'Memuat...'}</strong>
+            </div>
+        </div>
+    `);
+    updateTransactionClock();
+}
+
 function changeStudent() {
     if (paymentCart.length) {
         Swal.fire({
             title: 'Ganti siswa?',
-            text: 'Keranjang pembayaran akan dikosongkan.',
+            text: 'Semua tagihan yang sudah dipilih akan dibatalkan.',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Ganti',
+            confirmButtonText: 'Ganti Siswa',
             cancelButtonText: 'Batal'
         }).then(function (result) {
             if (result.isConfirmed) resetStudentSelection();
@@ -807,33 +1134,40 @@ function resetStudentSelection() {
     selectedStudent = null;
     paymentCart = [];
     billRows = [];
+    futureBillRows = [];
     currentAcademicPeriod = '';
+    studentOutstandingTotal = 0;
+    activeQuickFilter = 'all';
 
     $('#id_siswa').val('');
     $('#card_identitas_siswa').addClass('d-none');
     $('#siswa_dipilih').empty();
     $('#area_transaksi').addClass('d-none');
+    $('#card_cari_siswa').removeClass('d-none');
     $('#cari_siswa').val('').focus();
+    $('#hasil_siswa').empty();
 
     $('#filter_tahun').html('<option value="">Semua Tahun</option>');
+    $('#filter_bulan').val('');
     $('#filter_tipe').val('');
-    $('#filter_status').val('');
     $('#filter_tagihan').val('');
+    $('#future_filter_tahun').html('<option value="">Semua Tahun</option>');
+    $('#future_filter_tipe').val('');
+    $('#future_filter_tagihan').val('');
     $('#jumlah_tagihan').text('0 tagihan');
+    $('#jumlah_tagihan_mendatang').text('0');
+    $('#id_metode').val('');
+    $('#referensi, #catatan').val('');
+    setMoneyInputValue('#uang_diterima', 0);
+    $('#blok_tunai, #blok_referensi').addClass('d-none');
 
     drawBills();
+    drawFutureBills();
     drawCart();
 }
 
 function loadBills() {
-    if (!selectedStudent) {
-        return;
-    }
-
-    var periode = $('#filter_tahun').val();
-    var tipe = $('#filter_tipe').val();
-    var status = $('#filter_status').val();
-    var search = $('#filter_tagihan').val();
+    if (!selectedStudent) return;
 
     $('#daftar_tagihan').html(`
         <div class="empty-state">
@@ -847,174 +1181,249 @@ function loadBills() {
         type: 'POST',
         data: {
             id_siswa: selectedStudent.id,
-            periode: periode,
-            tipe: tipe,
-            status: status,
-            search: search
+            periode: '',
+            tipe: '',
+            status: '',
+            search: ''
         },
         dataType: 'JSON',
         success: function (data) {
             if (data.result == 'true') {
                 billRows = data.tagihan || [];
+                futureBillRows = data.tagihan_mendatang || [];
                 currentAcademicPeriod = data.periode_aktif || selectedStudent.periode || '';
+                studentOutstandingTotal = Number(data.total_sisa_tagihan || 0);
 
-                var selectedPeriod = $('#filter_tahun').val();
+                var normalYears = Array.from(new Set(billRows.map(function (item) {
+                    return String(item.periode || '');
+                }).filter(Boolean))).sort().reverse();
+                var futureYears = Array.from(new Set(futureBillRows.map(function (item) {
+                    return String(item.periode || '');
+                }).filter(Boolean))).sort().reverse();
+
                 var options = '<option value="">Semua Tahun</option>';
-
-                (data.tahun_ajaran || []).forEach(function (year) {
-                    options += `
-                        <option value="${escapeHtml(year)}">
-                            ${escapeHtml(year)}
-                        </option>
-                    `;
+                normalYears.forEach(function (year) {
+                    options += `<option value="${escapeHtml(year)}">${escapeHtml(year)}</option>`;
                 });
+                $('#filter_tahun').html(options);
 
-                $('#filter_tahun').html(options).val(selectedPeriod);
+                var futureOptions = '<option value="">Semua Tahun</option>';
+                futureYears.forEach(function (year) {
+                    futureOptions += `<option value="${escapeHtml(year)}">${escapeHtml(year)}</option>`;
+                });
+                $('#future_filter_tahun').html(futureOptions);
+                $('#jumlah_tagihan_mendatang').text(futureBillRows.length);
+                $('#total_sisa_siswa').text(formatRupiah(studentOutstandingTotal));
                 drawBills();
+                drawFutureBills();
             } else if (data.result == 'false') {
                 billRows = [];
+                futureBillRows = [];
+                studentOutstandingTotal = 0;
+                $('#jumlah_tagihan_mendatang').text('0');
+                $('#total_sisa_siswa').text(formatRupiah(0));
                 drawBills();
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: data.message
-                });
+                drawFutureBills();
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
             }
         },
-        error: function (xhr, status, error) {
+        error: function (xhr) {
             billRows = [];
+            futureBillRows = [];
+            studentOutstandingTotal = 0;
+            $('#jumlah_tagihan_mendatang').text('0');
+            $('#total_sisa_siswa').text(formatRupiah(0));
             drawBills();
+            drawFutureBills();
             ajaxError(xhr);
         }
     });
 }
 
+function isPreviousBill(item) {
+    return String(item.is_tunggakan || '') === 'Ya';
+}
+
+function academicMonthYear(period, month) {
+    var selectedMonth = Number(month || 0);
+    var match = String(period || '').match(/(\d{4})\D+(\d{4})/);
+
+    if (!match || selectedMonth < 1 || selectedMonth > 12) return 0;
+
+    return selectedMonth >= 7 ? Number(match[1]) : Number(match[2]);
+}
+
+function matchesMonthFilter(item, selectedMonth) {
+    var month = Number(selectedMonth || 0);
+    if (!month) return true;
+
+    var itemMonth = Number(item.bulan || 0);
+    var itemYear = Number(item.tahun || 0);
+    var type = String(item.tipe_tagihan || '');
+
+    if (type === 'Tahunan') {
+        var targetYear = academicMonthYear(item.periode, month);
+        if (!targetYear || !itemYear || !itemMonth) {
+            return itemMonth === month;
+        }
+
+        return ((itemYear * 100) + itemMonth) <= ((targetYear * 100) + month);
+    }
+
+    return itemMonth === month;
+}
+
+function getFilteredBills() {
+    var year = String($('#filter_tahun').val() || '');
+    var month = String($('#filter_bulan').val() || '');
+    var type = String($('#filter_tipe').val() || '');
+    var search = $.trim(String($('#filter_tagihan').val() || '')).toLowerCase();
+
+    return billRows.filter(function (item) {
+        if (year !== '' && String(item.periode || '') !== year) return false;
+        if (!matchesMonthFilter(item, month)) return false;
+        if (type !== '' && String(item.tipe_tagihan || '') !== type) return false;
+
+        if (search !== '') {
+            var haystack = (
+                String(item.nama_tagihan || '') + ' ' +
+                String(item.nama_jenis_tagihan || '') + ' ' +
+                String(item.no_tagihan || '')
+            ).toLowerCase();
+            if (haystack.indexOf(search) === -1) return false;
+        }
+
+        var category = String(item.kategori_pembayaran || '');
+        if (activeQuickFilter === 'unpaid' && category !== 'unpaid') return false;
+        if (activeQuickFilter === 'partial' && category !== 'partial') return false;
+        if (activeQuickFilter === 'overdue' && category !== 'overdue') return false;
+
+        return true;
+    });
+}
+
 function drawBills() {
+    var filteredRows = selectedStudent ? getFilteredBills() : [];
     var currentRows = [];
     var previousRows = [];
 
-    billRows.forEach(function (item) {
-        if (
-            currentAcademicPeriod !== '' &&
-            String(item.periode) === String(currentAcademicPeriod)
-        ) {
-            currentRows.push(item);
-        } else {
-            previousRows.push(item);
-        }
+    filteredRows.forEach(function (item) {
+        if (isPreviousBill(item)) previousRows.push(item);
+        else currentRows.push(item);
     });
 
-    $('#jumlah_tagihan').text(billRows.length + ' tagihan');
-
-    var table = '';
-
-    table += buildBillSection(
-        'Tagihan Tahun Berjalan',
-        currentRows,
-        'primary',
-        'current',
-        'Tidak ada data tagihan tahun berjalan.'
+    $('#jumlah_tagihan').text(
+        filteredRows.length + ' tagihan' +
+        (billRows.length !== filteredRows.length ? ' dari ' + billRows.length : '')
     );
 
-    table += buildBillSection(
-        'Tunggakan / Tagihan Tahun Sebelumnya',
-        previousRows,
-        'warning',
-        'previous',
-        'Tidak ada data tagihan tahun sebelumnya.'
-    );
+    if (!selectedStudent) {
+        $('#daftar_tagihan').html('');
+        return;
+    }
 
-    $('#daftar_tagihan').html(table);
+    var html = '';
 
-    updateAddButton();
+    if (activeQuickFilter !== 'overdue') {
+        html += buildBillSection(
+            'Tagihan Saat Ini',
+            currentRows,
+            'primary',
+            'current',
+            'Tidak ada tagihan bulan berjalan/cicilan yang sesuai filter.'
+        );
+    }
+
+    if (activeQuickFilter === 'all' || activeQuickFilter === 'overdue' || previousRows.length) {
+        html += buildBillSection(
+            'Tunggakan',
+            previousRows,
+            'warning',
+            'previous',
+            activeQuickFilter === 'overdue'
+                ? 'Tidak ada tagihan yang sudah melewati jatuh tempo dan dianggap tunggakan.'
+                : 'Tidak ada tunggakan yang sesuai filter.'
+        );
+    }
+
+    $('#daftar_tagihan').html(html);
 }
 
 function buildBillSection(title, rows, tone, key, emptyMessage) {
-    var table = `
+    var html = `
         <div class="bill-section" id="bill-section-${key}">
             <div class="bill-section-title">
                 <h5 class="mb-0">${escapeHtml(title)}</h5>
-                <span class="badge bg-${tone}-subtle text-${tone}">
-                    ${rows.length} tagihan
-                </span>
+                <span class="badge bg-${tone}-subtle text-${tone}">${rows.length} tagihan</span>
             </div>
     `;
 
-    if (rows.length == 0) {
-        table += `
-            <div class="empty-state">
+    if (!rows.length) {
+        html += `
+            <div class="empty-state py-3">
                 <i class="ri-file-search-line empty-icon"></i>
                 ${escapeHtml(emptyMessage || 'Tidak ada data.')}
             </div>
         `;
     } else {
         rows.forEach(function (item) {
-            var inCart = paymentCart.some(function (cartItem) {
-                return cartItem.id === Number(item.id);
-            });
-
+            var id = Number(item.id);
+            var inCart = paymentCart.some(function (cartItem) { return cartItem.id === id; });
+            var paymentLabel = getPaymentStatusLabel(item.status_pembayaran);
+            var statusTone = getPaymentStatusTone(item.status_pembayaran);
+            var periodText = $.trim((item.nama_bulan || '') + ' ' + (item.tahun || ''));
+            var previous = isPreviousBill(item);
+            var overdue = String(item.is_tunggakan || '') === 'Ya';
             var reduction = Number(item.nilai_keringanan || 0);
-            var statusTone = item.status_pembayaran === 'Dibayar Sebagian'
-                ? 'warning'
-                : 'secondary';
+            var dueDate = item.tanggal_jatuh_tempo || '-';
 
-            table += `
-                <div class="bill-item">
-                    <div class="d-flex align-items-start gap-3">
-                        <input
-                            type="checkbox"
-                            class="form-check-input check-bill mt-1"
-                            value="${Number(item.id)}"
-                            ${inCart ? 'disabled' : ''}
-                        >
-
+            html += `
+                <div class="bill-item ${inCart ? 'is-selected' : ''}" data-bill-id="${id}" role="button" tabindex="0" aria-pressed="${inCart ? 'true' : 'false'}">
+                    <div class="d-flex gap-3 bill-top-row flex-wrap flex-md-nowrap">
                         <div class="flex-grow-1 min-w-0">
-                            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                                <div>
-                                    <strong>${escapeHtml(item.nama_tagihan)}</strong>
-                                    <br>
-                                    <small class="text-muted">
-                                        ${escapeHtml(item.no_tagihan || '-')} |
-                                        ${escapeHtml(item.nama_bulan || '')}
-                                        ${escapeHtml(item.tahun || '')} |
-                                        ${escapeHtml(item.periode || '-')}
-                                    </small>
+                            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <strong class="d-block fs-15">${escapeHtml(item.nama_tagihan)}</strong>
+                                        ${inCart ? '<span class="badge bg-primary-subtle text-primary"><i class="ri-check-line me-1"></i>Dipilih</span>' : ''}
+                                    </div>
+                                    ${periodText !== '' ? `<small class="text-muted d-block mt-1">${escapeHtml(periodText)}</small>` : ''}
+                                    <small class="text-muted d-block mt-1">Jatuh tempo ${escapeHtml(dueDate)}</small>
+                                    <div class="d-flex gap-1 flex-wrap mt-2">
+                                        ${overdue
+                                            ? '<span class="badge bg-warning-subtle text-warning">Tunggakan</span>'
+                                            : (previous ? '<span class="badge bg-secondary-subtle text-secondary">Tagihan Sebelumnya</span>' : '')}
+                                        <span class="badge bg-${statusTone}-subtle text-${statusTone}">${escapeHtml(paymentLabel)}</span>
+                                        ${item.status_pembayaran === 'Dibayar Sebagian'
+                                            ? `<span class="small text-muted align-self-center">Sudah dibayar ${formatRupiah(item.nominal_dibayar)}</span>`
+                                            : ''}
+                                    </div>
                                 </div>
 
-                                <div class="d-flex gap-1 flex-wrap">
-                                    <span class="badge bg-info-subtle text-info">
-                                        ${escapeHtml(item.tipe_tagihan || '-')}
-                                    </span>
-                                    <span class="badge bg-${statusTone}-subtle text-${statusTone}">
-                                        ${escapeHtml(item.status_pembayaran)}
-                                    </span>
-                                    ${item.dianggap_tunggakan === 'Tidak'
-                                        ? '<span class="badge bg-purple-subtle text-purple">Tidak dianggap tunggakan</span>'
-                                        : ''}
+                                <div class="bill-main-value">
+                                    <small class="text-muted d-block">Sisa Tagihan</small>
+                                    <strong class="text-danger fs-16">${formatRupiah(item.sisa_tagihan)}</strong>
                                 </div>
                             </div>
 
-                            <div class="bill-values">
-                                <div>
-                                    <small>Nominal Awal</small>
-                                    <strong>${formatRupiah(item.nominal_awal)}</strong>
-                                </div>
-                                <div>
-                                    <small>Potongan/Pembebasan</small>
-                                    <strong>${formatRupiah(reduction)}</strong>
-                                </div>
-                                <div>
-                                    <small>Nominal Akhir</small>
-                                    <strong>${formatRupiah(item.nominal_tagihan)}</strong>
-                                </div>
-                                <div>
-                                    <small>Sudah Dibayar</small>
-                                    <strong>${formatRupiah(item.nominal_dibayar)}</strong>
-                                </div>
-                                <div>
-                                    <small>Sisa</small>
-                                    <strong class="text-danger">${formatRupiah(item.sisa_tagihan)}</strong>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-link px-0 text-decoration-none" data-bill-detail="${id}">
+                                    Detail <i class="ri-arrow-down-s-line"></i>
+                                </button>
+                            </div>
+
+                            <div class="bill-detail d-none" id="bill_detail_${id}">
+                                <div class="bill-detail-grid">
+                                    <div><small>No. Tagihan</small><strong>${escapeHtml(item.no_tagihan || '-')}</strong></div>
+                                    <div><small>Tipe</small><strong>${escapeHtml(item.tipe_tagihan || '-')}</strong></div>
+                                    <div><small>Tahun Ajaran</small><strong>${escapeHtml(item.periode || '-')}</strong></div>
+                                    <div><small>Jatuh Tempo</small><strong>${escapeHtml(dueDate)}</strong></div>
+                                    <div><small>Nominal Awal</small><strong>${formatRupiah(item.nominal_awal)}</strong></div>
+                                    <div><small>Potongan/Pembebasan</small><strong>${formatRupiah(reduction)}</strong></div>
+                                    <div><small>Nominal Akhir</small><strong>${formatRupiah(item.nominal_tagihan)}</strong></div>
+                                    <div><small>Sudah Dibayar</small><strong>${formatRupiah(item.nominal_dibayar)}</strong></div>
+                                    <div><small>Sisa Tagihan</small><strong>${formatRupiah(item.sisa_tagihan)}</strong></div>
+                                    <div><small>Status</small><strong>${escapeHtml(paymentLabel)}</strong></div>
                                 </div>
                             </div>
                         </div>
@@ -1024,196 +1433,429 @@ function buildBillSection(title, rows, tone, key, emptyMessage) {
         });
     }
 
-    table += '</div>';
-
-    return table;
+    html += '</div>';
+    return html;
 }
 
-function updateAddButton() {
-    $('#btn_tambah_keranjang').prop('disabled', $('.check-bill:checked').length === 0);
-}
+function getFilteredFutureBills() {
+    var year = String($('#future_filter_tahun').val() || '');
+    var type = String($('#future_filter_tipe').val() || '');
+    var search = $.trim(String($('#future_filter_tagihan').val() || '')).toLowerCase();
 
-function addSelectedBills() {
-    $('.check-bill:checked').each(function () {
-        var id = Number(this.value);
-        var row = billRows.find(function (item) { return Number(item.id) === id; });
-        if (row && !paymentCart.some(function (item) { return item.id === id; })) {
-            paymentCart.push({
-                id: id,
-                name: row.nama_tagihan,
-                period: (row.nama_bulan || '') + ' ' + (row.tahun || '') + ' | ' + (row.periode || ''),
-                balance: Number(row.sisa_tagihan),
-                pay: Number(row.sisa_tagihan)
-            });
+    return futureBillRows.filter(function (item) {
+        if (year !== '' && String(item.periode || '') !== year) return false;
+        if (type !== '' && String(item.tipe_tagihan || '') !== type) return false;
+
+        if (search !== '') {
+            var haystack = (
+                String(item.nama_tagihan || '') + ' ' +
+                String(item.nama_jenis_tagihan || '') + ' ' +
+                String(item.no_tagihan || '')
+            ).toLowerCase();
+            if (haystack.indexOf(search) === -1) return false;
         }
+
+        return true;
     });
-    drawCart();
-    drawBills();
-    document.getElementById('keranjang-pembayaran').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function openCheckoutPayment() {
-    if (!selectedStudent || !paymentCart.length) {
+function openEarlyPayment() {
+    if (!selectedStudent) return;
+
+    if (!futureBillRows.length) {
         Swal.fire({
-            icon: 'warning',
-            title: 'Perhatian',
-            text: 'Keranjang pembayaran masih kosong.'
+            icon: 'info',
+            title: 'Tidak Ada Tagihan Mendatang',
+            text: 'Tidak ada tagihan setelah bulan berjalan yang masih dapat dibayar.'
         });
         return;
     }
 
-    var invalid = paymentCart.some(function (item) {
-        return Number(item.pay) <= 0 || Number(item.pay) > Number(item.balance);
-    });
+    drawFutureBills();
+    earlyPaymentModal.show();
+}
 
-    if (invalid) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Perhatian',
-            text: 'Nominal pembayaran harus lebih dari nol dan tidak boleh melebihi sisa tagihan.'
-        });
+function drawFutureBills() {
+    var rows = selectedStudent ? getFilteredFutureBills() : [];
+    $('#future_filter_info').text(rows.length + ' tagihan mendatang');
+    $('#btn_pilih_semua_mendatang').prop('disabled', rows.length === 0);
+
+    if (!selectedStudent || !rows.length) {
+        $('#daftar_tagihan_mendatang').html(`
+            <div class="empty-state py-3">
+                <i class="ri-calendar-check-line empty-icon"></i>
+                Tidak ada tagihan mendatang yang sesuai filter.
+            </div>
+        `);
         return;
     }
 
-    renderCheckoutPayment();
-    calculateCart();
-    checkoutPaymentModal.show();
-}
+    var html = rows.map(function (item) {
+        var id = Number(item.id);
+        var inCart = paymentCart.some(function (cartItem) { return cartItem.id === id; });
+        var periodText = $.trim((item.nama_bulan || '') + ' ' + (item.tahun || ''));
+        var dueDate = item.tanggal_jatuh_tempo || '-';
 
-function renderCheckoutPayment() {
-    var html = '';
-
-    $('#checkout_siswa').text(
-        selectedStudent
-            ? selectedStudent.nama_lengkap + ' | NIS ' + (selectedStudent.nis || '-') + ' | ' + (selectedStudent.nama_kelas || 'Belum ditempatkan')
-            : '-'
-    );
-
-    $('#checkout_jumlah').text(paymentCart.length + ' tagihan');
-    $('#checkout_total').text(formatRupiah(cartTotal()));
-
-    paymentCart.forEach(function (item) {
-        html += `
-            <div class="checkout-bill-item">
-                <div class="d-flex justify-content-between gap-3">
-                    <div class="flex-grow-1 min-w-0">
-                        <strong class="d-block">${escapeHtml(item.name)}</strong>
-                        <small class="text-muted d-block mt-1">${escapeHtml(item.period)}</small>
-                        <small class="text-muted d-block">Sisa: ${formatRupiah(item.balance)}</small>
+        return `
+            <div class="bill-item future-bill-item ${inCart ? 'is-selected' : ''}" data-bill-id="${id}" role="button" tabindex="0" aria-pressed="${inCart ? 'true' : 'false'}">
+                <div class="d-flex justify-content-between gap-3 flex-wrap">
+                    <div class="min-w-0 flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <strong>${escapeHtml(item.nama_tagihan)}</strong>
+                            ${inCart ? '<span class="badge bg-primary-subtle text-primary"><i class="ri-check-line me-1"></i>Dipilih</span>' : ''}
+                        </div>
+                        <small class="text-muted d-block mt-1">
+                            ${escapeHtml(periodText || '-')} • ${escapeHtml(item.tipe_tagihan || '-')} • Jatuh tempo ${escapeHtml(dueDate)}
+                        </small>
                     </div>
-
                     <div class="text-end flex-shrink-0">
-                        <small class="text-muted d-block">Dibayar</small>
-                        <strong class="text-success">${formatRupiah(item.pay)}</strong>
+                        <small class="text-muted d-block">Sisa Tagihan</small>
+                        <strong class="text-danger">${formatRupiah(item.sisa_tagihan)}</strong>
                     </div>
                 </div>
             </div>
         `;
-    });
+    }).join('');
 
-    $('#checkout_daftar').html(
-        html || '<div class="empty-state py-3">Belum ada tagihan dipilih.</div>'
+    $('#daftar_tagihan_mendatang').html(html);
+}
+
+function selectAllVisibleFutureBills() {
+    var rows = getFilteredFutureBills();
+    rows.forEach(function (row) {
+        addBillToCart(row);
+    });
+    drawCart();
+    drawBills();
+    drawFutureBills();
+}
+
+function findBillById(id) {
+    var row = billRows.find(function (item) { return Number(item.id) === Number(id); });
+    if (row) return row;
+    return futureBillRows.find(function (item) { return Number(item.id) === Number(id); }) || null;
+}
+
+function addBillToCart(row) {
+    if (!row) return;
+    var id = Number(row.id);
+    if (paymentCart.some(function (item) { return item.id === id; })) return;
+
+    paymentCart.push({
+        id: id,
+        name: row.nama_tagihan,
+        period: $.trim((row.nama_bulan || '') + ' ' + (row.tahun || '')) + (row.periode ? ' | ' + row.periode : ''),
+        balance: Number(row.sisa_tagihan),
+        pay: Number(row.sisa_tagihan),
+        mode: 'full'
+    });
+}
+
+function toggleBillSelection(id) {
+    var row = findBillById(id);
+    if (!row) return;
+
+    var index = paymentCart.findIndex(function (item) { return item.id === Number(id); });
+    if (index >= 0) {
+        paymentCart.splice(index, 1);
+    } else {
+        addBillToCart(row);
+    }
+
+    drawCart();
+    drawBills();
+    drawFutureBills();
+}
+
+function toggleFutureBillSelection(id) {
+    toggleBillSelection(id);
+}
+
+function toggleBillDetail() {
+    var id = Number($(this).data('bill-detail'));
+    var target = $('#bill_detail_' + id);
+    var willOpen = target.hasClass('d-none');
+    target.toggleClass('d-none', !willOpen);
+    $(this).html(willOpen
+        ? 'Tutup Detail <i class="ri-arrow-up-s-line"></i>'
+        : 'Detail <i class="ri-arrow-down-s-line"></i>'
     );
 }
 
 function drawCart() {
     if (!paymentCart.length) {
-        $('#keranjang').html('<div class="empty-state py-3">Keranjang masih kosong.</div>');
+        $('#keranjang').html(`
+            <div class="empty-state py-3">
+                <i class="ri-checkbox-multiple-line empty-icon"></i>
+                Klik card tagihan di sebelah kiri untuk mulai pembayaran.
+            </div>
+        `);
     } else {
         $('#keranjang').html(paymentCart.map(function (item, index) {
-            return '<div class="border rounded p-2 mb-2">' +
-                '<div class="d-flex justify-content-between gap-2">' +
-                    '<div><strong>' + escapeHtml(item.name) + '</strong><br><small class="text-muted">' + escapeHtml(item.period) + '<br>Sisa ' + formatRupiah(item.balance) + '</small></div>' +
-                    '<button type="button" class="btn btn-sm btn-outline-danger" data-remove-cart="' + index + '"><i class="ri-close-line"></i></button>' +
-                '</div>' +
-                '<label class="form-label mt-2 mb-1" for="cart_amount_' + index + '">Bayar sekarang</label>' +
-                '<input type="text" inputmode="numeric" autocomplete="off" id="cart_amount_' + index + '" class="form-control money-input cart-amount" data-cart-index="' + index + '" value="' + formatMoneyInput(item.pay) + '">' +
-            '</div>';
+            var partial = item.mode === 'partial';
+            var validationMessage = getCartValidationMessage(item);
+
+            return `
+                <div class="cart-item">
+                    <div class="d-flex justify-content-between gap-2">
+                        <div class="min-w-0">
+                            <strong class="d-block text-truncate">${escapeHtml(item.name)}</strong>
+                            <small class="text-muted d-block">${escapeHtml(item.period || '-')}</small>
+                            <small class="text-muted">Sisa ${formatRupiah(item.balance)}</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger flex-shrink-0" data-remove-cart="${index}" title="Hapus pilihan">
+                            <i class="ri-close-line"></i>
+                        </button>
+                    </div>
+
+                    <div class="cart-mode-box">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input payment-mode" type="radio" name="payment_mode_${index}" id="payment_full_${index}" data-cart-index="${index}" value="full" ${!partial ? 'checked' : ''}>
+                            <label class="form-check-label" for="payment_full_${index}">
+                                <strong>Bayar Penuh</strong>
+                                <small class="text-muted d-block">${formatRupiah(item.balance)}</small>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input payment-mode" type="radio" name="payment_mode_${index}" id="payment_partial_${index}" data-cart-index="${index}" value="partial" ${partial ? 'checked' : ''}>
+                            <label class="form-check-label" for="payment_partial_${index}">
+                                <strong>Bayar Sebagian</strong>
+                                <small class="text-muted d-block">Untuk pembayaran cicilan.</small>
+                            </label>
+                        </div>
+
+                        <div class="partial-payment-wrap mt-2 ${partial ? '' : 'd-none'}">
+                            <label class="form-label mb-1" for="cart_amount_${index}">Nominal yang Dibayar</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Rp</span>
+                                <input
+                                    type="text"
+                                    inputmode="numeric"
+                                    autocomplete="off"
+                                    id="cart_amount_${index}"
+                                    class="form-control money-input cart-amount ${validationMessage ? 'is-invalid' : ''}"
+                                    data-cart-index="${index}"
+                                    value="${partial && Number(item.pay) > 0 ? formatMoneyInput(item.pay) : ''}"
+                                    placeholder="Masukkan nominal"
+                                >
+                            </div>
+                            <div class="${validationMessage ? 'invalid-feedback d-block' : 'form-text'} cart-amount-feedback">
+                                ${validationMessage ? escapeHtml(validationMessage) : 'Maksimal ' + formatRupiah(item.balance)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }).join(''));
     }
+
     calculateCart();
+}
+
+function updatePaymentMode() {
+    var index = Number($(this).data('cart-index'));
+    var mode = String($(this).val() || 'full');
+    var item = paymentCart[index];
+    if (!item) return;
+
+    item.mode = mode;
+    if (mode === 'full') {
+        item.pay = Number(item.balance);
+    } else if (Number(item.pay) >= Number(item.balance) || Number(item.pay) <= 0) {
+        item.pay = 0;
+    }
+
+    drawCart();
+    if (mode === 'partial') {
+        setTimeout(function () { $('#cart_amount_' + index).focus(); }, 0);
+    }
 }
 
 function updateCartAmount() {
     var index = Number($(this).data('cart-index'));
-    var value = parseMoneyInput($(this).val());
-    paymentCart[index].pay = Math.min(paymentCart[index].balance, Math.max(0, value));
-    $(this).val(formatMoneyInput(paymentCart[index].pay));
+    var item = paymentCart[index];
+    if (!item) return;
+
+    item.pay = parseMoneyInput($(this).val());
+    var message = getCartValidationMessage(item);
+    $(this).toggleClass('is-invalid', message !== '');
+
+    var feedback = $(this).siblings('.cart-amount-feedback');
+    feedback
+        .toggleClass('invalid-feedback d-block', message !== '')
+        .toggleClass('form-text', message === '')
+        .text(message || ('Maksimal ' + formatRupiah(item.balance)));
+
     calculateCart();
 }
 
+function getCartValidationMessage(item) {
+    if (item.mode !== 'partial') return '';
+    if (Number(item.pay) <= 0) return 'Nominal harus lebih dari Rp0.';
+    if (Number(item.pay) > Number(item.balance)) return 'Nominal tidak boleh melebihi sisa ' + formatRupiah(item.balance) + '.';
+    return '';
+}
+
+function isCartValid() {
+    if (!paymentCart.length) return false;
+    return paymentCart.every(function (item) {
+        return Number(item.pay) > 0 && Number(item.pay) <= Number(item.balance);
+    });
+}
+
 function removeCartItem() {
-    paymentCart.splice(Number($(this).data('remove-cart')), 1);
+    var index = Number($(this).data('remove-cart'));
+    paymentCart.splice(index, 1);
     drawCart();
     drawBills();
+    drawFutureBills();
 }
 
 function emptyCart() {
     if (!paymentCart.length) return;
+
     Swal.fire({
-        title: 'Kosongkan keranjang?',
-        text: 'Tagihan yang dipilih akan dikeluarkan dari keranjang.',
+        title: 'Batalkan semua pilihan?',
+        text: 'Semua tagihan akan dikeluarkan dari Pembayaran Dipilih.',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Kosongkan',
-        cancelButtonText: 'Batal'
+        confirmButtonText: 'Ya, Batalkan',
+        cancelButtonText: 'Kembali'
     }).then(function (result) {
         if (result.isConfirmed) {
             paymentCart = [];
             drawCart();
             drawBills();
+            drawFutureBills();
         }
     });
 }
 
 function cartTotal() {
-    return paymentCart.reduce(function (total, item) { return total + Number(item.pay || 0); }, 0);
+    return paymentCart.reduce(function (total, item) {
+        return total + Number(item.pay || 0);
+    }, 0);
 }
 
 function calculateCart() {
     var total = cartTotal();
+    var methodSelected = $('#id_metode').val() !== '';
+    var needsCash = methodSelected && String($('#id_metode option:selected').data('cash')) === 'Ya';
+
+    if (methodSelected && !needsCash) {
+        setMoneyInputValue('#uang_diterima', total);
+    }
+
     var received = parseMoneyInput($('#uang_diterima').val());
+
     $('#total_keranjang').text(formatRupiah(total));
-    $('#ringkasan_keranjang').text(paymentCart.length + ' tagihan | Total ' + formatRupiah(total));
-    $('#kembalian').val(formatRupiah(Math.max(0, received - total)));
-    $('#btn_simpan').prop('disabled', !paymentCart.length || !selectedStudent);
+    $('#jumlah_pilihan').text(paymentCart.length + ' tagihan');
+    $('#ringkasan_pilihan').text(
+        paymentCart.length
+            ? paymentCart.length + ' tagihan dipilih.'
+            : 'Belum ada tagihan dipilih.'
+    );
+    $('#checkout_total').text(formatRupiah(total));
+    $('#checkout_jumlah').text(paymentCart.length + ' tagihan');
+    $('#kembalian').text(formatRupiah(Math.max(0, received - total)));
+
     $('#btn_kosongkan').prop('disabled', !paymentCart.length);
-    $('#btn_selesaikan_pembayaran').prop('disabled', !paymentCart.length || !selectedStudent);
+    $('#btn_selesaikan_pembayaran').prop('disabled', !selectedStudent || !isCartValid());
+
+    updateCheckoutButton();
 
     if ($('#modal_checkout_pembayaran').hasClass('show')) {
         renderCheckoutPayment();
     }
 }
 
+function updateCheckoutButton() {
+    var methodSelected = $('#id_metode').val() !== '';
+    var needsCash = methodSelected && String($('#id_metode option:selected').data('cash')) === 'Ya';
+    var moneyReceived = parseMoneyInput($('#uang_diterima').val());
+    var cashValid = !needsCash || moneyReceived >= cartTotal();
+
+    $('#btn_simpan').prop('disabled', !selectedStudent || !isCartValid() || !methodSelected || !cashValid);
+}
+
+function openCheckoutPayment() {
+    if (!selectedStudent || !paymentCart.length) {
+        Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Belum ada tagihan yang dipilih.' });
+        return;
+    }
+
+    if (!isCartValid()) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Periksa Nominal Pembayaran',
+            text: 'Nominal Bayar Sebagian harus lebih dari nol dan tidak boleh melebihi sisa tagihan.'
+        });
+        return;
+    }
+
+    renderCheckoutPayment();
+    toggleCashFields();
+    calculateCart();
+    checkoutPaymentModal.show();
+}
+
+function renderCheckoutPayment() {
+    $('#checkout_siswa').text(
+        selectedStudent
+            ? selectedStudent.nama_lengkap + ' • ' + (selectedStudent.nama_kelas || 'Belum ditempatkan')
+            : '-'
+    );
+
+    $('#checkout_total').text(formatRupiah(cartTotal()));
+    $('#checkout_jumlah').text(paymentCart.length + ' tagihan');
+
+    var html = paymentCart.map(function (item) {
+        return `
+            <div class="checkout-bill-item">
+                <div class="min-w-0">
+                    <strong class="d-block text-truncate">${escapeHtml(item.name)}</strong>
+                    <small class="text-muted">${escapeHtml(item.period || '-')}</small>
+                </div>
+                <strong class="text-success flex-shrink-0">${formatRupiah(item.pay)}</strong>
+            </div>
+        `;
+    }).join('');
+
+    $('#checkout_daftar').html(html || '<div class="empty-state py-2">Belum ada tagihan dipilih.</div>');
+}
+
 function toggleCashFields() {
-    var needsCash = String($('#id_metode option:selected').data('cash')) === 'Ya';
+    var methodSelected = $('#id_metode').val() !== '';
+    var needsCash = methodSelected && String($('#id_metode option:selected').data('cash')) === 'Ya';
+
     $('#blok_tunai').toggleClass('d-none', !needsCash);
-    if (!needsCash) setMoneyInputValue('#uang_diterima', cartTotal());
+    $('#blok_referensi').toggleClass('d-none', !methodSelected || needsCash);
+
+    if (needsCash) {
+        $('#referensi').val('');
+    }
+
+    if (methodSelected && !needsCash) {
+        setMoneyInputValue('#uang_diterima', cartTotal());
+    }
+
     calculateCart();
 }
 
 function savePayment(event) {
     event.preventDefault();
 
-    var invalid = paymentCart.some(function (item) {
-        return item.pay <= 0 || item.pay > item.balance;
-    });
-
-    if (invalid) {
+    if (!isCartValid()) {
         Swal.fire({
             icon: 'warning',
-            title: 'Perhatian',
-            text: 'Nominal setiap tagihan harus lebih dari nol dan tidak boleh melebihi sisa.'
+            title: 'Periksa Nominal Pembayaran',
+            text: 'Nominal setiap tagihan harus lebih dari nol dan tidak boleh melebihi sisa tagihan.'
         });
         return;
     }
 
     if (!$('#id_metode').val()) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Perhatian',
-            text: 'Pilih metode pembayaran.'
-        });
+        Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Pilih metode pembayaran.' });
         return;
     }
 
@@ -1224,7 +1866,7 @@ function savePayment(event) {
     if (needsCash && moneyReceived < total) {
         Swal.fire({
             icon: 'warning',
-            title: 'Perhatian',
+            title: 'Uang Diterima Kurang',
             text: 'Uang diterima minimal sama dengan total pembayaran.'
         });
         return;
@@ -1232,15 +1874,16 @@ function savePayment(event) {
 
     Swal.fire({
         title: 'Simpan transaksi pembayaran?',
-        text: formatRupiah(total) + ' untuk ' + selectedStudent.nama_lengkap,
+        html: '<div class="text-start">' +
+            '<div class="mb-1"><strong>' + escapeHtml(selectedStudent.nama_lengkap) + '</strong></div>' +
+            '<div>Total: <strong class="text-success">' + formatRupiah(total) + '</strong></div>' +
+            '</div>',
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Simpan',
+        confirmButtonText: 'Ya, Simpan',
         cancelButtonText: 'Batal'
     }).then(function (result) {
-        if (!result.isConfirmed) {
-            return;
-        }
+        if (!result.isConfirmed) return;
 
         var button = $('#btn_simpan');
         var paymentSaved = false;
@@ -1252,87 +1895,65 @@ function savePayment(event) {
             uang_diterima: moneyReceived,
             referensi: $('#referensi').val(),
             catatan: $('#catatan').val(),
-            items: JSON.stringify(
-                paymentCart.map(function (item) {
-                    return {
-                        id_tagihan_siswa: item.id,
-                        nominal_bayar: item.pay
-                    };
-                })
-            )
+            items: JSON.stringify(paymentCart.map(function (item) {
+                return {
+                    id_tagihan_siswa: item.id,
+                    nominal_bayar: item.pay
+                };
+            }))
         };
 
-        button
-            .prop('disabled', true)
-            .html('<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan');
+        button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan');
 
         $.ajax({
             url: '<?= base_url('admin/transaksi/pembayaran/simpan'); ?>',
             type: 'POST',
             data: data,
             dataType: 'JSON',
-            success: function (data) {
-                if (data.result == 'true') {
+            success: function (response) {
+                if (response.result == 'true') {
                     paymentSaved = true;
-                    lastPaymentId = Number(data.id_pembayaran);
-                    lastPaymentNumber = data.no_transaksi;
+                    lastPaymentId = Number(response.id_pembayaran);
+                    lastPaymentNumber = response.no_transaksi;
 
                     $('#isi_berhasil').html(`
-                        <div class="text-center mb-4">
-                            <div class="avatar-lg rounded-circle bg-success-subtle text-success mx-auto d-flex align-items-center justify-content-center">
+                        <div class="text-center py-2">
+                            <div class="avatar-lg rounded-circle bg-success-subtle text-success mx-auto d-flex align-items-center justify-content-center mb-3">
                                 <i class="ri-check-line fs-30"></i>
                             </div>
-                            <h4 class="mt-2 mb-0">${escapeHtml(data.no_transaksi)}</h4>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-6 text-muted">Siswa</div>
-                            <div class="col-6 text-end fw-semibold">${escapeHtml(selectedStudent.nama_lengkap)}</div>
-                            <div class="col-6 text-muted">Total</div>
-                            <div class="col-6 text-end fw-semibold">${formatRupiah(data.total)}</div>
-                            <div class="col-6 text-muted">Metode</div>
-                            <div class="col-6 text-end">${escapeHtml($('#id_metode option:selected').text())}</div>
-                            <div class="col-6 text-muted">Diterima</div>
-                            <div class="col-6 text-end">${formatRupiah(data.uang_diterima)}</div>
-                            <div class="col-6 text-muted">Kembalian</div>
-                            <div class="col-6 text-end">${formatRupiah(data.kembalian)}</div>
+                            <small class="text-muted d-block">No. Transaksi</small>
+                            <h4 class="mb-3">${escapeHtml(response.no_transaksi)}</h4>
+                            <div class="border rounded p-3 text-start">
+                                <div class="d-flex justify-content-between gap-3 mb-2">
+                                    <span class="text-muted">Siswa</span>
+                                    <strong class="text-end">${escapeHtml(selectedStudent.nama_lengkap)}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between gap-3">
+                                    <span class="text-muted">Total Dibayar</span>
+                                    <strong class="text-success fs-17">${formatRupiah(response.total)}</strong>
+                                </div>
+                            </div>
                         </div>
                     `);
 
-                    $('#link_bukti').attr(
-                        'href',
-                        '<?= base_url('admin/transaksi/pembayaran/bukti/'); ?>' + lastPaymentId
-                    );
-
-                    $('#link_kartu').attr(
-                        'href',
-                        '<?= base_url('admin/transaksi/pembayaran/cetak_kartu/'); ?>' + lastPaymentId
-                    );
+                    $('#link_bukti').attr('href', '<?= base_url('admin/transaksi/pembayaran/bukti/'); ?>' + lastPaymentId);
+                    $('#link_kartu').attr('href', '<?= base_url('admin/transaksi/pembayaran/cetak_kartu/'); ?>' + lastPaymentId);
 
                     checkoutPaymentModal.hide();
-
-                    setTimeout(function () {
-                        paymentSuccessModal.show();
-                    }, 200);
-                } else if (data.result == 'false') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: data.message
-                    });
+                    setTimeout(function () { paymentSuccessModal.show(); }, 200);
+                } else if (response.result == 'false') {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: response.message });
                 }
             },
-            error: function (xhr, status, error) {
+            error: function (xhr) {
                 ajaxError(xhr);
             },
             complete: function () {
                 if (paymentSaved) {
-                    button
-                        .prop('disabled', true)
-                        .html('<i class="ri-check-line me-1"></i>Pembayaran Tersimpan');
+                    button.prop('disabled', true).html('<i class="ri-check-line me-1"></i>Pembayaran Tersimpan');
                 } else {
-                    button
-                        .prop('disabled', false)
-                        .html('<i class="ri-save-line me-1"></i>Simpan Pembayaran');
+                    button.html('<i class="ri-check-line me-1"></i>Bayar Sekarang');
+                    updateCheckoutButton();
                 }
             }
         });
@@ -1340,52 +1961,26 @@ function savePayment(event) {
 }
 
 function showTransactionDetail() {
-    if (!lastPaymentId) {
-        return;
-    }
+    if (!lastPaymentId) return;
 
     $.ajax({
         url: '<?= base_url('admin/transaksi/pembayaran/detail'); ?>',
         type: 'POST',
-        data: {
-            id: lastPaymentId
-        },
+        data: { id: lastPaymentId },
         dataType: 'JSON',
         success: function (data) {
             if (data.result == 'true') {
                 var header = data.header;
                 var table = `
                     <div class="row g-2 mb-3">
-                        <div class="col-md-6">
-                            <small class="text-muted">Nomor</small>
-                            <div class="fw-semibold">${escapeHtml(header.no_transaksi)}</div>
-                        </div>
-                        <div class="col-md-6">
-                            <small class="text-muted">Status</small>
-                            <div>
-                                <span class="badge bg-success-subtle text-success">
-                                    ${escapeHtml(header.status_transaksi)}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <small class="text-muted">Siswa</small>
-                            <div>${escapeHtml(header.nama_siswa)}</div>
-                        </div>
-                        <div class="col-md-6">
-                            <small class="text-muted">Kelas</small>
-                            <div>${escapeHtml(header.nama_kelas || '-')}</div>
-                        </div>
+                        <div class="col-md-6"><small class="text-muted">Nomor</small><div class="fw-semibold">${escapeHtml(header.no_transaksi)}</div></div>
+                        <div class="col-md-6"><small class="text-muted">Status</small><div><span class="badge bg-success-subtle text-success">${escapeHtml(header.status_transaksi)}</span></div></div>
+                        <div class="col-md-6"><small class="text-muted">Siswa</small><div>${escapeHtml(header.nama_siswa)}</div></div>
+                        <div class="col-md-6"><small class="text-muted">Kelas</small><div>${escapeHtml(header.nama_kelas || '-')}</div></div>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-bordered table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Tagihan</th>
-                                    <th class="text-end">Dibayar</th>
-                                    <th class="text-end">Sisa</th>
-                                </tr>
-                            </thead>
+                            <thead><tr><th>Tagihan</th><th class="text-end">Dibayar</th><th class="text-end">Sisa</th></tr></thead>
                             <tbody>
                 `;
 
@@ -1401,13 +1996,7 @@ function showTransactionDetail() {
 
                 table += `
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th>Total</th>
-                                    <th class="text-end">${formatRupiah(header.total_pembayaran)}</th>
-                                    <th></th>
-                                </tr>
-                            </tfoot>
+                            <tfoot><tr><th>Total</th><th class="text-end">${formatRupiah(header.total_pembayaran)}</th><th></th></tr></tfoot>
                         </table>
                     </div>
                 `;
@@ -1415,14 +2004,10 @@ function showTransactionDetail() {
                 $('#isi_detail_transaksi').html(table);
                 transactionDetailModal.show();
             } else if (data.result == 'false') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: data.message
-                });
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
             }
         },
-        error: function (xhr, status, error) {
+        error: function (xhr) {
             ajaxError(xhr);
         }
     });
@@ -1430,6 +2015,7 @@ function showTransactionDetail() {
 
 function openWhatsapp() {
     if (!selectedStudent || !lastPaymentId) return;
+
     $('#label_wa_ayah').text('Ayah - ' + (selectedStudent.telepon_ayah || 'Tidak tersedia'));
     $('#label_wa_ibu').text('Ibu - ' + (selectedStudent.telepon_ibu || 'Tidak tersedia'));
     $('#wa_pesan').val('');
@@ -1448,6 +2034,7 @@ function openWhatsapp() {
 
 function applyWhatsappRecipient() {
     var target = $('input[name="tujuan_wa"]:checked').val();
+
     if (target === 'Ayah') {
         $('#wa_nama').val(selectedStudent.nama_ayah || '');
         $('#wa_nomor').val(selectedStudent.telepon_ayah || '');
@@ -1484,7 +2071,7 @@ function loadWhatsappTemplate(force) {
                 $('#wa_template_info').text(data.message || 'Template tidak dapat dimuat.');
             }
         },
-        error: function (xhr, status, error) {
+        error: function (xhr) {
             $('#wa_template_info').text('Template tidak dapat dimuat.');
             ajaxError(xhr);
         },
@@ -1498,11 +2085,7 @@ function sendWhatsapp() {
     var phone = $.trim($('#wa_nomor').val());
 
     if (!phone) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Perhatian',
-            text: 'Nomor WhatsApp wajib diisi.'
-        });
+        Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Nomor WhatsApp wajib diisi.' });
         return;
     }
 
@@ -1515,34 +2098,26 @@ function sendWhatsapp() {
         pesan: $('#wa_pesan').val()
     };
 
-    button
-        .prop('disabled', true)
-        .html('<span class="spinner-border spinner-border-sm me-1"></span>Menyiapkan');
+    button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Menyiapkan');
 
     $.ajax({
         url: '<?= base_url('admin/transaksi/pembayaran/siapkan_whatsapp'); ?>',
         type: 'POST',
         data: data,
         dataType: 'JSON',
-        success: function (data) {
-            if (data.result == 'true') {
+        success: function (response) {
+            if (response.result == 'true') {
                 whatsappModal.hide();
-                window.open(data.url, '_blank');
-            } else if (data.result == 'false') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: data.message
-                });
+                window.open(response.url, '_blank');
+            } else if (response.result == 'false') {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: response.message });
             }
         },
-        error: function (xhr, status, error) {
+        error: function (xhr) {
             ajaxError(xhr);
         },
         complete: function () {
-            button
-                .prop('disabled', false)
-                .html('<i class="ri-whatsapp-line me-1"></i>Buka WhatsApp');
+            button.prop('disabled', false).html('<i class="ri-whatsapp-line me-1"></i>Buka WhatsApp');
         }
     });
 }

@@ -1,6 +1,6 @@
-<div class="card portal-card">
-    <div class="card-header">
-        <h4 class="mb-0">Riwayat Pembayaran</h4>
+<div class="card">
+    <div class="card-header border-bottom border-dashed">
+        <h4 class="header-title">Riwayat Pembayaran</h4>
     </div>
     <div class="card-body">
         <div class="row g-2 align-items-end mb-3">
@@ -29,12 +29,16 @@
         $.ajax({
             url: '<?= base_url('wali_murid/riwayat_pembayaran/result') ?>',
             type: 'POST',
-            data: { dari_tanggal: $('#dari_tanggal').val(), sampai_tanggal: $('#sampai_tanggal').val() },
+            data: {
+                dari_tanggal: $('#dari_tanggal').val(),
+                sampai_tanggal: $('#sampai_tanggal').val()
+            },
             dataType: 'JSON',
-            success: function (res) {
-                var rows = res.data || [], html = '';
+            success: function(res) {
+                var rows = res.data || [],
+                    html = '';
                 if (!rows.length) html = '<div class="portal-list-item text-center text-muted portal-riwayat-item">Belum ada transaksi pembayaran.</div>';
-                rows.forEach(function (r) {
+                rows.forEach(function(r) {
                     var badge = r.status_transaksi === 'Aktif' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger';
                     html += '<div class="portal-list-item portal-riwayat-item"><div class="d-flex justify-content-between gap-3 flex-wrap">' +
                         '<div class="flex-grow-1"><div class="fw-semibold">' + escapeHtml(r.tanggal_transaksi) + ' | ' + escapeHtml(r.nama_siswa) + '</div>' +
@@ -46,13 +50,19 @@
                 $('#data_riwayat').html(html);
                 paging($('#data_riwayat .portal-riwayat-item'), parseInt($('#dt-length-0').val(), 10) || 10);
             },
-            error: function (xhr) { ajaxError(xhr); }
+            error: function(xhr) {
+                ajaxError(xhr);
+            }
         });
     }
-    $(function () {
-        if (typeof flatpickr === 'function') flatpickr('#dari_tanggal,#sampai_tanggal', { dateFormat: 'd-m-Y' });
+    $(function() {
+        if (typeof flatpickr === 'function') flatpickr('#dari_tanggal,#sampai_tanggal', {
+            dateFormat: 'd-m-Y'
+        });
         loadRiwayat();
         $('#btnCari').on('click', loadRiwayat);
-        $('#dt-length-0').on('change', function () { paging($('#data_riwayat .portal-riwayat-item'), parseInt(this.value, 10) || 10); });
+        $('#dt-length-0').on('change', function() {
+            paging($('#data_riwayat .portal-riwayat-item'), parseInt(this.value, 10) || 10);
+        });
     });
 </script>

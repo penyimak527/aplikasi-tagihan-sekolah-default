@@ -31,6 +31,12 @@ class User extends CI_Controller
         $this->json_response($this->model->user_result());
     }
 
+    public function detail_user()
+    {
+        $id = (int) $this->input->post('id');
+        $this->json_response($this->model->detail_user($id));
+    }
+
     public function tambah()
     {
         $this->json_response($this->model->tambah());

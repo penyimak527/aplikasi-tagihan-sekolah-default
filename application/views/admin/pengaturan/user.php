@@ -92,6 +92,50 @@
     </div>
 </div>
 
+<div class="modal fade" id="detailUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detail-user-loading" class="text-muted">Memuat detail user...</div>
+                <div id="detail-user-content" class="row g-3 d-none">
+                    <div class="col-md-6">
+                        <div class="text-muted small">Nama User</div>
+                        <div class="fw-semibold" id="detail-nama-user">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Nama Pegawai</div>
+                        <div class="fw-semibold" id="detail-nama-pegawai">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Username</div>
+                        <div class="fw-semibold" id="detail-username">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small">Level</div>
+                        <div class="fw-semibold" id="detail-level">-</div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="text-muted small mb-1" for="detail-password-text">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="detail-password-text" readonly autocomplete="off">
+                            <button type="button" class="btn btn-outline-secondary" id="btn-toggle-detail-password" title="Tampilkan/Sembunyikan Password">
+                                <i class="ri-eye-line"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted d-none" id="detail-password-empty">Password text belum tersimpan. Silakan ubah password melalui Edit User.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
 $(document).ready(function () {
     user();
@@ -147,6 +191,12 @@ $(document).ready(function () {
         });
     });
 
+    $('#btn-toggle-detail-password').on('click', function () {
+        var input = $('#detail-password-text');
+        var show = input.attr('type') === 'password';
+        input.attr('type', show ? 'text' : 'password');
+        $(this).find('i').attr('class', show ? 'ri-eye-off-line' : 'ri-eye-line');
+    });
     $('#dt-length-0').on('change', function () {
         const jumlah = parseInt($(this).val());
         paging($('#data_user .crud-list-item'), jumlah);
@@ -186,6 +236,9 @@ function user() {
                                 <div class="crud-meta">Username: <b>${escapeHtml(item.username || '-')}</b></div>
                             </div>
                             <div class="crud-actions">
+                                <button type="button" class="btn btn-outline-info btn-icon" title="Detail" onclick="detailUser('${item.id}')">
+                                    <i class="ri-eye-line"></i>
+                                </button>
                                 <a class="btn btn-outline-warning btn-icon" title="Edit" href="<?= base_url('admin/pengaturan/user/edit/'); ?>${item.id}">
                                     <i class="ri-edit-line"></i>
                                 </a>
@@ -207,6 +260,52 @@ function user() {
     });
 }
 
+function detailUser(id) {
+    $('#detail-user-loading').removeClass('d-none').text('Memuat detail user...');
+    $('#detail-user-content').addClass('d-none');
+    $('#detail-password-text').val('').attr('type', 'password');
+    $('#btn-toggle-detail-password').prop('disabled', true).find('i').attr('class', 'ri-eye-line');
+    $('#detail-password-empty').addClass('d-none');
+    $('#detailUserModal').modal('show');
+
+    $.ajax({
+        url: '<?= base_url('admin/pengaturan/user/detail_user'); ?>',
+        type: 'POST',
+        data: {
+            id: id
+        },
+        dataType: 'JSON',
+        success: function (response) {
+            if (response.result != 'true') {
+                $('#detail-user-loading').text(response.message || 'Detail user gagal dimuat.');
+                return;
+            }
+
+            var item = response.data || {};
+            $('#detail-nama-user').text(item.nama_user || '-');
+            $('#detail-nama-pegawai').text(item.nama_pegawai || '-');
+            $('#detail-username').text(item.username || '-');
+            $('#detail-level').text(item.nama_level || '-');
+
+            if (item.password_text) {
+                $('#detail-password-text').val(item.password_text);
+                $('#btn-toggle-detail-password').prop('disabled', false);
+                $('#detail-password-empty').addClass('d-none');
+            } else {
+                $('#detail-password-text').val('');
+                $('#btn-toggle-detail-password').prop('disabled', true);
+                $('#detail-password-empty').removeClass('d-none');
+            }
+
+            $('#detail-user-loading').addClass('d-none');
+            $('#detail-user-content').removeClass('d-none');
+        },
+        error: function (xhr, status, error) {
+            $('#detail-user-loading').text('Detail user gagal dimuat.');
+            ajaxError(xhr);
+        }
+    });
+}
 function tambah() {
     $('#form-tambah')[0].reset();
     $('#id_pegawai_tambah').val('').trigger('change');

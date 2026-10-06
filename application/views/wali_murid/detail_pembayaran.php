@@ -10,7 +10,7 @@ $format_rupiah = function ($nominal) { return 'Rp' . number_format((float) $nomi
         href="<?= base_url('wali_murid/bukti_pembayaran/cetak/' . $header['id']) ?>"><i
             class="ri-printer-line me-1"></i>Cetak / Simpan PDF</a>
 </div>
-<div class="card portal-card mb-3">
+<div class="card mb-3">
     <div class="card-body">
         <div class="row g-3">
             <div class="col-md-4"><small class="text-muted">No. Transaksi</small>
@@ -40,9 +40,9 @@ $format_rupiah = function ($nominal) { return 'Rp' . number_format((float) $nomi
         <?php endif; ?>
     </div>
 </div>
-<div class="card portal-card">
-    <div class="card-header">
-        <h5 class="mb-0">Rincian</h5>
+<div class="card">
+    <div class="card-header border-bottom border-dashed">
+        <h4 class="header-title">Rincian</h4>
     </div>
     <div class="card-body">
         <?php foreach ($detail as $row): ?>

@@ -2,9 +2,9 @@
 <html lang="id">
 <head>
     <meta charset="utf-8">
-    <title>Login | Aplikasi Tagihan Sekolah</title>
+    <title>Login | SIPASTI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Login Aplikasi Tagihan Sekolah">
+    <meta name="description" content="Login Sistem Informasi & Pengelolaan Administrasi Sekolah Terpadu.">
 
     <link rel="shortcut icon" href="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>">
     <script src="<?= base_url('assets/js/config.js') ?>"></script>
@@ -14,16 +14,18 @@
 </head>
 <body>
     <div class="auth-bg d-flex min-vh-100">
-        <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
-            <div class="col-xxl-3 col-lg-5 col-md-6">
-                <a href="<?= base_url('login') ?>" class="auth-brand d-flex justify-content-center mb-2">
-                    <img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>" alt="Almahbaro" height="100" >
-                </a>
+        <div class="row g-0 justify-content-center align-items-center w-100 m-0 p-2 auth-login-layout">
+            <div class="col-xxl-4 col-xl-4 col-lg-5 col-md-7 col-sm-9 auth-login-column">
+                <div class="text-center auth-login-branding">
+                    <a href="<?= base_url('login') ?>" class="auth-brand d-inline-flex justify-content-center">
+                        <img src="<?= base_url('assets/logo_almahbaro_edited.jpg') ?>" alt="Al Mahbaroh" class="auth-login-logo">
+                    </a>
+                    <h2 class="auth-login-name">SIPASTI</h2>
+                    <p class="auth-login-description fw-bold">Sistem Informasi & Pengelolaan Administrasi Sekolah Terpadu.</p>
+                </div>
 
-                <p class="fw-semibold mb-4 text-center text-muted fs-15">Aplikasi Tagihan Sekolah</p>
-
-                <div class="card overflow-hidden text-center p-xxl-4 p-3 mb-0">
-                    <h4 class="fw-semibold mb-3 fs-18">Masuk ke akun Anda</h4>
+                <div class="card overflow-hidden text-center p-3 mb-0 auth-login-card">
+                    <h4 class="fw-semibold mb-1 fs-18">Masuk ke akun Anda</h4>
 
                     <?php if ($this->session->flashdata('error')): ?>
                         <div class="alert alert-danger text-start"><?= html_escape($this->session->flashdata('error')) ?></div>
@@ -53,7 +55,7 @@
                     </form>
                 </div>
 
-                <p class="mt-4 text-center mb-0"><?= date('Y') ?> © Aplikasi Tagihan Sekolah</p>
+                <p class="mt-3 text-center mb-0 auth-login-footer fw-bold">2026 © Almahbaroh Lumajang - Di kembangkan oleh <a href="https://pyramidsoft.co.id" target="_blank" class="text-white ">pyramidsoft.co.id</a></p>
             </div>
         </div>
     </div>

@@ -1,6 +1,6 @@
-<div class="card portal-card">
-    <div class="card-header border-bottom">
-        <h4 class="mb-0">Tagihan</h4>
+<div class="card">
+    <div class="card-header border-bottom border-dashed">
+        <h4 class="header-title">Tagihan</h4>
     </div>
     <div class="card-body">
         <div class="row g-2 align-items-end mb-3">
@@ -10,8 +10,6 @@
                     <option value="">Semua Status</option>
                     <option value="Belum Dibayar">Belum Dibayar</option>
                     <option value="Dibayar Sebagian">Dibayar Sebagian</option>
-                    <option value="Lunas">Lunas</option>
-                    <option value="Dibebaskan">Dibebaskan</option>
                 </select>
             </div>
             <div class="col-md-3">
@@ -63,21 +61,18 @@
             success: function (res) {
                 var rows = res.data || [], html = '';
                 if (!rows.length) {
-                    html = '<div class="portal-list-item text-center text-muted portal-tagihan-item">Tidak ada tagihan pada filter yang dipilih.</div>';
+                    html = '<div class="portal-list-item text-center text-muted portal-tagihan-item">Tidak ada tagihan bulan berjalan atau tunggakan pada filter yang dipilih.</div>';
                 }
                 rows.forEach(function (r) {
-                    var old = '';
-                    if (r.tahun_sebelumnya === 'Ya') {
-                        old = r.dianggap_tunggakan === 'Ya'
-                            ? '<span class="badge bg-danger-subtle text-danger ms-1">Tunggakan Tahun Sebelumnya</span>'
-                            : '<span class="badge bg-light text-dark ms-1">Tagihan Tahun Sebelumnya</span>';
-                    }
+                    var periodeBadge = r.is_tunggakan === 'Ya'
+                        ? '<span class="badge bg-danger-subtle text-danger ms-1">Tunggakan</span>'
+                        : '<span class="badge bg-primary-subtle text-primary ms-1">Tagihan Bulan Ini</span>';
                     html += '<div class="portal-list-item portal-tagihan-item">' +
                         '<div class="d-flex justify-content-between gap-3 flex-wrap">' +
                         '<div class="flex-grow-1">' +
-                        '<div><span class="badge ' + statusBadge(r.status_pembayaran) + '">' + escapeHtml(r.status_pembayaran) + '</span>' + old + '</div>' +
+                        '<div><span class="badge ' + statusBadge(r.status_pembayaran) + '">' + escapeHtml(r.status_pembayaran) + '</span>' + periodeBadge + '</div>' +
                         '<h5 class="mt-2 mb-1">' + escapeHtml(r.nama_tagihan) + '</h5>' +
-                        '<div class="portal-meta">' + escapeHtml(r.nama_siswa) + ' | ' + escapeHtml(r.nama_kelas) + ' | ' + escapeHtml(r.periode) + '</div>' +
+                        '<div class="portal-meta">' + escapeHtml(r.nama_siswa) + ' | ' + escapeHtml(r.nama_kelas) + ' | ' + escapeHtml(r.periode) + (r.nama_bulan ? ' | ' + escapeHtml(r.nama_bulan) + ' ' + Number(r.tahun || 0) : '') + '</div>' +
                         '</div>' +
                         '<a class="btn btn-sm btn-outline-primary align-self-center" href="<?= base_url('wali_murid/tagihan/detail/') ?>' + r.id + '">Detail</a>' +
                         '</div>' +
@@ -98,7 +93,6 @@
     $(function () {
         loadTagihan();
         $('#btnCari').on('click', loadTagihan);
-        $('#filter_status,#filter_jenis').on('change', loadTagihan);
         $('#filter_search').on('keyup', function (e) { if (e.key === 'Enter') loadTagihan(); });
         $('#dt-length-0').on('change', function () { paging($('#data_tagihan .portal-tagihan-item'), parseInt(this.value, 10) || 10); });
     });

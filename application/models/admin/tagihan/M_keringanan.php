@@ -2,12 +2,35 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 class M_keringanan extends CI_Model
 {
+    // public function cari_siswa()
+    // {
+    //     $q = trim((string) $this->input->post('q', true));
+    //     $like = '%' . $q . '%';
+    //     return $this->db->query("SELECT DISTINCT id_siswa,nis,nisn,nama_siswa,nama_kelas FROM tagihan_siswa WHERE status_tagihan='Aktif' AND (nama_siswa LIKE ? OR nis LIKE ? OR nisn LIKE ?) ORDER BY nama_siswa LIMIT 30", array($like, $like, $like))->result_array();
+    // }
     public function cari_siswa()
     {
         $q = trim((string) $this->input->post('q', true));
         $like = '%' . $q . '%';
-        return $this->db->query("SELECT DISTINCT id_siswa,nis,nisn,nama_siswa,nama_kelas FROM tagihan_siswa WHERE status_tagihan='Aktif' AND (nama_siswa LIKE ? OR nis LIKE ? OR nisn LIKE ?) ORDER BY nama_siswa LIMIT 30", array($like, $like, $like))->result_array();
+        return $this->db->query("SELECT s.id AS id_siswa, s.nis, s.nisn, s.nama_lengkap AS nama_siswa,
+            COALESCE((
+                SELECT kset.nama_kelas
+                FROM kelas_siswa ks
+                INNER JOIN kelas_setting kset ON kset.id = ks.id_kelas_setting
+                INNER JOIN master_tahun_ajaran ta ON ta.id = kset.id_periode
+                WHERE ks.id_siswa = s.id AND ks.status_aktif = '1' AND ta.status = 'Aktif'
+                ORDER BY ks.id DESC
+                LIMIT 1 ), '') AS nama_kelas
+        FROM siswa s
+        WHERE EXISTS (SELECT 1
+            FROM tagihan_siswa ts
+            WHERE ts.id_siswa = s.id
+              AND ts.status_tagihan = 'Aktif'
+        )
+        AND (s.nama_lengkap LIKE ? OR s.nis LIKE ? OR s.nisn LIKE ?)
+        ORDER BY s.nama_lengkap ASC LIMIT 30", array($like, $like, $like))->result_array();
     }
+
     public function tagihan_siswa()
     {
         $sid = (int) $this->input->post('id_siswa');

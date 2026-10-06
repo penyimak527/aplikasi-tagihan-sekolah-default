@@ -81,9 +81,14 @@
 <div class="card">
     <div class="card-header app-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
         <h4 class="header-title mb-0">Data Wali Murid</h4>
-        <button type="button" class="btn btn-outline-primary" id="btn_tambah_wali">
-            <i class="ri-add-line me-1"></i>Tambah
-        </button>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a href="<?= base_url('admin/master_data/import_wali_murid') ?>" class="btn btn-outline-success">
+                <i class="ri-file-excel-2-line me-1"></i>Import Wali Murid
+            </a>
+            <button type="button" class="btn btn-outline-primary" id="btn_tambah_wali">
+                <i class="ri-add-line me-1"></i>Tambah
+            </button>
+        </div>
     </div>
     <div class="card-body">
         <div class="row g-2 align-items-end mb-3">
@@ -185,8 +190,7 @@
                                 <button type="button" class="btn btn-outline-primary"
                                     id="btn_generate_password">Generate Password</button>
                             </div>
-                            <small class="text-muted">Minimal 8 karakter serta mengandung huruf besar, huruf kecil, dan
-                                angka.</small>
+                            <small class="text-muted">Password wajib diisi.</small>
                         </div>
                     </div>
 
@@ -413,7 +417,7 @@
                         <button type="button" class="btn btn-outline-primary" id="btn_generate_reset_password">Generate
                             Password</button>
                     </div>
-                    <small class="text-muted">Password lama tidak dapat dilihat kembali.</small>
+                    <small class="text-muted">Password baru akan tersimpan sebagai password akses yang dapat dilihat pada Detail Wali Murid.</small>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="Ya" id="reset_wajib_ganti" checked>
@@ -789,6 +793,7 @@
             infoCol('Telepon', row.no_telepon || '-', 4) +
             infoCol('Email', row.email || '-', 4) +
             infoCol('Login Terakhir', lastLoginText(row) + (row.last_login_ip ? ' | ' + row.last_login_ip : ''), 4) +
+            detailPasswordCol(row.password_text) +
             '</div>' +
             '<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">' +
             '<div><h5 class="mb-1">Siswa Terhubung</h5><div class="text-muted small">Relasi tidak dihapus permanen; gunakan status Aktif/Tidak Aktif.</div></div>' +
@@ -803,10 +808,25 @@
             '</div>';
 
         $('#detail_wali_content').html(html);
+        if (row.password_text) $('#detail_password_text').val(row.password_text);
     }
 
     function infoCol(label, value, col) {
         return '<div class="col-md-' + col + '"><div class="text-muted small">' + escapeHtml(label) + '</div><div class="fw-semibold">' + escapeHtml(value) + '</div></div>';
+    }
+
+    function detailPasswordCol(password) {
+        if (!password) {
+            return '<div class="col-md-4"><div class="text-muted small">Password</div><div class="text-muted">Belum tersimpan. Gunakan Reset Password.</div></div>';
+        }
+
+        return '<div class="col-md-4">' +
+            '<div class="text-muted small mb-1">Password</div>' +
+            '<div class="input-group input-group-sm">' +
+            '<input type="password" class="form-control" id="detail_password_text" readonly autocomplete="off">' +
+            '<button type="button" class="btn btn-outline-secondary btn-toggle-password" data-target="#detail_password_text" title="Tampilkan/Sembunyikan"><i class="ri-eye-line"></i></button>' +
+            '</div>' +
+            '</div>';
     }
 
     function ubahStatusWali(id, target) {
@@ -909,7 +929,7 @@
             html: '<div class="credential-box">' +
                 '<div class="mb-2"><span class="text-muted">Username</span><br><code>' + safeUser + '</code></div>' +
                 '<div><span class="text-muted">Password</span><br><code>' + safePass + '</code></div>' +
-                '</div><div class="small text-warning mt-3">Password ini hanya ditampilkan sekarang. Jika hilang, lakukan reset password kembali.</div>',
+                '</div><div class="small text-muted mt-3">Password ini juga dapat dilihat kembali melalui Detail Wali Murid.</div>',
             icon: 'success',
             showCancelButton: true,
             confirmButtonText: 'Salin Akun',

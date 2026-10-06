@@ -5,7 +5,7 @@ class M_login extends CI_Model
 {
     public function get_by_username($username)
     {
-        return $this->db->where('username', trim((string) $username))->get('wali_murid')->row_array();
+        return $this->db ->where('BINARY username = ' . $this->db->escape($username),null,false)->get('wali_murid')->row_array();
     }
 
     public function catat_login($wali, $username, $status, $keterangan)

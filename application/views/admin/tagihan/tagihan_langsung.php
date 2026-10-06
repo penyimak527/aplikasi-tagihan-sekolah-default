@@ -22,14 +22,14 @@ $nama_bulan_lokal = function ($bulan) {
                         <option value="">Pilih tahun ajaran</option><?php foreach ($periode as $r): ?><option value="<?= $r['id'] ?>" data-periode="<?= html_escape($r['periode']) ?>"><?= html_escape($r['periode']) ?><?= $r['status'] === 'Aktif' ? ' - Aktif' : '' ?></option><?php endforeach; ?>
                     </select></div>
                 <div class="col-md-3"><label class="form-label">Jenis Tagihan</label><select name="id_jenis_tagihan" id="id_jenis" class="form-select" required>
-                        <option value="">Pilih jenis</option><?php foreach ($jenis as $r): ?><option value="<?= $r['id'] ?>" data-tunggakan="<?= $r['dianggap_tunggakan'] ?>"><?= html_escape($r['nama_jenis']) ?></option><?php endforeach; ?>
+                        <option value="">Pilih jenis</option><?php foreach ($jenis as $r): ?><option value="<?= $r['id'] ?>"><?= html_escape($r['nama_jenis']) ?></option><?php endforeach; ?>
                     </select></div>
                 <div class="col-md-3"><label class="form-label">Dihitung sebagai Tunggakan</label><select name="dianggap_tunggakan" id="dianggap_tunggakan" class="form-select">
                         <option>Ya</option>
                         <option>Tidak</option>
                     </select></div>
                 <div class="col-md-8"><label class="form-label">Nama Tagihan</label><input name="nama_tagihan" class="form-control" placeholder="Nama tagihan" required></div>
-                <div class="col-md-4"><label class="form-label">Nominal Umum</label><input name="nominal_default" id="nominal_default" type="text" inputmode="numeric" autocomplete="off" class="form-control money-input" required></div>
+                <div class="col-md-4"><label class="form-label">Nominal Umum</label><div class="input-group"><span class="input-group-text">Rp</span><input name="nominal_default" id="nominal_default" type="text" inputmode="numeric" autocomplete="off" class="form-control money-input" required></div></div>
                 <div class="col-12"><label class="form-label">Keterangan</label><textarea name="keterangan" class="form-control" rows="2"></textarea></div>
             </div>
 
@@ -42,7 +42,7 @@ $nama_bulan_lokal = function ($bulan) {
                     <div class="row g-3">
                         <div class="col-md-4"><label class="form-label">Bulan Tagihan</label><select name="bulan_penagihan" id="bulan_penagihan" class="form-select"><?php foreach (range(1, 12) as $m): ?><option value="<?= $m ?>"><?= $nama_bulan_lokal($m) ?></option><?php endforeach; ?></select></div>
                         <div class="col-md-4"><label class="form-label">Tahun</label><select name="tahun_penagihan" id="tahun_penagihan" class="form-select"></select></div>
-                        <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input name="tanggal_jatuh_tempo" class="form-control tanggal"></div>
+                        <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input name="tanggal_jatuh_tempo" class="form-control tanggal"><small class="text-muted">Otomatis akhir bulan, tetap dapat diubah.</small></div>
                     </div>
 
                 </div>
@@ -103,8 +103,8 @@ $nama_bulan_lokal = function ($bulan) {
             updatePeriodTarget();
         });
 
-        $('#id_jenis').change(function() {
-            $('#dianggap_tunggakan').val($(this).find(':selected').data('tunggakan') || 'Ya');
+        $('#bulan_penagihan, #tahun_penagihan').on('change', function() {
+            isiDefaultJatuhTempo();
         });
 
         $('#target_tagihan').change(function() {
@@ -153,6 +153,8 @@ $nama_bulan_lokal = function ($bulan) {
             }).join('')
         );
 
+        isiDefaultJatuhTempo();
+
         $('.kelas-item').each(function() {
             var sesuai = String($(this).data('periode')) === String(periode);
 
@@ -169,6 +171,36 @@ $nama_bulan_lokal = function ($bulan) {
 
         selectedStudents = {};
         renderSelected();
+    }
+
+    function tanggalAkhirBulan(bulan, tahun) {
+        bulan = Number(bulan);
+        tahun = Number(tahun);
+
+        if (!bulan || !tahun) {
+            return '';
+        }
+
+        var hariTerakhir = new Date(tahun, bulan, 0).getDate();
+        return String(hariTerakhir).padStart(2, '0') + '-' +
+            String(bulan).padStart(2, '0') + '-' + tahun;
+    }
+
+    function isiDefaultJatuhTempo() {
+        var bulan = Number($('#bulan_penagihan').val());
+        var tahun = Number($('#tahun_penagihan').val());
+        var tanggal = tanggalAkhirBulan(bulan, tahun);
+        var element = $('[name="tanggal_jatuh_tempo"]')[0];
+
+        if (!element) {
+            return;
+        }
+
+        if (element._flatpickr) {
+            element._flatpickr.setDate(tanggal || null, false, 'd-m-Y');
+        } else {
+            $(element).val(tanggal || '');
+        }
     }
 
     function toggleTarget() {
@@ -284,24 +316,14 @@ $nama_bulan_lokal = function ($bulan) {
                 }
 
                 var html = '<div class="row g-3">' +
-                    '<div class="col-md-4"><div class="alert alert-info"><small>Jumlah Siswa</small><h4>' + data.jumlah_siswa + '</h4></div></div>' +
-                    '<div class="col-md-4"><div class="alert alert-primary"><small>Jumlah Baris Tagihan</small><h4>' + data.jumlah_baris + '</h4></div></div>' +
-                    '<div class="col-md-4"><div class="alert alert-success"><small>Total Nominal</small><h4>' + formatRupiah(data.total_nominal) + '</h4></div></div>' +
+                    '<div class="col-md-6"><div class="alert alert-info"><small>Jumlah Siswa</small><h4>' + data.jumlah_siswa + '</h4></div></div>' +
+                    '<div class="col-md-6"><div class="alert alert-success"><small>Total Nominal</small><h4>' + formatRupiah(data.total_nominal) + '</h4></div></div>' +
                     '</div><h6>Periode Tagihan</h6><ul>';
 
                 data.periods.forEach(function(item) {
                     html += '<li>' + escapeHtml(item.nama_bulan) + ' ' + item.tahun + ' - ' + formatRupiah(item.nominal) + '</li>';
                 });
-
-                html += '</ul><h6>Contoh Target</h6><div class="table-responsive"><table class="table table-sm">' +
-                    '<thead><tr><th>Siswa</th><th>Kelas</th></tr></thead><tbody>';
-
-                data.students.forEach(function(item) {
-                    html += '<tr><td>' + escapeHtml(item.nama_lengkap) + '</td><td>' + escapeHtml(item.nama_kelas) + '</td></tr>';
-                });
-
-                html += '</tbody></table></div>';
-
+                html += '</ul></div>';
                 $('#preview_content').html(html);
                 previewModal.show();
             },

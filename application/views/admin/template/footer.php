@@ -4,7 +4,8 @@
                 <div class="page-container">
                     <div class="row">
                         <div class="col-md-6 text-center text-md-start">
-                            2026 © Aplikasi Tagihan Sekolah
+                            2026 © Almahbaroh Lumajang - Di kembangkan oleh <a href="https://pyramidsoft.co.id" target="_blank" class="text-decoration-underline ">pyramidsoft.co.id</a>
+                            <!-- 2026 © Aplikasi Tagihan Sekolah -->
                         </div>
                         <div class="col-md-6">
                             <div class="text-md-end footer-links d-none d-md-block">
@@ -23,7 +24,7 @@
     <script src="<?= base_url('assets/js/pagination.js') ?>"></script>
     <!-- App Js resmi Adminto. -->
     <script src="<?= base_url('assets/js/app.js') ?>"></script>
-    
+    <script src="<?= base_url(); ?>assets/vendor/select2/js/select2.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <script>
     (function () {

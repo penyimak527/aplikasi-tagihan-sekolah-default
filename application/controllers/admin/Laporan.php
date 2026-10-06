@@ -530,9 +530,9 @@ class Laporan extends CI_Controller
         $periode = (int) $this->input->post('periode');
         $kelas = (int) $this->input->post('kelas');
         $jenis = (int) $this->input->post('jenis');
-        $sampai_bulan = (int) $this->input->post('sampai_bulan');
         $status_siswa = trim((string) $this->input->post('status_siswa', true));
         if ($status_siswa === '') $status_siswa = 'Aktif';
+        $tanggal_acuan = date('Y-m-d');
 
         $sql = "SELECT ts.id_siswa,ts.nis,ts.nama_siswa,
                        COALESCE(cur.nama_kelas,ts.nama_kelas,'-') AS nama_kelas,
@@ -550,15 +550,8 @@ class Laporan extends CI_Controller
                   AND ts.status_tagihan='Aktif'
                   AND ts.sisa_tagihan>0
                   AND ts.status_pembayaran NOT IN ('Lunas','Dibebaskan','Dibatalkan')";
-        $params = array();
-
-        // Sampai Bulan mengikuti urutan Tahun Ajaran Juli-Juni.
-        // Contoh Desember = Juli s/d Desember (6 bulan), bukan hanya Desember.
-        if ($sampai_bulan) {
-            $urutan_sampai = $sampai_bulan >= 7 ? $sampai_bulan - 6 : $sampai_bulan + 6;
-            $sql .= ' AND (CASE WHEN ts.bulan>=7 THEN ts.bulan-6 ELSE ts.bulan+6 END)<=?';
-            $params[] = $urutan_sampai;
-        }
+        $params = array($tanggal_acuan);
+        $sql .= " AND STR_TO_DATE(ts.tanggal_jatuh_tempo,'%d-%m-%Y') <= ?";
 
         if ($periode) {
             $sql .= ' AND ts.id_periode=?';
@@ -593,7 +586,6 @@ class Laporan extends CI_Controller
                 'Tahun Ajaran' => $this->nama_tahun_ajaran($periode),
                 'Kelas' => $this->nama_kelas($kelas),
                 'Jenis Tagihan' => $this->nama_jenis($jenis),
-                'Sampai Bulan' => $this->nama_bulan($sampai_bulan, 'Semua Bulan'),
                 'Status Siswa' => $status_siswa
             )
         ));

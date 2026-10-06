@@ -8,7 +8,7 @@ class M_user extends CI_Model
         $search = trim((string) $this->input->post('search', true));
 
         $this->db
-            ->select('u.*, COALESCE(l.level, u.level) AS nama_level, p.nama_pegawai')
+            ->select('u.id, u.nama_user, u.username, COALESCE(l.level, u.level) AS nama_level, p.nama_pegawai')
             ->from('users u')
             ->join('level l', 'l.id = u.id_level', 'left')
             ->join('pegawai p', 'p.id = u.id_pegawai', 'left');
@@ -28,6 +28,27 @@ class M_user extends CI_Model
             ->result_array();
     }
 
+    public function detail_user($id)
+    {
+        $row = $this->db
+            ->select('u.id, u.nama_user, u.username, u.password_text, u.id_level, u.level, u.id_pegawai, COALESCE(l.level, u.level) AS nama_level, p.nama_pegawai')
+            ->from('users u')
+            ->join('level l', 'l.id = u.id_level', 'left')
+            ->join('pegawai p', 'p.id = u.id_pegawai', 'left')
+            ->where('u.id', (int) $id)
+            ->get()
+            ->row_array();
+
+        if (!$row) {
+            return array('result' => 'false', 'message' => 'Data user tidak ditemukan.');
+        }
+
+        return array(
+            'result' => 'true',
+            'message' => 'Detail user berhasil dimuat.',
+            'data' => $row
+        );
+    }
     public function level_list()
     {
         return $this->db

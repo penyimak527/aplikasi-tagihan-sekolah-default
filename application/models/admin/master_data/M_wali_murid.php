@@ -16,7 +16,9 @@ class M_wali_murid extends CI_Model
         $status = trim((string) $this->input->post('status', true));
         $params = array();
 
-        $sql = "SELECT wm.*,
+        $sql = "SELECT wm.id, wm.kode_wali, wm.nama_wali, wm.no_telepon, wm.email,
+                    wm.username, wm.status, wm.wajib_ganti_password,
+                    wm.last_login_tanggal, wm.last_login_waktu, wm.last_login_ip,
                     (SELECT COUNT(*)
                      FROM wali_murid_siswa wms
                      WHERE wms.id_wali_murid = wm.id
@@ -58,7 +60,11 @@ class M_wali_murid extends CI_Model
     public function detail()
     {
         $id = (int) $this->input->post('id');
-        $wali = $this->db->where('id', $id)->get('wali_murid')->row_array();
+        $wali = $this->db
+            ->select('id, kode_wali, nama_wali, no_telepon, email, username, password_text, wajib_ganti_password, status, last_login_tanggal, last_login_waktu, last_login_ip')
+            ->where('id', $id)
+            ->get('wali_murid')
+            ->row_array();
         if (!$wali) {
             return $this->model_response(false, 'Data wali murid tidak ditemukan.');
         }
@@ -220,6 +226,7 @@ class M_wali_murid extends CI_Model
             'email' => $email,
             'username' => $username,
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+            'password_text' => $password,
             'wajib_ganti_password' => 'Ya',
             'status' => $status,
             'tanggal_password_update' => $this->tanggal_sekarang(),
@@ -467,6 +474,7 @@ class M_wali_murid extends CI_Model
 
         $data = array(
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+            'password_text' => $password,
             'wajib_ganti_password' => $wajib,
             'tanggal_password_update' => $this->tanggal_sekarang(),
             'waktu_password_update' => $this->waktu_sekarang(),
@@ -598,11 +606,8 @@ class M_wali_murid extends CI_Model
 
     private function validasi_password($password)
     {
-        if (strlen($password) < 8) {
-            return 'Password minimal 8 karakter.';
-        }
-        if (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password)) {
-            return 'Password harus mengandung huruf besar, huruf kecil, dan angka.';
+        if (trim((string) $password) === '') {
+            return 'Password wajib diisi.';
         }
         return true;
     }
@@ -678,7 +683,7 @@ class M_wali_murid extends CI_Model
     private function log_akun_data($data)
     {
         $copy = is_array($data) ? $data : array();
-        unset($copy['password_hash']);
+        unset($copy['password_hash'], $copy['password_text']);
         return $copy;
     }
 

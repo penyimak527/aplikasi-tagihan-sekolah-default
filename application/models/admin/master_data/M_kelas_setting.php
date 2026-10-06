@@ -44,17 +44,120 @@ class M_kelas_setting extends CI_Model
     {
         $id = (int) $this->input->post('id');
         $idPeriode = (int) $this->input->post('id_periode');
-        $idKelas = (int) $this->input->post('id_kelas');
         $konfirmasi = $this->input->post('konfirmasi', true) === 'Ya';
 
-        if (!$idPeriode || !$idKelas) {
-            return $this->model_response(false, 'Tahun ajaran dan kelas wajib dipilih.');
+        if (!$idPeriode) {
+            return $this->model_response(false, 'Tahun ajaran wajib dipilih.');
         }
 
         $periode = $this->db->where('id', $idPeriode)->get('master_tahun_ajaran')->row_array();
+        if (!$periode) {
+            return $this->model_response(false, 'Tahun ajaran tidak ditemukan pada master.');
+        }
+
+        // Tambah: satu Tahun Ajaran dapat langsung dipasangkan ke beberapa kelas.
+        // Setiap kelas tetap disimpan sebagai satu row kelas_setting tersendiri.
+        if (!$id) {
+            $postKelas = $this->input->post('id_kelas');
+            $postKelas = is_array($postKelas) ? $postKelas : array($postKelas);
+
+            $idKelasList = array();
+            foreach ($postKelas as $kelasId) {
+                $kelasId = (int) $kelasId;
+                if ($kelasId > 0 && !in_array($kelasId, $idKelasList, true)) {
+                    $idKelasList[] = $kelasId;
+                }
+            }
+
+            if (empty($idKelasList)) {
+                return $this->model_response(false, 'Pilih minimal satu kelas.');
+            }
+
+            $this->db->trans_begin();
+            $berhasil = 0;
+            $duplikat = 0;
+            $tidakDitemukan = 0;
+
+            foreach ($idKelasList as $idKelas) {
+                $kelas = $this->db->where('id', $idKelas)->get('kelas')->row_array();
+                if (!$kelas) {
+                    $tidakDitemukan++;
+                    continue;
+                }
+
+                $duplicate = $this->db
+                    ->where('CAST(id_periode AS UNSIGNED)=' . $idPeriode, null, false)
+                    ->where('CAST(id_kelas AS UNSIGNED)=' . $idKelas, null, false)
+                    ->count_all_results('kelas_setting');
+
+                if ($duplicate > 0) {
+                    $duplikat++;
+                    continue;
+                }
+
+                $data = array(
+                    'id_periode' => (string) $idPeriode,
+                    'id_kelas' => (string) $idKelas,
+                    'nama_kelas' => $kelas['nama_kelas'],
+                    'semester' => null,
+                    'id_guru' => null,
+                    'wali_kelas' => null
+                );
+
+                $this->db->insert('kelas_setting', $data);
+                $newId = (int) $this->db->insert_id();
+
+                $this->tagihan_log_activity(
+                    'Tambah Kelas Setting',
+                    'Master Data',
+                    'Tambah',
+                    'kelas_setting',
+                    $newId,
+                    $periode['periode'] . ' - ' . $kelas['nama_kelas'],
+                    'Pengaturan kelas per tahun ajaran',
+                    null,
+                    $data
+                );
+
+                $berhasil++;
+            }
+
+            if ($this->db->trans_status() === FALSE) {
+                $this->db->trans_rollback();
+                return $this->model_response(false, 'Proses database gagal. Tidak ada perubahan yang disimpan.');
+            }
+
+            if ($berhasil === 0) {
+                $this->db->trans_rollback();
+                if ($duplikat > 0 && $tidakDitemukan === 0) {
+                    return $this->model_response(false, 'Semua kombinasi Tahun Ajaran dan Kelas yang dipilih sudah tersedia.');
+                }
+                return $this->model_response(false, 'Tidak ada Kelas Setting yang dapat ditambahkan.');
+            }
+
+            $this->db->trans_commit();
+
+            $message = $berhasil . ' Kelas Setting berhasil ditambahkan.';
+            if ($duplikat > 0) {
+                $message .= ' ' . $duplikat . ' kelas dilewati karena sudah tersedia.';
+            }
+            if ($tidakDitemukan > 0) {
+                $message .= ' ' . $tidakDitemukan . ' kelas dilewati karena tidak ditemukan pada master.';
+            }
+
+            return $this->model_response(true, $message);
+        }
+
+        // Edit tetap satu kelas per record agar histori kelas_setting yang sudah ada
+        // tidak berubah menjadi satu record dengan banyak kelas.
+        $idKelas = (int) $this->input->post('id_kelas');
+        if (!$idKelas) {
+            return $this->model_response(false, 'Kelas wajib dipilih.');
+        }
+
         $kelas = $this->db->where('id', $idKelas)->get('kelas')->row_array();
-        if (!$periode || !$kelas) {
-            return $this->model_response(false, 'Tahun ajaran atau kelas tidak ditemukan pada master.');
+        if (!$kelas) {
+            return $this->model_response(false, 'Kelas tidak ditemukan pada master.');
         }
 
         $duplicate = $this->db
@@ -66,21 +169,18 @@ class M_kelas_setting extends CI_Model
             return $this->model_response(false, 'Kombinasi tahun ajaran dan kelas sudah tersedia.');
         }
 
-        $before = $id ? $this->db->where('id', $id)->get('kelas_setting')->row_array() : null;
-        if ($id && !$before) return $this->model_response(false, 'Kelas Setting tidak ditemukan.');
+        $before = $this->db->where('id', $id)->get('kelas_setting')->row_array();
+        if (!$before) return $this->model_response(false, 'Kelas Setting tidak ditemukan.');
 
         $used = 0;
-        $structuralChange = false;
-        if ($before) {
-            $structuralChange = ((int)$before['id_periode'] !== $idPeriode || (int)$before['id_kelas'] !== $idKelas);
-            if ($structuralChange) {
-                $used = $this->db->where('id_kelas_setting', (string)$id)->count_all_results('kelas_siswa');
-                if ($used > 0 && !$konfirmasi) {
-                    return array(
-                        'result' => 'confirm',
-                        'message' => 'Kelas Setting sudah digunakan pada penempatan siswa. Agar riwayat kelas_siswa tidak berubah, pengaturan lama akan dipertahankan dan perubahan disimpan sebagai Kelas Setting baru. Tetap lanjutkan?'
-                    );
-                }
+        $structuralChange = ((int)$before['id_periode'] !== $idPeriode || (int)$before['id_kelas'] !== $idKelas);
+        if ($structuralChange) {
+            $used = $this->db->where('id_kelas_setting', (string)$id)->count_all_results('kelas_siswa');
+            if ($used > 0 && !$konfirmasi) {
+                return array(
+                    'result' => 'confirm',
+                    'message' => 'Kelas Setting sudah digunakan pada penempatan siswa. Agar riwayat kelas_siswa tidak berubah, pengaturan lama akan dipertahankan dan perubahan disimpan sebagai Kelas Setting baru. Tetap lanjutkan?'
+                );
             }
         }
 
@@ -94,23 +194,20 @@ class M_kelas_setting extends CI_Model
         );
 
         $this->db->trans_begin();
-        $preserveHistory = ($before && $structuralChange && $used > 0 && $konfirmasi);
+        $preserveHistory = ($structuralChange && $used > 0 && $konfirmasi);
         if ($preserveHistory) {
             // Jangan ubah kelas_setting yang sudah dirujuk kelas_siswa karena akan
             // mengubah arti riwayat penempatan. Simpan pilihan baru sebagai mapping baru.
             $this->db->insert('kelas_setting', $data);
             $id = (int) $this->db->insert_id();
-        } elseif ($id) {
-            $this->db->where('id', $id)->update('kelas_setting', $data);
         } else {
-            $this->db->insert('kelas_setting', $data);
-            $id = (int) $this->db->insert_id();
+            $this->db->where('id', $id)->update('kelas_setting', $data);
         }
 
         $this->tagihan_log_activity(
-            $preserveHistory ? 'Tambah Kelas Setting dari Perubahan' : ($before ? 'Ubah Kelas Setting' : 'Tambah Kelas Setting'),
+            $preserveHistory ? 'Tambah Kelas Setting dari Perubahan' : 'Ubah Kelas Setting',
             'Master Data',
-            $preserveHistory ? 'Tambah' : ($before ? 'Ubah' : 'Tambah'),
+            $preserveHistory ? 'Tambah' : 'Ubah',
             'kelas_setting',
             $id,
             $periode['periode'] . ' - ' . $kelas['nama_kelas'],

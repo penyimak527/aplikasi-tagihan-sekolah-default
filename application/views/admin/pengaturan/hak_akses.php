@@ -32,7 +32,16 @@
             </div>
         </div>
 
-        <div id="data_hak_akses" class="crud-list mt-3"></div>
+        <div id="pilih-semua-hak-akses-wrap" class="mt-3 d-none">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="pilih-semua-hak-akses">
+                <label class="form-check-label fw-semibold" for="pilih-semua-hak-akses">
+                    Pilih Semua
+                </label>
+            </div>
+        </div>
+
+        <div id="data_hak_akses" class="crud-list mt-2"></div>
 
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center flex-wrap gap-2 mt-2">
             <ul class="pagination pagination-sm pagination-boxed mb-0" id="pagination"></ul>
@@ -75,7 +84,17 @@
 
                 <form id="form-tambah">
                     <input type="hidden" name="id_level" id="id_level_tambah">
-                    <div id="data_menu" class="crud-list mt-3"></div>
+
+                    <div id="pilih-semua-menu-wrap" class="mt-3 d-none">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="pilih-semua-menu">
+                            <label class="form-check-label fw-semibold" for="pilih-semua-menu">
+                                Pilih Semua
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="data_menu" class="crud-list mt-2"></div>
                 </form>
 
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center flex-wrap gap-2 mt-2">
@@ -122,6 +141,24 @@ $(document).ready(function () {
 
     $('#btn-hapus').click(function () {
         hapus();
+    });
+
+    $('#pilih-semua-hak-akses').on('change', function () {
+        $('.pilih-hak-akses').prop('checked', this.checked);
+        sinkron_pilih_semua_hak_akses();
+    });
+
+    $(document).on('change', '.pilih-hak-akses', function () {
+        sinkron_pilih_semua_hak_akses();
+    });
+
+    $('#pilih-semua-menu').on('change', function () {
+        $('.pilih-menu').prop('checked', this.checked);
+        sinkron_pilih_semua_menu();
+    });
+
+    $(document).on('change', '.pilih-menu', function () {
+        sinkron_pilih_semua_menu();
     });
 
     $('#btn-cari-menu').click(function () {
@@ -172,6 +209,9 @@ function hak_akses() {
     var search = $('#cari').val();
 
     if (id_level == '') {
+        $('#pilih-semua-hak-akses').prop('checked', false).prop('indeterminate', false);
+        $('#pilih-semua-hak-akses-wrap').addClass('d-none');
+
         $('#data_hak_akses').html(`
             <div class="crud-list-item">
                 <div class="crud-content">
@@ -198,7 +238,10 @@ function hak_akses() {
             var no = 1;
             var table = '';
 
+            $('#pilih-semua-hak-akses').prop('checked', false).prop('indeterminate', false);
+
             if (data.length == 0) {
+                $('#pilih-semua-hak-akses-wrap').addClass('d-none');
                 table += `
                     <div class="crud-list-item">
                         <div class="crud-content">
@@ -206,6 +249,7 @@ function hak_akses() {
                         </div>
                     </div>`;
             } else {
+                $('#pilih-semua-hak-akses-wrap').removeClass('d-none');
                 data.forEach(function (item) {
                     table += `
                         <div class="crud-list-item">
@@ -226,6 +270,7 @@ function hak_akses() {
             }
 
             $('#data_hak_akses').html(table);
+            sinkron_pilih_semua_hak_akses();
             let jumlah_awal = parseInt($('#dt-length-0').val());
             paging($('#data_hak_akses .crud-list-item'), jumlah_awal);
         },
@@ -269,7 +314,10 @@ function menu_result() {
             var no = 1;
             var table = '';
 
+            $('#pilih-semua-menu').prop('checked', false).prop('indeterminate', false);
+
             if (data.length == 0) {
+                $('#pilih-semua-menu-wrap').addClass('d-none');
                 table += `
                     <div class="crud-list-item">
                         <div class="crud-content">
@@ -277,6 +325,7 @@ function menu_result() {
                         </div>
                     </div>`;
             } else {
+                $('#pilih-semua-menu-wrap').removeClass('d-none');
                 data.forEach(function (item) {
                     table += `
                         <div class="crud-list-item">
@@ -286,7 +335,7 @@ function menu_result() {
                             </div>
                             <div class="crud-actions">
                                 <input
-                                    class="form-check-input"
+                                    class="form-check-input pilih-menu"
                                     type="checkbox"
                                     name="id_menu[]"
                                     value="${item.id}"
@@ -298,6 +347,7 @@ function menu_result() {
             }
 
             $('#data_menu').html(table);
+            sinkron_pilih_semua_menu();
             let jumlah_awal = parseInt($('#dt-length-menu').val());
             paging($('#data_menu .crud-list-item'), jumlah_awal, '#pagination-menu');
         },
@@ -305,6 +355,28 @@ function menu_result() {
             ajaxError(xhr);
         }
     });
+}
+
+function sinkron_pilih_semua_hak_akses() {
+    var total = $('.pilih-hak-akses').length;
+    var terpilih = $('.pilih-hak-akses:checked').length;
+    var pilih_semua = $('#pilih-semua-hak-akses').get(0);
+
+    if (!pilih_semua) return;
+
+    pilih_semua.checked = total > 0 && terpilih === total;
+    pilih_semua.indeterminate = terpilih > 0 && terpilih < total;
+}
+
+function sinkron_pilih_semua_menu() {
+    var total = $('.pilih-menu').length;
+    var terpilih = $('.pilih-menu:checked').length;
+    var pilih_semua = $('#pilih-semua-menu').get(0);
+
+    if (!pilih_semua) return;
+
+    pilih_semua.checked = total > 0 && terpilih === total;
+    pilih_semua.indeterminate = terpilih > 0 && terpilih < total;
 }
 
 function hapus() {

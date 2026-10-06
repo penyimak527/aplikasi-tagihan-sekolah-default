@@ -18,6 +18,110 @@ textarea,
     font-family: var(--ct-font-sans-serif);
 }
 
+/* Branding SIPASTI: warna utama dan sidebar Al Mahbaroh. */
+:root,
+[data-bs-theme="light"],
+[data-bs-theme="dark"] {
+    --ct-primary: #016533;
+    --ct-primary-rgb: 1, 101, 51;
+    --ct-primary-bg-subtle: #e6f0eb;
+    --ct-primary-border-subtle: #b3d0c2;
+    --ct-primary-text-emphasis: #014526;
+    --ct-link-color: #016533;
+    --ct-link-color-rgb: 1, 101, 51;
+    --ct-link-hover-color: #014c27;
+    --ct-link-hover-color-rgb: 1, 76, 39;
+
+    --ct-menu-bg: #016533 !important;
+    --ct-menu-item-color: #ffffff !important;
+    --ct-menu-item-hover-color: #ffffff !important;
+    --ct-menu-item-hover-bg: #08733d !important;
+    --ct-menu-item-active-color: #ffffff !important;
+    --ct-menu-item-active-bg: #08733d !important;
+    --ct-sidenav-user-bg: #016533 !important;
+}
+
+/* Primary Bootstrap/Adminto mengikuti warna utama SIPASTI. */
+.btn-primary {
+    --ct-btn-color: #fff;
+    --ct-btn-bg: #016533;
+    --ct-btn-border-color: #016533;
+    --ct-btn-hover-color: #fff;
+    --ct-btn-hover-bg: #01562b;
+    --ct-btn-hover-border-color: #015129;
+    --ct-btn-focus-shadow-rgb: 39, 124, 82;
+    --ct-btn-active-color: #fff;
+    --ct-btn-active-bg: #015129;
+    --ct-btn-active-border-color: #014c27;
+    --ct-btn-disabled-color: #fff;
+    --ct-btn-disabled-bg: #016533;
+    --ct-btn-disabled-border-color: #016533;
+}
+
+.btn-outline-primary {
+    --ct-btn-color: #016533;
+    --ct-btn-border-color: #016533;
+    --ct-btn-hover-color: #fff;
+    --ct-btn-hover-bg: #016533;
+    --ct-btn-hover-border-color: #016533;
+    --ct-btn-focus-shadow-rgb: 1, 101, 51;
+    --ct-btn-active-color: #fff;
+    --ct-btn-active-bg: #016533;
+    --ct-btn-active-border-color: #016533;
+    --ct-btn-disabled-color: #016533;
+    --ct-btn-disabled-bg: transparent;
+    --ct-btn-disabled-border-color: #016533;
+}
+
+/* Sidebar tetap memakai logo Al Mahbaroh; ukurannya hanya diperbesar sedikit. */
+.sidenav-menu > .logo .logo-lg img {
+    height: 34px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.sidenav-menu > .logo .logo-sm img {
+    height: 34px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.sidenav-brand-name {
+    padding: 1rem 1rem .75rem;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.sidenav-menu .side-nav .side-nav-title,
+.sidenav-menu .side-nav .side-nav-link,
+.sidenav-menu .side-nav .side-nav-link .menu-icon,
+.sidenav-menu .side-nav .side-nav-link .menu-arrow {
+    color: #ffffff;
+}
+
+.sidenav-menu .side-nav .side-nav-title {
+    opacity: .78;
+}
+
+.sidenav-menu .side-nav .side-nav-link:hover,
+.sidenav-menu .side-nav .side-nav-link:focus,
+.sidenav-menu .side-nav .side-nav-link.active,
+.sidenav-menu .side-nav > .side-nav-item.active > .side-nav-link {
+    color: #ffffff;
+}
+
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"]) .sidenav-brand-name {
+    padding-left: .25rem;
+    padding-right: .25rem;
+    font-size: .72rem;
+    letter-spacing: .02em;
+}
+
+
 /* Menjaga area konten tetap rapi dan tidak saling menimpa. */
 .page-content .page-container {
     min-width: 0;
@@ -438,4 +542,111 @@ textarea,
         break-inside: avoid;
         box-shadow: none !important;
     }
+}
+
+/*
+ * Revisi branding SIPASTI:
+ * hilangkan warna biru bawaan Adminto pada menu sidebar yang aktif/terbuka.
+ */
+:root[data-menu-color="light"],
+:root[data-menu-color="dark"],
+:root[data-menu-color="brand"] {
+    --ct-menu-bg: #016533 !important;
+    --ct-menu-item-color: #ffffff !important;
+    --ct-menu-item-hover-color: #ffffff !important;
+    --ct-menu-item-hover-bg: #08733d !important;
+    --ct-menu-item-active-color: #ffffff !important;
+    --ct-menu-item-active-bg: #08733d !important;
+    --ct-sidenav-user-bg: #016533 !important;
+}
+
+/* Menu induk yang sedang aktif atau collapse sedang terbuka. */
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link.active,
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link[aria-expanded="true"],
+.sidenav-menu .side-nav > .side-nav-item.active > .side-nav-link,
+.sidenav-menu .side-nav > .side-nav-item.active > a {
+    background-color: #08733d !important;
+    color: #ffffff !important;
+}
+
+/* Pastikan icon dan panah menu aktif tetap putih. */
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link.active .menu-icon,
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link.active .menu-arrow,
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link[aria-expanded="true"] .menu-icon,
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link[aria-expanded="true"] .menu-arrow {
+    color: #ffffff !important;
+}
+
+/* Hover menu utama tetap berada dalam nuansa hijau sidebar. */
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link:hover,
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link:focus {
+    background-color: #08733d !important;
+    color: #ffffff !important;
+}
+
+/* Submenu aktif juga tidak menggunakan warna biru bawaan template. */
+.sidenav-menu .side-nav .sub-menu .side-nav-link.active,
+.sidenav-menu .side-nav .sub-menu .side-nav-link:hover,
+.sidenav-menu .side-nav .sub-menu .side-nav-link:focus {
+    background-color: #08733d !important;
+    color: #ffffff !important;
+}
+
+
+/*
+ * Revisi sidebar SIPASTI - hover/active solid dan mode minimize.
+ * Menimpa warna biru hardcoded Adminto (#188ae2) pada sidenav condensed.
+ */
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link:hover,
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link:focus,
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link.active,
+.sidenav-menu .side-nav > .side-nav-item > .side-nav-link[aria-expanded="true"],
+.sidenav-menu .side-nav > .side-nav-item.active > .side-nav-link,
+.sidenav-menu .side-nav > .side-nav-item.active > a {
+    background-color: #08733d !important;
+    color: #ffffff !important;
+}
+
+.sidenav-menu .side-nav .sub-menu .side-nav-link:hover,
+.sidenav-menu .side-nav .sub-menu .side-nav-link:focus,
+.sidenav-menu .side-nav .sub-menu .side-nav-link.active {
+    background-color: #08733d !important;
+    color: #ffffff !important;
+}
+
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"])
+.sidenav-menu .side-nav > .side-nav-item:hover > .side-nav-link,
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"])
+.sidenav-menu .side-nav > .side-nav-item:hover > .side-nav-link.active,
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"])
+.sidenav-menu .side-nav > .side-nav-item:hover > .side-nav-link[aria-expanded="true"] {
+    background-color: #08733d !important;
+    color: #ffffff !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* Flyout/collapse saat sidebar diperkecil tetap memakai hijau SIPASTI. */
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"])
+.sidenav-menu .side-nav > .side-nav-item:hover > .collapse,
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"])
+.sidenav-menu .side-nav > .side-nav-item:hover > .collapsing,
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"])
+.sidenav-menu .side-nav > .side-nav-item:hover .sub-menu {
+    background-color: #016533 !important;
+}
+
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"])
+.sidenav-menu .side-nav > .side-nav-item:hover .sub-menu .side-nav-link {
+    color: #ffffff !important;
+}
+
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"])
+.sidenav-menu .side-nav > .side-nav-item:hover .sub-menu .side-nav-link:hover,
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"])
+.sidenav-menu .side-nav > .side-nav-item:hover .sub-menu .side-nav-link:focus,
+html[data-sidenav-size="condensed"]:not([data-layout="topnav"])
+.sidenav-menu .side-nav > .side-nav-item:hover .sub-menu .side-nav-link.active {
+    background-color: #08733d !important;
+    color: #ffffff !important;
 }

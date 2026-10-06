@@ -7,7 +7,7 @@ $format_rupiah = function ($nominal) { return 'Rp' . number_format((float) $nomi
         <h3 class="mb-0 mt-2">Detail Tagihan</h3>
     </div>
 </div>
-<div class="card portal-card mb-3">
+<div class="card mb-3">
     <div class="card-body">
         <div class="row g-3">
             <div class="col-md-6"><small class="text-muted">Siswa</small>
@@ -55,9 +55,9 @@ $format_rupiah = function ($nominal) { return 'Rp' . number_format((float) $nomi
         </div>
     </div>
 </div>
-<div class="card portal-card">
-    <div class="card-header">
-        <h5 class="mb-0">Riwayat Cicilan</h5>
+<div class="card">
+    <div class="card-header border-bottom border-dashed">
+        <h4 class="header-title">Riwayat Cicilan</h4>
     </div>
     <div class="card-body">
         <?php if (empty($cicilan)): ?>

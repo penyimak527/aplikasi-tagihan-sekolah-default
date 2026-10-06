@@ -67,7 +67,7 @@
                             <label class="form-label">Nama Jenis Tagihan</label>
                             <input type="text" name="nama_jenis" class="form-control" placeholder="Nama jenis tagihan ..." required>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">Tipe</label>
                             <select name="tipe_default" class="form-select">
                                 <option value="Bulanan">Bulanan</option>
@@ -75,14 +75,7 @@
                                 <option value="Tahunan">Tahunan</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Dihitung sebagai Tunggakan</label>
-                            <select name="dianggap_tunggakan" class="form-select">
-                                <option value="Ya">Ya</option>
-                                <option value="Tidak">Tidak</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">Status</label>
                             <select name="status" class="form-select">
                                 <option value="Aktif">Aktif</option>
@@ -155,7 +148,7 @@ function loadData() {
                     <div class="crud-content">
                         <div class="crud-status">Status: <span class="badge ${aktif ? 'bg-success' : 'bg-secondary'}">${escapeHtml(row.status)}</span></div>
                         <div class="crud-title">${index + 1}. ${escapeHtml(row.nama_jenis)}</div>
-                        <div class="crud-meta">Tipe: ${escapeHtml(row.tipe_default)} | Dihitung tunggakan: ${escapeHtml(row.dianggap_tunggakan)}</div>
+                        <div class="crud-meta">Tipe: ${escapeHtml(row.tipe_default)}</div>
                         <div class="crud-note">Kode: ${escapeHtml(row.kode_jenis || '-')} | Keterangan: ${escapeHtml(row.keterangan || '-')}</div>
                     </div>
                     <div class="crud-actions">
@@ -186,7 +179,6 @@ function detailData(id) {
             '<div class="col-md-6"><strong>Nama Jenis</strong><div>' + escapeHtml(row.nama_jenis || '-') + '</div></div>' +
             '<div class="col-md-3"><strong>Tipe</strong><div>' + escapeHtml(row.tipe_default || '-') + '</div></div>' +
             '<div class="col-md-3"><strong>Status</strong><div><span class="badge bg-' + (row.status === 'Aktif' ? 'success' : 'secondary') + '">' + escapeHtml(row.status || '-') + '</span></div></div>' +
-            '<div class="col-md-6"><strong>Dihitung sebagai tunggakan</strong><div>' + escapeHtml(row.dianggap_tunggakan || '-') + '</div></div>' +
             '<div class="col-12"><strong>Keterangan</strong><div>' + escapeHtml(row.keterangan || '-') + '</div></div>' +
         '</div>'
     );
@@ -216,7 +208,12 @@ function saveData() {
     const button = $('#btn_simpan');
     button.prop('disabled', true);
 
-    $.post('<?= base_url('admin/master_data/jenis_tagihan/simpan') ?>', $('#form').serialize(), function (response) {
+    var id = Number($('#form [name="id"]').val() || 0);
+    var url = id > 0
+        ? '<?= base_url('admin/master_data/jenis_tagihan/edit') ?>'
+        : '<?= base_url('admin/master_data/jenis_tagihan/tambah') ?>';
+
+    $.post(url, $('#form').serialize(), function (response) {
         const berhasil = response.result === 'true';
         if (berhasil) {
             modalForm.hide();

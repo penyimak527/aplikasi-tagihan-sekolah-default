@@ -9,7 +9,8 @@ class M_login extends CI_Model
             ->select('u.*, COALESCE(l.level, u.level) AS nama_level')
             ->from('users u')
             ->join('level l', 'l.id = u.id_level', 'left')
-            ->where('u.username', trim((string) $username))
+            // ->where('u.username', trim((string) $username))
+            ->where('BINARY u.username = ' . $this->db->escape($username),null,false)
             ->limit(1)
             ->get()
             ->row_array();

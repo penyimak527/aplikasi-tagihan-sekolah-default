@@ -21,8 +21,8 @@ class M_profil extends CI_Model
         if (!password_verify($password_lama, (string) $wali['password_hash'])) {
             return $this->model_response(false, 'Password saat ini tidak sesuai.');
         }
-        if (strlen($password_baru) < 8) {
-            return $this->model_response(false, 'Password baru minimal 8 karakter.');
+        if (trim($password_baru) === '') {
+            return $this->model_response(false, 'Password baru wajib diisi.');
         }
         if ($password_baru !== $konfirmasi) {
             return $this->model_response(false, 'Ulangi password baru tidak sesuai.');

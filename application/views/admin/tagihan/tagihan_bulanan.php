@@ -21,14 +21,14 @@ $nama_bulan_lokal = function ($bulan) {
                         <option value="">Pilih tahun ajaran</option><?php foreach ($periode as $r): ?><option value="<?= $r['id'] ?>" data-periode="<?= html_escape($r['periode']) ?>"><?= html_escape($r['periode']) ?><?= $r['status'] === 'Aktif' ? ' - Aktif' : '' ?></option><?php endforeach; ?>
                     </select></div>
                 <div class="col-md-3"><label class="form-label">Jenis Tagihan</label><select name="id_jenis_tagihan" id="id_jenis" class="form-select" required>
-                        <option value="">Pilih jenis</option><?php foreach ($jenis as $r): ?><option value="<?= $r['id'] ?>" data-tunggakan="<?= $r['dianggap_tunggakan'] ?>"><?= html_escape($r['nama_jenis']) ?></option><?php endforeach; ?>
+                        <option value="">Pilih jenis</option><?php foreach ($jenis as $r): ?><option value="<?= $r['id'] ?>"><?= html_escape($r['nama_jenis']) ?></option><?php endforeach; ?>
                     </select></div>
                 <div class="col-md-3"><label class="form-label">Dihitung sebagai Tunggakan</label><select name="dianggap_tunggakan" id="dianggap_tunggakan" class="form-select">
                         <option>Ya</option>
                         <option>Tidak</option>
                     </select></div>
                 <div class="col-md-8"><label class="form-label">Nama Tagihan</label><input name="nama_tagihan" class="form-control" placeholder="Nama tagihan" required></div>
-                <div class="col-md-4"><label class="form-label">Nominal Umum</label><input name="nominal_default" id="nominal_default" type="text" inputmode="numeric" autocomplete="off" class="form-control money-input" required></div>
+                <div class="col-md-4"><label class="form-label">Nominal Umum</label><div class="input-group"><span class="input-group-text">Rp</span><input name="nominal_default" id="nominal_default" type="text" inputmode="numeric" autocomplete="off" class="form-control money-input" required></div></div>
                 <div class="col-12"><label class="form-label">Keterangan</label><textarea name="keterangan" class="form-control" rows="2"></textarea></div>
             </div>
 
@@ -43,7 +43,10 @@ $nama_bulan_lokal = function ($bulan) {
                                 <option value="Sama">Sama setiap bulan</option>
                                 <option value="Berbeda">Berbeda setiap bulan</option>
                             </select></div>
-                        <div class="col-md-4 d-flex align-items-end"><button type="button" class="btn btn-outline-primary" id="terapkan_nominal">Terapkan Nominal Umum</button></div>
+                        <div class="col-md-8 d-flex align-items-end gap-2 flex-wrap">
+                            <button type="button" class="btn btn-outline-primary" id="pilih_semua_bulan">Pilih Semua Bulan</button>
+                            <button type="button" class="btn btn-outline-primary" id="terapkan_nominal">Terapkan Nominal Umum</button>
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">
@@ -60,7 +63,7 @@ $nama_bulan_lokal = function ($bulan) {
                                         <td><input type="checkbox" class="form-check-input cek_bulan" name="bulan[]" value="<?= $m ?>"></td>
                                         <td><?= $nama_bulan_lokal($m) ?></td>
                                         <td class="tahun_label">-</td>
-                                        <td><input type="text" inputmode="numeric" autocomplete="off" class="form-control form-control-sm money-input nominal_bulan" name="nominal_bulan[<?= $m ?>]" disabled></td>
+                                        <td><div class="input-group input-group-sm"><span class="input-group-text">Rp</span><input type="text" inputmode="numeric" autocomplete="off" class="form-control money-input nominal_bulan" name="nominal_bulan[<?= $m ?>]" disabled></div></td>
                                         <td><input type="text" class="form-control form-control-sm jatuh_tempo" name="jatuh_tempo_bulan[<?= $m ?>]" disabled></td>
                                     </tr><?php endforeach; ?></tbody>
                         </table>
@@ -105,7 +108,7 @@ $nama_bulan_lokal = function ($bulan) {
                 <h5 class="modal-title">Preview Tagihan</h5><button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="preview_content"></div>
-            <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Tutup</button><button class="btn btn-primary" onclick="simpan('Terbitkan')">Terbitkan Tagihan</button></div>
+            <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Tutup</button><button class="btn btn-primary" id="btn_terbitkan_preview" onclick="simpan('Terbitkan')">Terbitkan Tagihan</button></div>
         </div>
     </div>
 </div>
@@ -124,15 +127,19 @@ $nama_bulan_lokal = function ($bulan) {
             updatePeriodTarget();
         });
 
-        $('#id_jenis').change(function() {
-            $('#dianggap_tunggakan').val($(this).find(':selected').data('tunggakan') || 'Ya');
-        });
-
         $('#target_tagihan').change(function() {
             toggleTarget();
         });
 
         $('.cek_bulan').change(toggleMonth);
+
+        $('#pilih_semua_bulan').click(function() {
+            var semuaTerpilih = $('.cek_bulan').length === $('.cek_bulan:checked').length;
+            $('.cek_bulan').prop('checked', !semuaTerpilih).each(function() {
+                toggleMonth.call(this);
+            });
+            $(this).text(semuaTerpilih ? 'Pilih Semua Bulan' : 'Batalkan Pilih Semua');
+        });
 
         $('#terapkan_nominal').click(function() {
             applyNominal();
@@ -184,8 +191,13 @@ $nama_bulan_lokal = function ($bulan) {
         });
 
         $('#bulan_rows tr').each(function() {
-            var bulan = Number($(this).data('bulan'));
-            $(this).find('.tahun_label').text(bulan >= 7 ? (years[0] || '-') : (years[1] || '-'));
+            var row = $(this);
+            var bulan = Number(row.data('bulan'));
+            row.find('.tahun_label').text(bulan >= 7 ? (years[0] || '-') : (years[1] || '-'));
+
+            if (row.find('.cek_bulan').is(':checked')) {
+                isiDefaultJatuhTempoBulan(row, true);
+            }
         });
 
         selectedStudents = {};
@@ -207,6 +219,53 @@ $nama_bulan_lokal = function ($bulan) {
         if (aktif && $('#mode_tarif').val() === 'Sama') {
             row.find('.nominal_bulan').val($('#nominal_default').val());
         }
+
+        if (aktif) {
+            isiDefaultJatuhTempoBulan(row, false);
+        }
+    }
+
+    function tanggalAkhirBulan(bulan, tahun) {
+        bulan = Number(bulan);
+        tahun = Number(tahun);
+
+        if (!bulan || !tahun) {
+            return '';
+        }
+
+        var hariTerakhir = new Date(tahun, bulan, 0).getDate();
+        return String(hariTerakhir).padStart(2, '0') + '-' +
+            String(bulan).padStart(2, '0') + '-' + tahun;
+    }
+
+    function setTanggalJatuhTempo(input, tanggal) {
+        var element = input && input.length ? input[0] : null;
+        if (!element) {
+            return;
+        }
+
+        if (element._flatpickr) {
+            element._flatpickr.setDate(tanggal || null, false, 'd-m-Y');
+        } else {
+            input.val(tanggal || '');
+        }
+    }
+
+    function isiDefaultJatuhTempoBulan(row, paksa) {
+        var bulan = Number(row.data('bulan'));
+        var tahun = parseInt($.trim(row.find('.tahun_label').text()), 10);
+        var input = row.find('.jatuh_tempo');
+
+        if (!bulan || !tahun) {
+            setTanggalJatuhTempo(input, '');
+            return;
+        }
+
+        if (!paksa && $.trim(input.val()) !== '') {
+            return;
+        }
+
+        setTanggalJatuhTempo(input, tanggalAkhirBulan(bulan, tahun));
     }
 
     function applyNominal() {
@@ -305,23 +364,41 @@ $nama_bulan_lokal = function ($bulan) {
                 }
 
                 var html = '<div class="row g-3">' +
-                    '<div class="col-md-4"><div class="alert alert-info"><small>Jumlah Siswa</small><h4>' + data.jumlah_siswa + '</h4></div></div>' +
-                    '<div class="col-md-4"><div class="alert alert-primary"><small>Jumlah Baris Tagihan</small><h4>' + data.jumlah_baris + '</h4></div></div>' +
-                    '<div class="col-md-4"><div class="alert alert-success"><small>Total Nominal</small><h4>' + formatRupiah(data.total_nominal) + '</h4></div></div>' +
+                    '<div class="col-md-6"><div class="alert alert-info"><small>Jumlah Siswa</small><h4>' + data.jumlah_siswa + '</h4></div></div>' +
+                    '<div class="col-md-6"><div class="alert alert-success"><small>Total Nominal</small><h4>' + formatRupiah(data.total_nominal) + '</h4></div></div>' +
                     '</div><h6>Periode Tagihan</h6><ul>';
 
                 data.periods.forEach(function(item) {
                     html += '<li>' + escapeHtml(item.nama_bulan) + ' ' + item.tahun + ' - ' + formatRupiah(item.nominal) + '</li>';
                 });
+                html += '</ul>';
 
-                html += '</ul><h6>Contoh Target</h6><div class="table-responsive"><table class="table table-sm">' +
-                    '<thead><tr><th>Siswa</th><th>Kelas</th></tr></thead><tbody>';
+                if (data.has_duplicate) {
+                    html += '<div class="alert alert-danger mt-3 mb-0">' +
+                        '<h6 class="mb-2">Tagihan ganda ditemukan</h6>' +
+                        '<div class="mb-2">' + escapeHtml(data.message || 'Tagihan tidak dapat diterbitkan karena data yang sama sudah ada.') + '</div>';
 
-                data.students.forEach(function(item) {
-                    html += '<tr><td>' + escapeHtml(item.nama_lengkap) + '</td><td>' + escapeHtml(item.nama_kelas) + '</td></tr>';
-                });
+                    if (Array.isArray(data.duplicates) && data.duplicates.length > 0) {
+                        html += '<ul class="mb-0">';
+                        data.duplicates.slice(0, 10).forEach(function(item) {
+                            html += '<li>' +
+                                escapeHtml(item.nama_siswa || '-') +
+                                ' - ' + escapeHtml(item.nama_bulan || '-') + ' ' + escapeHtml(item.tahun || '') +
+                                ' - ' + escapeHtml(item.nama_tagihan || '-') +
+                                '</li>';
+                        });
+                        html += '</ul>';
 
-                html += '</tbody></table></div>';
+                        if (Number(data.duplicate_count || 0) > 10) {
+                            html += '<div class="mt-2"><small>Dan ' + (Number(data.duplicate_count) - 10) + ' data lainnya.</small></div>';
+                        }
+                    }
+
+                    html += '</div>';
+                    $('#btn_terbitkan_preview').prop('disabled', true);
+                } else {
+                    $('#btn_terbitkan_preview').prop('disabled', false);
+                }
 
                 $('#preview_content').html(html);
                 previewModal.show();
